@@ -1,14 +1,14 @@
 /* - - Minimalist Telephone Pole Scene - - */
 
 let params = {
-  numPoles: 7,
-  depth: 100,  // Controls perspective/depth (0-100)
-  wireSag: 100,  // Controls wire sag/curve (0-100, 0 = straight, 100 = maximum sag)
-  sineWavePeriod: 1,  // Length of one horizontal sine wave period (in number of poles, 1-10)
-  sineWavePeriodVertical: 3.5,  // Length of one vertical sine wave period (in number of poles, 1-10)
-  pixelation: 35,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
-  digitalNoise: 100,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
-  noiseSpeed: 20,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
+  numPoles: 2,
+  depth: 0,  // Controls perspective/depth (0-100)
+  wireSag: 0,  // Controls wire sag/curve (0-100, 0 = straight, 100 = maximum sag)
+  sineWavePeriod: 0,  // Length of one horizontal sine wave period (in number of poles, 1-10)
+  sineWavePeriodVertical: 0,  // Length of one vertical sine wave period (in number of poles, 1-10)
+  pixelation: 0,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
+  digitalNoise: 0,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
+  noiseSpeed: 5,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
 };
 
 let gui;
