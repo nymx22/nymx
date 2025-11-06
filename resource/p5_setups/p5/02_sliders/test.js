@@ -6,10 +6,14 @@ let params = {
   wireSag: 50,  // Controls wire sag/curve (0-100, 0 = straight, 100 = maximum sag)
   sineWavePeriod: 4,  // Length of one horizontal sine wave period (in number of poles, 1-10)
   sineWavePeriodVertical: 4,  // Length of one vertical sine wave period (in number of poles, 1-10)
+  pixelation: 0,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
+  digitalNoise: 50,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
+  noiseSpeed: 50,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
 };
 
 let gui;
 let poles = [];
+let pixelBuffer; // Buffer for pixelation effect
 
 /* - - Pole Class - - */
 class Pole {
@@ -39,7 +43,8 @@ class Pole {
     translate(this.x, this.y);
     scale(this.scale);
     noStroke();
-    fill(60); // Dark gray for pole
+    let depthBrightness = map(this.scale, 0.05, 1, 200, 30);
+    fill(depthBrightness);
     
     // 1. Main vertical shaft
     rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, 2);
@@ -72,6 +77,35 @@ class Pole {
       createVector(this.x + this.insulatorMiddleX * this.scale, this.y + this.insulatorY * this.scale),
       createVector(this.x + this.insulatorRightX * this.scale, this.y + this.insulatorY * this.scale)
     ];
+  }
+
+  displayOnBuffer(buffer, pixelSize = 1) {
+    buffer.push();
+    buffer.translate(this.x * pixelSize, this.y * pixelSize);
+    buffer.scale(this.scale * pixelSize);
+    buffer.noStroke();
+    let depthBrightness = map(this.scale, 0.05, 1, 200, 30);
+    buffer.fill(depthBrightness);
+    
+    // 1. Main vertical shaft
+    buffer.rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, 2);
+    
+    // 2. Top crossbar
+    buffer.fill(80);
+    buffer.rect(-this.crossbarWidth/2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, 2);
+    
+    // 3. Left insulator arm
+    buffer.fill(100);
+    buffer.rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    
+    // 4. Right insulator arm
+    buffer.rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    
+    // 5. Middle insulator arm (centered)
+    buffer.fill(70);
+    buffer.rect(-this.insulatorWidth/2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    
+    buffer.pop();
   }
 }
 
@@ -117,6 +151,9 @@ class Wire {
 function setup() {
   createCanvas(windowWidth, windowHeight);
   
+  // Initialize pixel buffer
+  pixelBuffer = createGraphics(width, height);
+  
   // Create GUI sliders
   gui = new dat.GUI();
   let polesController = gui.add(params, 'numPoles', 2, 10).step(1).name('Number of Poles');
@@ -124,13 +161,16 @@ function setup() {
   let wireSagController = gui.add(params, 'wireSag', 0, 100).name('Wire Sag');
   let sineWaveController = gui.add(params, 'sineWavePeriod', 0, 10).step(0.5).name('Horizontal Sine Period');
   let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('Vertical Sine Period');
+  let pixelationController = gui.add(params, 'pixelation', 0, 100).name('Pixelation');
+  let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('Digital Noise');
+  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 100).name('Noise Speed');
   
   // Regenerate poles when sliders change
   polesController.onChange(() => generatePoles());
   depthController.onChange(() => generatePoles());
   sineWaveController.onChange(() => generatePoles());
   sineWaveVerticalController.onChange(() => generatePoles());
-  // Wire sag doesn't need regeneration, just redraws
+  // Wire sag, pixelation, and digital noise don't need regeneration, just redraws
   
   // Initialize poles
   generatePoles();
@@ -232,17 +272,153 @@ function drawWires() {
   }
 }
 
+/* - - Draw Digital Noise (Broken TV Screen) - - */
+function drawDigitalNoise() {
+  let noiseIntensity = map(params.digitalNoise, 0, 100, 0, 1);
+  let noiseSpeed = map(params.noiseSpeed, 0, 100, 0.1, 5); // Speed multiplier (0.1 = slow, 5 = fast)
+  
+  if (noiseIntensity > 0) {
+    // Use speed to control animation - faster speed = more frequent updates
+    let timeFactor = floor(frameCount * noiseSpeed);
+    
+    // TV Static - Random pixel dots across screen
+    let numStaticPixels = noiseIntensity * width * height * 0.01; // Density based on intensity
+    noStroke();
+    randomSeed(timeFactor); // Seed random for consistent but animated noise
+    for (let i = 0; i < numStaticPixels; i++) {
+      let x = random(width);
+      let y = random(height);
+      let brightness = random() > 0.5 ? 255 : 0;
+      fill(brightness, 200 * noiseIntensity);
+      rect(x, y, 1, 1); // Single pixel
+    }
+    
+    // Horizontal scan line glitches (broken TV lines)
+    let numScanLines = noiseIntensity * 8; // Up to 8 glitched scan lines
+    randomSeed(timeFactor + 1000); // Different seed for scan lines
+    for (let i = 0; i < numScanLines; i++) {
+      if (random() < noiseIntensity) {
+        let glitchY = random(height);
+        let glitchWidth = random(1, 4);
+        
+        // Draw horizontal interference line
+        strokeWeight(glitchWidth);
+        randomSeed(timeFactor + i * 100); // Different pattern per line
+        for (let x = 0; x < width; x += 2) {
+          let brightness = random() > 0.5 ? 255 : 0;
+          stroke(brightness, 180 * noiseIntensity);
+          line(x, glitchY, x + 2, glitchY);
+        }
+      }
+    }
+    
+    // Vertical interference bars (TV signal interference)
+    randomSeed(timeFactor + 2000); // Different seed for bars
+    if (random() < noiseIntensity * 0.2) {
+      let barX = random(width);
+      let barWidth = random(2, 8);
+      let barHeight = random(height * 0.3, height);
+      let barY = random(height - barHeight);
+      
+      // Vertical bar pattern
+      for (let y = barY; y < barY + barHeight; y += 2) {
+        randomSeed(timeFactor + y * 10); // Different pattern per row
+        for (let x = barX; x < barX + barWidth; x++) {
+          let brightness = random() > 0.5 ? 255 : 0;
+          fill(brightness, 150 * noiseIntensity);
+          rect(x, y, 1, 2);
+        }
+      }
+    }
+    
+    // Random horizontal bands of static
+    randomSeed(timeFactor + 3000); // Different seed for bands
+    if (random() < noiseIntensity * 0.3) {
+      let bandY = random(height);
+      let bandHeight = random(5, 15);
+      noStroke();
+      for (let y = bandY; y < bandY + bandHeight; y++) {
+        randomSeed(timeFactor + y * 5); // Different pattern per row
+        for (let x = 0; x < width; x += 2) {
+          let brightness = random() > 0.5 ? 255 : 0;
+          fill(brightness, 120 * noiseIntensity);
+          rect(x, y, 2, 1);
+        }
+      }
+    }
+  }
+}
+
 /* - - Main Draw Loop - - */
 function draw() {
-  background(240); // Light gray background
+  let pixelationAmount = map(params.pixelation, 0, 100, 0, 1);
   
-  // Draw wires first (so poles appear on top)
-  drawWires();
-  
-  // Draw poles
-  for (let pole of poles) {
-    pole.display();
+  // If pixelation is enabled, draw to buffer first
+  if (pixelationAmount > 0) {
+    // Calculate pixelation size (smaller = more pixelated)
+    // Map from 0.1 (very pixelated) to 1.0 (no pixelation)
+    let pixelSize = map(pixelationAmount, 0, 1, 0.1, 1.0);
+    let bufferWidth = Math.floor(width * pixelSize);
+    let bufferHeight = Math.floor(height * pixelSize);
+    
+    // Resize buffer if needed
+    if (!pixelBuffer || pixelBuffer.width !== bufferWidth || pixelBuffer.height !== bufferHeight) {
+      pixelBuffer = createGraphics(bufferWidth, bufferHeight);
+    }
+    
+    // Draw scene to buffer at smaller resolution
+    pixelBuffer.background(240);
+    
+    // Draw wires to buffer
+    let sagNormalized = map(params.wireSag, 0, 100, 0, 1);
+    for (let i = 0; i < poles.length - 1; i++) {
+      let pole1 = poles[i];
+      let pole2 = poles[i + 1];
+      let points1 = pole1.getWirePoints();
+      let points2 = pole2.getWirePoints();
+      for (let j = 0; j < 3; j++) {
+        let wire = new Wire(points1[j], points2[j], sagNormalized);
+        pixelBuffer.stroke(40);
+        pixelBuffer.strokeWeight(1.5);
+        pixelBuffer.noFill();
+        if (wire.sag === 0) {
+          pixelBuffer.line(wire.start.x * pixelSize, wire.start.y * pixelSize, 
+                          wire.end.x * pixelSize, wire.end.y * pixelSize);
+        } else {
+          pixelBuffer.beginShape();
+          pixelBuffer.vertex(wire.start.x * pixelSize, wire.start.y * pixelSize);
+          let midX = ((wire.start.x + wire.end.x) / 2) * pixelSize;
+          let midY = ((wire.start.y + wire.end.y) / 2) * pixelSize;
+          let wireLength = dist(wire.start.x, wire.start.y, wire.end.x, wire.end.y);
+          let maxSagAmount = wireLength * 0.15;
+          let sagAmount = maxSagAmount * wire.sag * pixelSize;
+          pixelBuffer.quadraticVertex(midX, midY + sagAmount, 
+                                    wire.end.x * pixelSize, wire.end.y * pixelSize);
+          pixelBuffer.endShape();
+        }
+      }
+    }
+    
+    // Draw poles to buffer
+    for (let pole of poles) {
+      pole.displayOnBuffer(pixelBuffer, pixelSize);
+    }
+    
+    // Draw buffer to main canvas with no smoothing (pixelated look)
+    noSmooth();
+    image(pixelBuffer, 0, 0, width, height);
+    smooth(); // Re-enable smoothing for other effects
+  } else {
+    // No pixelation - draw normally
+    background(240);
+    drawWires();
+    for (let pole of poles) {
+      pole.display();
+    }
   }
+  
+  // Apply digital noise on top
+  drawDigitalNoise();
 }
 
 /* - - Handle Window Resize - - */
