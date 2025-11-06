@@ -159,14 +159,14 @@ function setup() {
   
   // Create GUI sliders
   gui = new dat.GUI();
-  let polesController = gui.add(params, 'numPoles', 2, 10).step(1).name('Number of Poles');
-  let depthController = gui.add(params, 'depth', 0, 100).name('Depth');
-  let wireSagController = gui.add(params, 'wireSag', 0, 100).name('Wire Sag');
-  let sineWaveController = gui.add(params, 'sineWavePeriod', 0, 10).step(0.5).name('Horizontal Sine Period');
-  let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('Vertical Sine Period');
-  let pixelationController = gui.add(params, 'pixelation', 0, 50).name('Pixelation');
-  let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('Digital Noise');
-  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 50).name('Noise Speed');
+  let polesController = gui.add(params, 'numPoles', 2, 10).step(1).name('count');
+  let depthController = gui.add(params, 'depth', 0, 100).name('depth');
+  let wireSagController = gui.add(params, 'wireSag', 0, 100).name('sag');
+  let sineWaveController = gui.add(params, 'sineWavePeriod', 0, 10).step(0.5).name('x sine');
+  let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('y sine');
+  let pixelationController = gui.add(params, 'pixelation', 0, 50).name('pixel');
+  let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('noise');
+  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 50).name('loud');
   
   // Regenerate poles when sliders change
   polesController.onChange(() => generatePoles());
