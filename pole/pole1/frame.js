@@ -7,7 +7,7 @@ let params = {
   sineWavePeriod: 4,  // Length of one horizontal sine wave period (in number of poles, 1-10)
   sineWavePeriodVertical: 4,  // Length of one vertical sine wave period (in number of poles, 1-10)
   pixelation: 0,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
-  digitalNoise: 50,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
+  digitalNoise: 15,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
   noiseSpeed: 50,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
 };
 
