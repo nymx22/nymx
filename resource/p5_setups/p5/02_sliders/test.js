@@ -163,7 +163,7 @@ function setup() {
   let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('Vertical Sine Period');
   let pixelationController = gui.add(params, 'pixelation', 0, 100).name('Pixelation');
   let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('Digital Noise');
-  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 100).name('Noise Speed');
+  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 50).name('Noise Speed');
   
   // Regenerate poles when sliders change
   polesController.onChange(() => generatePoles());
@@ -275,11 +275,12 @@ function drawWires() {
 /* - - Draw Digital Noise (Broken TV Screen) - - */
 function drawDigitalNoise() {
   let noiseIntensity = map(params.digitalNoise, 0, 100, 0, 1);
-  let noiseSpeed = map(params.noiseSpeed, 0, 100, 0.1, 5); // Speed multiplier (0.1 = slow, 5 = fast)
+  let noiseSpeed = map(params.noiseSpeed, 0, 50, 0.001, 2); // 0.001 = extremely slow
+  
   
   if (noiseIntensity > 0) {
     // Use speed to control animation - faster speed = more frequent updates
-    let timeFactor = floor(frameCount * noiseSpeed);
+    let timeFactor = floor(frameCount * noiseSpeed * 0.1);
     
     // TV Static - Random pixel dots across screen
     let numStaticPixels = noiseIntensity * width * height * 0.01; // Density based on intensity
