@@ -1,14 +1,14 @@
 /* - - Minimalist Telephone Pole Scene - - */
 
 let params = {
-  numPoles: 6,
-  depth: 50,  // Controls perspective/depth (0-100)
-  wireSag: 50,  // Controls wire sag/curve (0-100, 0 = straight, 100 = maximum sag)
-  sineWavePeriod: 4,  // Length of one horizontal sine wave period (in number of poles, 1-10)
-  sineWavePeriodVertical: 4,  // Length of one vertical sine wave period (in number of poles, 1-10)
-  pixelation: 0,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
-  digitalNoise: 15,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
-  noiseSpeed: 50,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
+  numPoles: 7,
+  depth: 100,  // Controls perspective/depth (0-100)
+  wireSag: 100,  // Controls wire sag/curve (0-100, 0 = straight, 100 = maximum sag)
+  sineWavePeriod: 1,  // Length of one horizontal sine wave period (in number of poles, 1-10)
+  sineWavePeriodVertical: 3.5,  // Length of one vertical sine wave period (in number of poles, 1-10)
+  pixelation: 35,  // Pixelation effect (0-100, 0 = no pixelation, 100 = maximum)
+  digitalNoise: 100,  // Digital noise intensity (0-100, 0 = no noise, 100 = maximum)
+  noiseSpeed: 20,  // Noise animation speed (0-100, 0 = slow, 100 = fast)
 };
 
 let gui;
@@ -87,23 +87,26 @@ class Pole {
     let depthBrightness = map(this.scale, 0.05, 1, 200, 30);
     buffer.fill(depthBrightness);
     
+    // Scale corner radius proportionally
+    let cornerRadius = 2 * pixelSize;
+    
     // 1. Main vertical shaft
-    buffer.rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, 2);
+    buffer.rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, cornerRadius);
     
     // 2. Top crossbar
     buffer.fill(80);
-    buffer.rect(-this.crossbarWidth/2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, 2);
+    buffer.rect(-this.crossbarWidth/2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, cornerRadius);
     
     // 3. Left insulator arm
     buffer.fill(100);
-    buffer.rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    buffer.rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
     
     // 4. Right insulator arm
-    buffer.rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    buffer.rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
     
     // 5. Middle insulator arm (centered)
     buffer.fill(70);
-    buffer.rect(-this.insulatorWidth/2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
+    buffer.rect(-this.insulatorWidth/2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
     
     buffer.pop();
   }
@@ -161,7 +164,7 @@ function setup() {
   let wireSagController = gui.add(params, 'wireSag', 0, 100).name('Wire Sag');
   let sineWaveController = gui.add(params, 'sineWavePeriod', 0, 10).step(0.5).name('Horizontal Sine Period');
   let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('Vertical Sine Period');
-  let pixelationController = gui.add(params, 'pixelation', 0, 100).name('Pixelation');
+  let pixelationController = gui.add(params, 'pixelation', 0, 50).name('Pixelation');
   let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('Digital Noise');
   let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 50).name('Noise Speed');
   
@@ -352,13 +355,13 @@ function drawDigitalNoise() {
 
 /* - - Main Draw Loop - - */
 function draw() {
-  let pixelationAmount = map(params.pixelation, 0, 100, 0, 1);
+  let pixelationAmount = map(params.pixelation, 0, 50, 0, 1);
   
   // If pixelation is enabled, draw to buffer first
   if (pixelationAmount > 0) {
-    // Calculate pixelation size (smaller = more pixelated)
-    // Map from 0.1 (very pixelated) to 1.0 (no pixelation)
-    let pixelSize = map(pixelationAmount, 0, 1, 0.1, 1.0);
+    // Calculate pixelation size (larger = more pixelated)
+    // Map from 1.0 (very pixelated) to 0.1 (no pixelation)
+    let pixelSize = map(pixelationAmount, 0, 1, 1.0, 0.1);
     let bufferWidth = Math.floor(width * pixelSize);
     let bufferHeight = Math.floor(height * pixelSize);
     
@@ -371,7 +374,7 @@ function draw() {
     pixelBuffer.background(240);
     
     // Draw wires to buffer
-    let sagNormalized = map(params.wireSag, 0, 100, 0, 1);
+    let sagNormalized = map(params.wireSag, 0, 50, 0, 1);
     for (let i = 0; i < poles.length - 1; i++) {
       let pole1 = poles[i];
       let pole2 = poles[i + 1];
@@ -380,7 +383,7 @@ function draw() {
       for (let j = 0; j < 3; j++) {
         let wire = new Wire(points1[j], points2[j], sagNormalized);
         pixelBuffer.stroke(40);
-        pixelBuffer.strokeWeight(1.5);
+        pixelBuffer.strokeWeight(3 * pixelSize);
         pixelBuffer.noFill();
         if (wire.sag === 0) {
           pixelBuffer.line(wire.start.x * pixelSize, wire.start.y * pixelSize, 
