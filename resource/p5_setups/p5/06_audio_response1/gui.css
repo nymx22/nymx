@@ -1,0 +1,107 @@
+/* gui.css - Custom styles for dat.GUI */
+
+.dg {
+    /* Base background - faded dark */
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    font-family: findreplace, sans-serif;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 15px;
+    color: #000000;
+}
+    
+    /* Test pattern background using gradients */
+  
+  .dg .title {
+    color: #000000 !important;
+    background-color: transparent !important; /* Semi-transparent title bar */
+  }
+  
+  .dg .cr {
+    background-color: transparent !important;
+  }
+  
+  /* Make the property name container transparent */
+  .dg .property-name {
+    background-color: transparent !important;
+  }
+
+  .dg .close-button {
+    background-color: transparent !important;
+  }
+  
+  .dg .close-top {
+    background-color: transparent !important;
+  }
+  
+  .dg .close-bottom {
+    background-color: transparent !important;
+  }
+  
+  /* Make slider track background transparent or very subtle */
+  .dg .slider {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: #000;
+  }
+
+  
+  .dg .slider-fg {
+    background-color: #86868673 !important;
+  }
+  
+  /* Remove blue from close button */
+  .dg .close-button:hover,
+  .dg .close-top:hover,
+  .dg .close-bottom:hover {
+    background-color: transparent !important;
+    color: #000000 !important;
+  }
+  
+  /* Remove blue from input focus */
+  .dg .c input[type=text]:focus {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+    border-color: #000000 !important;
+    outline: none !important;
+  }
+  
+  /* Remove blue from any buttons */
+  .dg button {
+    background-color: transparent !important;
+    color: #000000 !important;
+  }
+  
+  .dg button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  /* Remove blue from links and other elements */
+  .dg a,
+  .dg a:visited,
+  .dg a:hover,
+  .dg a:active {
+    color: #000000 !important;
+    background-color: transparent !important;
+  }
+  
+  /* Remove any blue borders or outlines */
+  .dg * {
+    border-color: transparent !important;
+  }
+  
+  .dg *:focus {
+    outline: none !important;
+    border-color: transparent !important;
+  }
+
+  .dg .dg {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .dg .c input[type=text] {
+    color: #000000 !important;
+    background-color: rgba(255, 255, 255, 0.2) !important; /* Slightly visible background */
+    font-family: findreplace, sans-serif;
+    font-style: normal;
+    font-size: 15px;
+    border-color: transparent !important;
+  }

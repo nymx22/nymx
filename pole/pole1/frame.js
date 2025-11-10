@@ -1,5 +1,9 @@
 /* - - Minimalist Telephone Pole Scene - - */
 
+import { Pole } from './classes/Pole.js';
+import { Wire } from './classes/Wire.js';
+import { NoiseTexturePool } from './classes/NoiseTexturePool.js';
+
 let params = {
   numPoles: 2,
   depth: 0,  // Controls perspective/depth (0-100)
@@ -14,141 +18,7 @@ let params = {
 let gui;
 let poles = [];
 let pixelBuffer; // Buffer for pixelation effect
-
-/* - - Pole Class - - */
-class Pole {
-  constructor(x, y, scaleFactor = 1) {
-    this.x = x;
-    this.y = y;
-    this.scale = scaleFactor;
-    
-    // Base dimensions (will be scaled)
-    this.shaftWidth = 10;
-    this.shaftHeight = 250;
-    this.crossbarWidth = 80;
-    this.crossbarHeight = 4;
-    this.insulatorWidth = 4;
-    this.insulatorHeight = 14;
-
-    
-    // Positioning offsets
-    this.insulatorMiddleX = 0;
-    this.insulatorLeftX = -40;
-    this.insulatorRightX = 40;
-    this.insulatorY = -260;
-  }
-
-  display() {
-    push();
-    translate(this.x, this.y);
-    scale(this.scale);
-    noStroke();
-    let depthBrightness = map(this.scale, 0.05, 1, 200, 30);
-    fill(depthBrightness);
-    
-    // 1. Main vertical shaft
-    rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, 2);
-    
-    // 2. Top crossbar
-    fill(80);
-    rect(-this.crossbarWidth/2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, 2);
-    
-    // 3. Left insulator arm
-    fill(100);
-    rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
-    
-    // 4. Right insulator arm
-    rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
-    
-    // 5. Middle insulator arm (centered)
-    fill(70);
-    rect(-this.insulatorWidth/2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, 2);
-    
-    pop();
-  }
-
-  getWirePoints() {
-    // Returns 3 p5.Vector points for wire attachment:
-    // 1. Left insulator arm
-    // 2. Middle insulator arm
-    // 3. Right insulator arm
-    return [
-      createVector(this.x + this.insulatorLeftX * this.scale, this.y + this.insulatorY * this.scale),
-      createVector(this.x + this.insulatorMiddleX * this.scale, this.y + this.insulatorY * this.scale),
-      createVector(this.x + this.insulatorRightX * this.scale, this.y + this.insulatorY * this.scale)
-    ];
-  }
-
-  displayOnBuffer(buffer, pixelSize = 1) {
-    buffer.push();
-    buffer.translate(this.x * pixelSize, this.y * pixelSize);
-    buffer.scale(this.scale * pixelSize);
-    buffer.noStroke();
-    let depthBrightness = map(this.scale, 0.05, 1, 200, 30);
-    buffer.fill(depthBrightness);
-    
-    // Scale corner radius proportionally
-    let cornerRadius = 2 * pixelSize;
-    
-    // 1. Main vertical shaft
-    buffer.rect(-this.shaftWidth/2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, cornerRadius);
-    
-    // 2. Top crossbar
-    buffer.fill(80);
-    buffer.rect(-this.crossbarWidth/2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, cornerRadius);
-    
-    // 3. Left insulator arm
-    buffer.fill(100);
-    buffer.rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
-    
-    // 4. Right insulator arm
-    buffer.rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
-    
-    // 5. Middle insulator arm (centered)
-    buffer.fill(70);
-    buffer.rect(-this.insulatorWidth/2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
-    
-    buffer.pop();
-  }
-}
-
-/* - - Wire Class - - */
-class Wire {
-  constructor(startPoint, endPoint, sag = 0) {
-    this.start = startPoint;
-    this.end = endPoint;
-    this.sag = sag; // Sag amount (0-1, normalized from 0-100 slider)
-  }
-
-  display() {
-    stroke(40);
-    strokeWeight(1.5);
-    noFill();
-    
-    if (this.sag === 0) {
-      // Straight line when no sag
-      line(this.start.x, this.start.y, this.end.x, this.end.y);
-    } else {
-      // Curved line with sag using quadratic curve
-      beginShape();
-      vertex(this.start.x, this.start.y);
-      
-      // Calculate midpoint
-      let midX = (this.start.x + this.end.x) / 2;
-      let midY = (this.start.y + this.end.y) / 2;
-      
-      // Calculate wire length and sag amount
-      let wireLength = dist(this.start.x, this.start.y, this.end.x, this.end.y);
-      let maxSagAmount = wireLength * 0.15; // Maximum sag is 15% of wire length
-      let sagAmount = maxSagAmount * this.sag;
-      
-      // Control point for quadratic curve (below midpoint, creating sag)
-      quadraticVertex(midX, midY + sagAmount, this.end.x, this.end.y);
-      
-      endShape();
-    }
-  }
-}
+let noiseTexturePool;
 
 /* - - Setup - - */
 function setup() {
@@ -156,7 +26,9 @@ function setup() {
   
   // Initialize pixel buffer
   pixelBuffer = createGraphics(width, height);
-  
+  noiseTexturePool = new NoiseTexturePool();
+  noiseTexturePool.build(1);
+   
   // Create GUI sliders
   gui = new dat.GUI();
   let polesController = gui.add(params, 'numPoles', 2, 10).step(1).name('count');
@@ -279,26 +151,22 @@ function drawWires() {
 function drawDigitalNoise() {
   let noiseIntensity = map(params.digitalNoise, 0, 100, 0, 1);
   let noiseSpeed = map(params.noiseSpeed, 0, 50, 0.001, 2); // 0.001 = extremely slow
-  
-  
+ 
+  if (noiseIntensity <= 0) {
+    return;
+  }
+
+  if (noiseTexturePool) {
+    noiseTexturePool.update(noiseIntensity, noiseSpeed);
+    noiseTexturePool.draw({ intensity: noiseIntensity, stretch: true, alphaScale: 255 });
+  }
+
+  // Use speed to control animation - faster speed = more frequent updates
+  let timeFactor = floor(frameCount * noiseSpeed * 0.1);
+
   if (noiseIntensity > 0) {
-    // Use speed to control animation - faster speed = more frequent updates
-    let timeFactor = floor(frameCount * noiseSpeed * 0.1);
-    
-    // TV Static - Random pixel dots across screen
-    let numStaticPixels = noiseIntensity * width * height * 0.01; // Density based on intensity
-    noStroke();
-    randomSeed(timeFactor); // Seed random for consistent but animated noise
-    for (let i = 0; i < numStaticPixels; i++) {
-      let x = random(width);
-      let y = random(height);
-      let brightness = random() > 0.5 ? 255 : 0;
-      fill(brightness, 200 * noiseIntensity);
-      rect(x, y, 1, 1); // Single pixel
-    }
-    
     // Horizontal scan line glitches (broken TV lines)
-    let numScanLines = noiseIntensity * 8; // Up to 8 glitched scan lines
+    let numScanLines = noiseIntensity * 8 // Up to 8 glitched scan lines
     randomSeed(timeFactor + 1000); // Different seed for scan lines
     for (let i = 0; i < numScanLines; i++) {
       if (random() < noiseIntensity) {
@@ -320,7 +188,7 @@ function drawDigitalNoise() {
     randomSeed(timeFactor + 2000); // Different seed for bars
     if (random() < noiseIntensity * 0.2) {
       let barX = random(width);
-      let barWidth = random(2, 8);
+      let barWidth = random(2, 10);
       let barHeight = random(height * 0.3, height);
       let barY = random(height - barHeight);
       
@@ -429,4 +297,8 @@ function draw() {
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
   generatePoles(); // Regenerate poles with new dimensions
+  if (noiseTexturePool) {
+    noiseTexturePool.handleResize();
+  }
 }
+

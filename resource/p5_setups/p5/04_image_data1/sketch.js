@@ -4,6 +4,12 @@ let canvasSize = 800;
 
 function preload() {
   img = loadImage('image.png');
+
+  console.log('Preload');
+  console.log(img.width);
+  console.log(img.height);
+
+
 }
 
 function setup() {
@@ -11,9 +17,12 @@ function setup() {
   img.resize(gridSize, gridSize);
   img.loadPixels(); // Load the pixels of the resized image
   noLoop(); // No continuous drawing needed
+  console.log('Setup', img.width);
+  console.log('Setup', img.height);
 }
 
 function draw() {
+  console.log('Draw');
   background(255);
 
   let tileSize = canvasSize/gridSize;
@@ -21,7 +30,7 @@ function draw() {
   for (let y = 0; y < gridSize; y++) {
     for (let x = 0; x < gridSize; x++) {
       // Get the brightness value of the pixel at (x, y)
-      let i = (y * img.width + x) * 4;
+      let i = (y * img.width + x) * 4;// *4 is the color value of the pixel
       let r = img.pixels[i]; // Assuming grayscale, so use the red value
       // let g = img.pixels[i+1];
       // let b = img.pixels[i+2];
@@ -29,11 +38,12 @@ function draw() {
 
 
 
-      // // Processing Example 1
-      // r = max(0, (r - 125) / (255 - 125) * 255);
-      
-      // // Processing Example 2
-      // r = r / 255 * 200;
+      // Processing Example 1
+      r = max(0, (r - 125) / (255 - 125) * 255); // darken the shadow, increasing the contrast
+
+
+      // Processing Example 2
+      r = r / 255 * 200; // decrease the brightness
 
       // // Processing Example 3 (Threshold)
       // if (r > 128) {
