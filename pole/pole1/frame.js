@@ -1,9 +1,5 @@
 /* - - Minimalist Telephone Pole Scene - - */
 
-import { Pole } from './classes/Pole.js';
-import { Wire } from './classes/Wire.js';
-import { NoiseTexturePool } from './classes/NoiseTexturePool.js';
-
 let params = {
   numPoles: 2,
   depth: 0,  // Controls perspective/depth (0-100)
@@ -28,7 +24,7 @@ function setup() {
   pixelBuffer = createGraphics(width, height);
   noiseTexturePool = new NoiseTexturePool();
   noiseTexturePool.build(1);
-   
+  
   // Create GUI sliders
   gui = new dat.GUI();
   let polesController = gui.add(params, 'numPoles', 2, 10).step(1).name('count');
@@ -37,8 +33,11 @@ function setup() {
   let sineWaveController = gui.add(params, 'sineWavePeriod', 0, 10).step(0.5).name('x sine');
   let sineWaveVerticalController = gui.add(params, 'sineWavePeriodVertical', 0, 10).step(0.5).name('y sine');
   let pixelationController = gui.add(params, 'pixelation', 0, 50).name('pixel');
-  let digitalNoiseController = gui.add(params, 'digitalNoise', 0, 100).name('noise');
-  let noiseSpeedController = gui.add(params, 'noiseSpeed', 0, 50).name('loud');
+
+  let noiseFolder = gui.addFolder('noise');
+  noiseFolder.add(params, 'digitalNoise', 0, 100).name('level');
+  noiseFolder.add(params, 'noiseSpeed', 0, 50).name('speed');
+  noiseFolder.open();
   
   // Regenerate poles when sliders change
   polesController.onChange(() => generatePoles());
@@ -150,11 +149,11 @@ function drawWires() {
 /* - - Draw Digital Noise (Broken TV Screen) - - */
 function drawDigitalNoise() {
   let noiseIntensity = map(params.digitalNoise, 0, 100, 0, 1);
-  let noiseSpeed = map(params.noiseSpeed, 0, 50, 0.001, 2); // 0.001 = extremely slow
- 
   if (noiseIntensity <= 0) {
     return;
   }
+
+  let noiseSpeed = map(params.noiseSpeed, 0, 50, 0.001, 2); // 0.001 = extremely slow
 
   if (noiseTexturePool) {
     noiseTexturePool.update(noiseIntensity, noiseSpeed);
@@ -164,58 +163,54 @@ function drawDigitalNoise() {
   // Use speed to control animation - faster speed = more frequent updates
   let timeFactor = floor(frameCount * noiseSpeed * 0.1);
 
-  if (noiseIntensity > 0) {
-    // Horizontal scan line glitches (broken TV lines)
-    let numScanLines = noiseIntensity * 8 // Up to 8 glitched scan lines
-    randomSeed(timeFactor + 1000); // Different seed for scan lines
-    for (let i = 0; i < numScanLines; i++) {
-      if (random() < noiseIntensity) {
-        let glitchY = random(height);
-        let glitchWidth = random(1, 4);
-        
-        // Draw horizontal interference line
-        strokeWeight(glitchWidth);
-        randomSeed(timeFactor + i * 100); // Different pattern per line
-        for (let x = 0; x < width; x += 2) {
-          let brightness = random() > 0.5 ? 255 : 0;
-          stroke(brightness, 180 * noiseIntensity);
-          line(x, glitchY, x + 2, glitchY);
-        }
+  // Horizontal scan line glitches (broken TV lines)
+  let numScanLines = noiseIntensity * 8; // Up to 8 glitched scan lines
+  randomSeed(timeFactor + 1000); // Different seed for scan lines
+  for (let i = 0; i < numScanLines; i++) {
+    if (random() < noiseIntensity) {
+      let glitchY = random(height);
+      let glitchWidth = random(1, 4);
+
+      strokeWeight(glitchWidth);
+      randomSeed(timeFactor + i * 100); // Different pattern per line
+      for (let x = 0; x < width; x += 2) {
+        let brightness = random() > 0.5 ? 255 : 0;
+        stroke(brightness, 180 * noiseIntensity);
+        line(x, glitchY, x + 2, glitchY);
       }
     }
-    
-    // Vertical interference bars (TV signal interference)
-    randomSeed(timeFactor + 2000); // Different seed for bars
-    if (random() < noiseIntensity * 0.2) {
-      let barX = random(width);
-      let barWidth = random(2, 10);
-      let barHeight = random(height * 0.3, height);
-      let barY = random(height - barHeight);
-      
-      // Vertical bar pattern
-      for (let y = barY; y < barY + barHeight; y += 2) {
-        randomSeed(timeFactor + y * 10); // Different pattern per row
-        for (let x = barX; x < barX + barWidth; x++) {
-          let brightness = random() > 0.5 ? 255 : 0;
-          fill(brightness, 150 * noiseIntensity);
-          rect(x, y, 1, 2);
-        }
+  }
+
+  // Vertical interference bars (TV signal interference)
+  randomSeed(timeFactor + 2000); // Different seed for bars
+  if (random() < noiseIntensity * 0.2) {
+    let barX = random(width);
+    let barWidth = random(2, 10);
+    let barHeight = random(height * 0.3, height);
+    let barY = random(height - barHeight);
+
+    for (let y = barY; y < barY + barHeight; y += 2) {
+      randomSeed(timeFactor + y * 10); // Different pattern per row
+      for (let x = barX; x < barX + barWidth; x++) {
+        let brightness = random() > 0.5 ? 255 : 0;
+        fill(brightness, 150 * noiseIntensity);
+        rect(x, y, 1, 2);
       }
     }
-    
-    // Random horizontal bands of static
-    randomSeed(timeFactor + 3000); // Different seed for bands
-    if (random() < noiseIntensity * 0.3) {
-      let bandY = random(height);
-      let bandHeight = random(5, 15);
-      noStroke();
-      for (let y = bandY; y < bandY + bandHeight; y++) {
-        randomSeed(timeFactor + y * 5); // Different pattern per row
-        for (let x = 0; x < width; x += 2) {
-          let brightness = random() > 0.5 ? 255 : 0;
-          fill(brightness, 120 * noiseIntensity);
-          rect(x, y, 2, 1);
-        }
+  }
+
+  // Random horizontal bands of static
+  randomSeed(timeFactor + 3000); // Different seed for bands
+  if (random() < noiseIntensity * 0.3) {
+    let bandY = random(height);
+    let bandHeight = random(5, 15);
+    noStroke();
+    for (let y = bandY; y < bandY + bandHeight; y++) {
+      randomSeed(timeFactor + y * 5); // Different pattern per row
+      for (let x = 0; x < width; x += 2) {
+        let brightness = random() > 0.5 ? 255 : 0;
+        fill(brightness, 120 * noiseIntensity);
+        rect(x, y, 2, 1);
       }
     }
   }

@@ -1,4 +1,4 @@
-export class Wire {
+class Wire {
   constructor(startPoint, endPoint, sag = 0) {
     this.start = startPoint;
     this.end = endPoint;
@@ -28,3 +28,4 @@ export class Wire {
     endShape();
   }
 }
+

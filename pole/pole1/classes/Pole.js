@@ -1,4 +1,4 @@
-export class Pole {
+class Pole {
   constructor(x, y, scaleFactor = 1) {
     this.x = x;
     this.y = y;
@@ -52,7 +52,7 @@ export class Pole {
     return [
       createVector(this.x + this.insulatorLeftX * this.scale, this.y + this.insulatorY * this.scale),
       createVector(this.x + this.insulatorMiddleX * this.scale, this.y + this.insulatorY * this.scale),
-      createVector(this.x + this.insulatorRightX * this.scale, this.y + this.insulatorY * this.scale)
+      createVector(this.x + this.insulatorRightX * this.scale, this.y + this.insulatorY * this.scale),
     ];
   }
 
@@ -64,27 +64,18 @@ export class Pole {
     const depthBrightness = map(this.scale, 0.05, 1, 200, 30);
     buffer.fill(depthBrightness);
 
-    // Scale corner radius proportionally
     const cornerRadius = 2 * pixelSize;
 
-    // 1. Main vertical shaft
     buffer.rect(-this.shaftWidth / 2, -this.shaftHeight, this.shaftWidth, this.shaftHeight, cornerRadius);
-
-    // 2. Top crossbar
     buffer.fill(80);
     buffer.rect(-this.crossbarWidth / 2, -this.shaftHeight, this.crossbarWidth, this.crossbarHeight, cornerRadius);
-
-    // 3. Left insulator arm
     buffer.fill(100);
     buffer.rect(this.insulatorLeftX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
-
-    // 4. Right insulator arm
     buffer.rect(this.insulatorRightX, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
-
-    // 5. Middle insulator arm (centered)
     buffer.fill(70);
     buffer.rect(-this.insulatorWidth / 2, this.insulatorY, this.insulatorWidth, this.insulatorHeight, cornerRadius);
 
     buffer.pop();
   }
 }
+

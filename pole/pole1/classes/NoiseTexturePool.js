@@ -1,4 +1,4 @@
-export class NoiseTexturePool {
+class NoiseTexturePool {
   constructor({ tileSize = 256, poolSize = 6 } = {}) {
     this.tileSize = tileSize;
     this.poolSize = poolSize;
