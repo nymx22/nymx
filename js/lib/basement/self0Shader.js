@@ -80,21 +80,82 @@ export function initSelf0Shader() {
     hintText.className = 'self0-hint-text';
     document.body.appendChild(hintText);
     
-    // Split text into characters for glitch effect (preserve spaces)
-    const text = 'how long has it been?';
-    hintText.innerHTML = '';
-    text.split('').forEach((char, index) => {
-      const span = document.createElement('span');
-      span.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space
-      hintText.appendChild(span);
-    });
+    // Create sparkles container
+    const sparklesContainer = document.createElement('div');
+    sparklesContainer.className = 'self0-hint-sparkles';
+    document.body.appendChild(sparklesContainer);
+    
+    // Array of possible hint texts
+    const hintTexts = [
+      'how long has it been?',
+      'welcome to the basement!',
+      'who is this?',
+    ];
+    
+    let sparkleInterval;
+    let currentText = '';
     
     container.addEventListener('mouseenter', () => {
+      // Pick random text on each hover
+      currentText = hintTexts[Math.floor(Math.random() * hintTexts.length)];
+      
+      // Split text into characters for glitch effect (preserve spaces)
+      hintText.innerHTML = '';
+      const chars = currentText.split('');
+      
+      // For "welcome to the basement!", pick 3 random non-space characters to highlight
+      let highlightIndices = [];
+      if (currentText === 'welcome to the basement!') {
+        const nonSpaceIndices = chars
+          .map((char, idx) => char !== ' ' ? idx : -1)
+          .filter(idx => idx !== -1);
+        
+        // Randomly pick 3 indices
+        const shuffled = [...nonSpaceIndices].sort(() => Math.random() - 0.5);
+        highlightIndices = shuffled.slice(0, 3);
+      }
+      
+      chars.forEach((char, index) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char; // Use non-breaking space
+        
+        // Add neon highlight to selected characters
+        if (highlightIndices.includes(index)) {
+          span.classList.add('neon-highlight');
+          // Random neon color (70% opacity for background)
+          const neonColors = [
+            'rgba(255, 0, 255, 0.7)',   // Magenta
+            'rgba(0, 255, 255, 0.7)',   // Cyan
+            'rgba(255, 255, 0, 0.7)',   // Yellow
+            'rgba(0, 255, 0, 0.7)',     // Green
+            'rgba(255, 100, 0, 0.7)'    // Orange
+          ];
+          const randomColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+          span.style.backgroundColor = randomColor;
+          span.style.boxShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}`;
+          // Random character opacity between 30-60%
+          span.style.opacity = (0.5 + Math.random() * 0.3).toFixed(2);
+        }
+        
+        hintText.appendChild(span);
+      });
+      
       hintText.style.opacity = '1';
+      
+      // Only show sparkles for "welcome to the basement!"
+      if (currentText === 'welcome to the basement!') {
+        sparklesContainer.style.opacity = '1';
+        sparkleInterval = setInterval(() => {
+          createSparkle(sparklesContainer);
+        }, 100);
+      }
     });
     
     container.addEventListener('mouseleave', () => {
       hintText.style.opacity = '0';
+      sparklesContainer.style.opacity = '0';
+      clearInterval(sparkleInterval);
+      sparklesContainer.innerHTML = '';
     });
     
     // Follow cursor
@@ -102,8 +163,40 @@ export function initSelf0Shader() {
       if (hintText.style.opacity === '1') {
         hintText.style.left = `${e.clientX}px`;
         hintText.style.top = `${e.clientY - 30}px`;
+        
+        // Update sparkles position if showing
+        if (currentText === 'welcome to the basement!') {
+          const textRect = hintText.getBoundingClientRect();
+          const textCenterX = textRect.left + textRect.width / 2;
+          const textCenterY = textRect.top + textRect.height / 2;
+          sparklesContainer.style.left = `${textCenterX}px`;
+          sparklesContainer.style.top = `${textCenterY}px`;
+        }
       }
     });
+  }
+  
+  function createSparkle(container) {
+    const sparkle = document.createElement('div');
+    sparkle.className = 'self0-hint-sparkle-cross';
+    
+    const angle = Math.random() * 360;
+    const distance = 40 + Math.random() * 60;
+    const x = Math.cos(angle * Math.PI / 180) * distance;
+    const y = Math.sin(angle * Math.PI / 180) * distance;
+    
+    sparkle.style.left = `calc(50% + ${x}px)`;
+    sparkle.style.top = `calc(50% + ${y}px)`;
+    sparkle.style.width = `${2 + Math.random() * 4}px`;
+    sparkle.style.height = `${2 + Math.random() * 4}px`;
+    sparkle.style.animation = `self0-sparkle-fade ${0.5 + Math.random() * 1}s ease-out forwards`;
+    sparkle.style.transform = `translate(-50%, -50%) rotate(${Math.random() * 360}deg)`;
+    
+    container.appendChild(sparkle);
+    
+    setTimeout(() => {
+      sparkle.remove();
+    }, 1500);
   }
   
   return new p5(sketch);
