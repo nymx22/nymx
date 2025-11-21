@@ -229,11 +229,7 @@ export function initHumanoidHover() {
     
     // Change cursor to cursor2.png and rotate 90 degrees
     if (customCursor) {
-      customCursor.style.backgroundImage = "url('assets/icons/cursor2.png')";
-      customCursor.style.transition = 'transform 0.4s ease-out';
-      // Add rotation to the transform (keeping the translate3d)
-      const currentTransform = customCursor.style.transform;
-      customCursor.style.transform = currentTransform.replace('translate3d', 'translate3d') + ' rotate(90deg)';
+      customCursor.classList.add('cursor2');
     }
     
     // Show hint text
@@ -259,10 +255,7 @@ export function initHumanoidHover() {
     
     // Restore original cursor (no rotation)
     if (customCursor) {
-      customCursor.style.backgroundImage = "url('assets/gif/cursor.gif')";
-      // Remove rotation from transform
-      const currentTransform = customCursor.style.transform;
-      customCursor.style.transform = currentTransform.replace(' rotate(90deg)', '');
+      customCursor.classList.remove('cursor2');
     }
     
     // Hide hint text
