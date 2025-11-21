@@ -56,12 +56,23 @@ body {
   .humanoid-container {
     height: 50vh;
     width: auto;
+    max-width: 90vw; /* Don't exceed 90% of viewport width */
     transform: translate(-50%, -50%) scale(1);
   }
   
-  .humanoid-container img {
-    height: 100%;
-    width: auto;
+  .humanoid-container img,
+  .humanoid-glow-container {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+}
+
+/* Extra small screens - shrink even more */
+@media (max-width: 480px) {
+  .humanoid-container {
+    height: 40vh;
+    max-width: 85vw;
   }
 }
 
