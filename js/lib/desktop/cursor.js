@@ -1,7 +1,7 @@
 /**
  * Custom Animated Cursor
  * Creates a custom cursor using the cursor.gif that follows the mouse
- * Optimized for performance using transform and requestAnimationFrame
+ * Highly optimized using CSS variables for maximum performance
  */
 
 export function initCustomCursor() {
@@ -11,6 +11,11 @@ export function initCustomCursor() {
   // Create custom cursor element
   const cursor = document.createElement('div');
   cursor.className = 'custom-cursor';
+  
+  // Set initial CSS variables
+  cursor.style.setProperty('--mouse-x', '0px');
+  cursor.style.setProperty('--mouse-y', '0px');
+  
   cursor.style.cssText = `
     position: fixed;
     left: 0;
@@ -19,19 +24,17 @@ export function initCustomCursor() {
     height: 64px;
     pointer-events: none;
     z-index: 99999;
+    transform: translate3d(var(--mouse-x), var(--mouse-y), 0);
     will-change: transform;
-    background-image: url('assets/gif/cursor.gif');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    background: url('assets/gif/cursor.gif') no-repeat center / contain;
   `;
 
   document.body.appendChild(cursor);
 
-  // Update cursor position directly on mousemove
+  // Update cursor position using CSS variables (most performant method)
   document.addEventListener('mousemove', (e) => {
-    // Use transform for better performance (GPU accelerated)
-    cursor.style.transform = `translate3d(${e.clientX - 32}px, ${e.clientY - 32}px, 0)`;
+    cursor.style.setProperty('--mouse-x', `${e.clientX - 32}px`);
+    cursor.style.setProperty('--mouse-y', `${e.clientY - 32}px`);
   }, { passive: true });
 
   // Hide cursor when mouse leaves window
