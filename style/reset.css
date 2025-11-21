@@ -1,0 +1,9 @@
+/* Minimal reset to remove default margins and set base box-sizing */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  min-height: 100vh;
+}

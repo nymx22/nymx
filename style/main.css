@@ -1,0 +1,38 @@
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  min-height: 100vh;
+}
+.page-header {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+a {
+  text-decoration: none;
+  color: var(--accent);
+}
+.hero {
+  max-width: var(--max-width);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border-radius: var(--border-radius);
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}
+footer {
+  max-width: var(--max-width);
+  margin: 2rem auto;
+  padding: 1rem;
+  color: var(--muted);
+  text-align: center;
+}
