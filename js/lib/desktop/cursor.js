@@ -27,6 +27,7 @@ export function initCustomCursor() {
     transform: translate3d(var(--mouse-x), var(--mouse-y), 0);
     will-change: transform;
     background: url('assets/gif/cursor.gif') no-repeat center / contain;
+    filter: drop-shadow(0 0 8px rgba(173, 216, 230, 0.6)) drop-shadow(0 0 16px rgba(173, 216, 230, 0.3));
   `;
 
   document.body.appendChild(cursor);
