@@ -5,7 +5,26 @@
  */
 
 export function smear(p) {
+  // If canvas is empty/white, generate base noise first
   p.loadPixels();
+  const isEmpty = p.pixels.every((val, i) => i % 4 === 3 || val === 0 || val === 255);
+  
+  if (isEmpty) {
+    // Generate base gradient pattern
+    for (let y = 0; y < p.height; y++) {
+      for (let x = 0; x < p.width; x++) {
+        const index = (x + y * p.width) * 4;
+        const noise = p.noise(x * 0.01, y * 0.01, p.frameCount * 0.01) * 255;
+        p.pixels[index] = noise * 0.8;
+        p.pixels[index + 1] = noise * 0.6;
+        p.pixels[index + 2] = noise;
+        p.pixels[index + 3] = 255;
+      }
+    }
+    p.updatePixels();
+    p.loadPixels();
+  }
+  
   const tempPixels = [...p.pixels];
   
   for (let x = 0; x < p.width; x++) {

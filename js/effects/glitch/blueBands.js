@@ -5,7 +5,22 @@
  */
 
 export function blueBands(p) {
+  // If canvas is empty/white, generate base noise first
   p.loadPixels();
+  const isEmpty = p.pixels.every((val, i) => i % 4 === 3 || val === 0 || val === 255);
+  
+  if (isEmpty) {
+    // Generate base noise pattern
+    for (let i = 0; i < p.pixels.length; i += 4) {
+      const gray = p.noise(i * 0.001, p.frameCount * 0.01) * 255;
+      p.pixels[i] = gray * 0.5;
+      p.pixels[i + 1] = gray * 0.6;
+      p.pixels[i + 2] = gray * 1.2;
+      p.pixels[i + 3] = 255;
+    }
+    p.updatePixels();
+    p.loadPixels();
+  }
   
   // Create a temporary copy of current frame
   const tempPixels = [...p.pixels];

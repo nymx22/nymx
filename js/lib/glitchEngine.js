@@ -3,11 +3,11 @@
  * Manages canvas, effect switching, and rendering loop with dat.GUI controls
  */
 
-import { blueBands } from '../effects/blueBands.js';
-import { pureSnow } from '../effects/pureSnow.js';
-import { purpleStatic } from '../effects/purpleStatic.js';
-import { colorLineNoise } from '../effects/colorLineNoise.js';
-import { smear } from '../effects/smear.js';
+import { blueBands } from '../effects/glitch/blueBands.js';
+import { pureSnow } from '../effects/glitch/pureSnow.js';
+import { purpleStatic } from '../effects/glitch/purpleStatic.js';
+import { colorLineNoise } from '../effects/glitch/colorLineNoise.js';
+import { smear } from '../effects/glitch/smear.js';
 
 export class GlitchEngine {
   constructor() {
@@ -34,10 +34,38 @@ export class GlitchEngine {
   }
 
   /**
+   * Randomize glitch mode and opacity
+   */
+  randomize() {
+    // Get random mode (excluding 'Off' at index 0)
+    const randomIndex = Math.floor(Math.random() * (this.modeOptions.length - 1)) + 1;
+    this.params.mode = this.modeOptions[randomIndex];
+    
+    // Random opacity between 0.3 and 1.0
+    this.params.opacity = Math.random() * 0.7 + 0.3;
+    
+    // Update GUI controllers to reflect random values
+    if (this.gui) {
+      // Update all controllers
+      for (let i in this.gui.__controllers) {
+        this.gui.__controllers[i].updateDisplay();
+      }
+    }
+    
+    // Apply opacity to canvas immediately
+    const canvas = document.querySelector('#glitch-canvas canvas');
+    if (canvas) {
+      canvas.style.opacity = this.params.opacity;
+    }
+    
+    console.log(`Randomized: ${this.params.mode} at ${(this.params.opacity * 100).toFixed(0)}% opacity`);
+  }
+
+  /**
    * Initialize the p5.js sketch and dat.GUI
    */
   init() {
-    // Initialize dat.GUI
+    // Initialize dat.GUI first
     this.initGUI();
     
     // Initialize p5.js sketch
@@ -55,6 +83,9 @@ export class GlitchEngine {
         
         // Initial background
         p.background(255);
+        
+        // Randomize after canvas is created
+        this.randomize();
       };
 
       p.draw = () => {
