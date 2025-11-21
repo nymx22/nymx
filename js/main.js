@@ -3,7 +3,7 @@ import { initWindowManager } from './lib/windowManager.js';
 import { initDesktopLogic } from './lib/desktop/desktopLogic.js';
 import { attachInteractions } from './lib/interactions.js';
 import { bootstrapDesktopUI } from './ui/desktop.js';
-import { GlitchEngine } from './lib/glitchEngine.js';
+import { GlitchEngine } from './lib/desktop/glitchEngine.js';
 import { randomizeBgColor } from './lib/desktop/bgcolor.js';
 import { initHumanoidGlow } from './lib/desktop/glow.js';
 import { initWeldingSparks } from './lib/desktop/sparks.js';

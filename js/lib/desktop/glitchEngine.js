@@ -3,11 +3,11 @@
  * Manages canvas, effect switching, and rendering loop with dat.GUI controls
  */
 
-import { blueBands } from '../effects/glitch/blueBands.js';
-import { pureSnow } from '../effects/glitch/pureSnow.js';
-import { purpleStatic } from '../effects/glitch/purpleStatic.js';
-import { colorLineNoise } from '../effects/glitch/colorLineNoise.js';
-import { smear } from '../effects/glitch/smear.js';
+import { blueBands } from '../../effects/glitch/blueBands.js';
+import { pureSnow } from '../../effects/glitch/pureSnow.js';
+import { purpleStatic } from '../../effects/glitch/purpleStatic.js';
+import { colorLineNoise } from '../../effects/glitch/colorLineNoise.js';
+import { smear } from '../../effects/glitch/smear.js';
 
 export class GlitchEngine {
   constructor() {
@@ -22,15 +22,15 @@ export class GlitchEngine {
     
     // Effect mapping
     this.effectMap = {
-      'Off': null,
-      'Blue Bands': blueBands,
-      'Snow': pureSnow,
-      'Purple Static': purpleStatic,
-      'Color Lines': colorLineNoise,
-      'Smear': smear
+      'off': null,
+      'band': blueBands,
+      'snow': pureSnow,
+      'static': purpleStatic,
+      'color': colorLineNoise,
+      'smear': smear
     };
     
-    this.modeOptions = ['Off', 'Blue Bands', 'Snow', 'Purple Static', 'Color Lines', 'Smear'];
+    this.modeOptions = ['off', 'band', 'snow', 'static', 'color', 'smear'];
   }
 
   /**

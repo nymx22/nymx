@@ -7,46 +7,80 @@
 export function smear(p) {
   // If canvas is empty/white, generate base noise first
   p.loadPixels();
-  const isEmpty = p.pixels.every((val, i) => i % 4 === 3 || val === 0 || val === 255);
+  const pixels = p.pixels;
+  const len = pixels.length;
+  
+  // Quick empty check (sample first 100 pixels)
+  let isEmpty = true;
+  for (let i = 0; i < Math.min(400, len); i += 4) {
+    if (pixels[i] !== 0 && pixels[i] !== 255) {
+      isEmpty = false;
+      break;
+    }
+  }
   
   if (isEmpty) {
     // Generate base gradient pattern
-    for (let y = 0; y < p.height; y++) {
-      for (let x = 0; x < p.width; x++) {
-        const index = (x + y * p.width) * 4;
-        const noise = p.noise(x * 0.01, y * 0.01, p.frameCount * 0.01) * 255;
-        p.pixels[index] = noise * 0.8;
-        p.pixels[index + 1] = noise * 0.6;
-        p.pixels[index + 2] = noise;
-        p.pixels[index + 3] = 255;
+    const width = p.width;
+    const height = p.height;
+    const noiseTime = p.frameCount * 0.01;
+    let index = 0;
+    
+    for (let y = 0; y < height; y++) {
+      const noiseY = y * 0.01;
+      for (let x = 0; x < width; x++) {
+        const noise = p.noise(x * 0.01, noiseY, noiseTime) * 255;
+        pixels[index++] = (noise * 0.8) | 0;
+        pixels[index++] = (noise * 0.6) | 0;
+        pixels[index++] = noise | 0;
+        pixels[index++] = 255;
       }
     }
     p.updatePixels();
     p.loadPixels();
   }
   
-  const tempPixels = [...p.pixels];
+  // Use Uint8ClampedArray for faster copy
+  const tempPixels = new Uint8ClampedArray(pixels);
+  const width = p.width;
+  const height = p.height;
+  const frameOffset = p.frameCount * 0.03;
+  const heightMinus1 = height - 1;
   
-  for (let x = 0; x < p.width; x++) {
+  // Pre-calculate displacement scale factor
+  const displacementScale = 25 / width;
+  
+  for (let x = 0; x < width; x++) {
     // Displacement increases toward left (x=0)
-    let displacement = Math.floor(p.map(x, 0, p.width, 25, 0));
+    let displacement = Math.floor((width - x) * displacementScale);
     
     // Add wave motion for organic feel
-    displacement += Math.floor(Math.sin(x * 0.05 + p.frameCount * 0.03) * 5);
+    displacement += Math.floor(Math.sin(x * 0.05 + frameOffset) * 5);
     
-    for (let y = 0; y < p.height; y++) {
+    const x4 = x * 4;
+    
+    for (let y = 0; y < height; y++) {
       // Source y positions for RGB channels (chromatic aberration)
-      const sourceYR = p.constrain(y - displacement, 0, p.height - 1);
-      const sourceYG = p.constrain(y - displacement + 2, 0, p.height - 1);
-      const sourceYB = p.constrain(y - displacement + 4, 0, p.height - 1);
+      // Manual constrain for performance
+      let sourceYR = y - displacement;
+      if (sourceYR < 0) sourceYR = 0;
+      else if (sourceYR > heightMinus1) sourceYR = heightMinus1;
       
-      const targetIndex = (x + y * p.width) * 4;
+      let sourceYG = y - displacement + 2;
+      if (sourceYG < 0) sourceYG = 0;
+      else if (sourceYG > heightMinus1) sourceYG = heightMinus1;
+      
+      let sourceYB = y - displacement + 4;
+      if (sourceYB < 0) sourceYB = 0;
+      else if (sourceYB > heightMinus1) sourceYB = heightMinus1;
+      
+      const targetIndex = x4 + y * width * 4;
       
       // Separate RGB channels with different displacements
-      p.pixels[targetIndex] = tempPixels[(x + sourceYR * p.width) * 4];
-      p.pixels[targetIndex + 1] = tempPixels[(x + sourceYG * p.width) * 4 + 1];
-      p.pixels[targetIndex + 2] = tempPixels[(x + sourceYB * p.width) * 4 + 2];
-      p.pixels[targetIndex + 3] = 255;
+      pixels[targetIndex] = tempPixels[x4 + sourceYR * width * 4];
+      pixels[targetIndex + 1] = tempPixels[x4 + sourceYG * width * 4 + 1];
+      pixels[targetIndex + 2] = tempPixels[x4 + sourceYB * width * 4 + 2];
+      pixels[targetIndex + 3] = 255;
     }
   }
   
