@@ -10,6 +10,26 @@
     color: #ffffff !important;
 }
 
+/* Mobile - smallest screens (360x640) */
+@media (max-width: 640px) {
+  .dg {
+    font-size: 13px !important; /* -5 from base 18px */
+  }
+  .dg .c input[type=text] {
+    font-size: 13px !important;
+  }
+}
+
+/* Tablet - medium screens (768x1024) */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .dg {
+    font-size: 15px !important; /* -3 from base 18px */
+  }
+  .dg .c input[type=text] {
+    font-size: 15px !important;
+  }
+}
+
 .dg * {
     font-family: findreplace, sans-serif !important;
 }
