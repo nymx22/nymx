@@ -13,20 +13,13 @@ body {
   overflow: hidden;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   cursor: none;
-  font-size: 16px; /* Base font size for desktop */
+  font-size: 16px; /* Base font size */
 }
 
-/* Mobile - smallest screens (360x640) */
-@media (max-width: 640px) {
+/* Mobile - screens smaller than 768px */
+@media (max-width: 767px) {
   body {
     font-size: 11px; /* -5 from base 16px */
-  }
-}
-
-/* Tablet - medium screens (768x1024) */
-@media (min-width: 641px) and (max-width: 1024px) {
-  body {
-    font-size: 13px; /* -3 from base 16px */
   }
 }
 
@@ -56,6 +49,20 @@ body {
   left: 50%;
   transform: translate(-50%, -50%) scale(0.5);
   z-index: 1;
+}
+
+/* Mobile - scale humanoid to occupy half of viewport height */
+@media (max-width: 767px) {
+  .humanoid-container {
+    height: 50vh;
+    width: auto;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  
+  .humanoid-container img {
+    height: 100%;
+    width: auto;
+  }
 }
 
 .humanoid {

@@ -97,7 +97,6 @@
 .cursor-hint {
   position: fixed;
   font-family: "Jersey 25", sans-serif;
-  font-size: 16px; /* Base font size */
   color: #ffffff;
   pointer-events: none;
   z-index: 100000;
@@ -105,24 +104,12 @@
   transition: opacity 0.3s ease-out;
   text-align: left;
   line-height: 1.4;
-  white-space: nowrap;
+  white-space: normal;
+  max-width: calc(100vw - 40px);
+  word-wrap: break-word;
   filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8)) 
           drop-shadow(0 0 20px rgba(173, 216, 230, 0.6));
   animation: vertical-glitch 0.15s infinite, glitch-cutout 0.3s infinite;
-}
-
-/* Mobile - smallest screens (360x640) */
-@media (max-width: 640px) {
-  .cursor-hint {
-    font-size: 11px; /* -5 from base 16px */
-  }
-}
-
-/* Tablet - medium screens (768x1024) */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .cursor-hint {
-    font-size: 13px; /* -3 from base 16px */
-  }
 }
 
 .cursor-hint span {
