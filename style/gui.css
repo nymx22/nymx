@@ -103,7 +103,7 @@
   
   .dg .c input[type=text] {
     color: #000000 !important;
-    background-color: rgba(255, 255, 255, 0.2) !important; /* Slightly visible background */
+    background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
     font-family: findreplace, sans-serif !important;
     font-style: normal;
     font-size: 15px;
@@ -113,4 +113,12 @@
   .dg select,
   .dg option {
     font-family: findreplace, sans-serif !important;
+    background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
+    color: #000000 !important;
+  }
+  
+  /* Dropdown select styling */
+  .dg select {
+    border: none !important;
+    padding: 4px !important;
   }
