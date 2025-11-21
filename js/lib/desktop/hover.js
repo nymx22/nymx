@@ -52,9 +52,62 @@ export function initHumanoidHover() {
   // Split text into individual characters for wave effect
   const text = 'want to see my basement?';
   
-  const wavyText = text.split('').map((char, i) => 
-    `<span style="animation-delay: ${i * 0.05}s;">${char === ' ' ? '&nbsp;' : char}</span>`
-  ).join('');
+  // Get indices of all letter characters (not spaces or punctuation)
+  const letterIndices = [];
+  text.split('').forEach((char, i) => {
+    if (char.match(/[a-zA-Z]/)) {
+      letterIndices.push(i);
+    }
+  });
+  
+  // Randomly select 6 letters to have random opacity
+  const selectedIndices = [];
+  const shuffled = [...letterIndices].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < Math.min(6, shuffled.length); i++) {
+    selectedIndices.push(shuffled[i]);
+  }
+  
+  // From those 6, select 2 to have neon backgrounds
+  const neonIndices = [];
+  const neonShuffled = [...selectedIndices].sort(() => Math.random() - 0.5);
+  for (let i = 0; i < Math.min(2, neonShuffled.length); i++) {
+    neonIndices.push(neonShuffled[i]);
+  }
+  
+  // Neon color options
+  const neonColors = [
+    '#ff006e', // hot pink
+    '#00f5ff', // cyan
+    '#39ff14', // neon green
+    '#ffff00', // yellow
+    '#ff00ff', // magenta
+    '#ff4500'  // orange-red
+  ];
+  
+  const wavyText = text.split('').map((char, i) => {
+    const animDelay = `animation-delay: ${i * 0.05}s;`;
+    let opacity = '';
+    let background = '';
+    let padding = '';
+    let boxShadow = '';
+    
+    // If this letter is selected, give it random opacity between 30-70%
+    if (selectedIndices.includes(i)) {
+      const randomOpacity = 0.3 + Math.random() * 0.4; // 0.3 to 0.7
+      opacity = `opacity: ${randomOpacity};`;
+      
+      // If this letter is also selected for neon background
+      if (neonIndices.includes(i)) {
+        const neonColor = neonColors[Math.floor(Math.random() * neonColors.length)];
+        background = `background: ${neonColor};`;
+        padding = `padding: 2px 4px;`;
+        boxShadow = `box-shadow: 0 0 10px ${neonColor}, 0 0 20px ${neonColor};`;
+      }
+    }
+    
+    const style = `${animDelay} ${opacity} ${background} ${padding} ${boxShadow}`;
+    return `<span style="${style}">${char === ' ' ? '&nbsp;' : char}</span>`;
+  }).join('');
   
   hintText.innerHTML = `
     <div style="font-size: 2rem;">${wavyText}</div>
@@ -65,15 +118,6 @@ export function initHumanoidHover() {
   // Create sparkle container for hint text
   const sparkleContainer = document.createElement('div');
   sparkleContainer.className = 'hint-sparkles';
-  sparkleContainer.style.cssText = `
-    position: fixed;
-    pointer-events: none;
-    z-index: 100001;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-  `;
   document.body.appendChild(sparkleContainer);
   
   // Generate sparkles around hint text
@@ -95,16 +139,13 @@ export function initHumanoidHover() {
     const lifetime = 0.5 + Math.random() * 0.8;
     const rotation = Math.random() * 360; // Random rotation
     
-    sparkle.style.cssText = `
-      position: absolute;
-      left: ${x}px;
-      top: ${y}px;
-      width: ${size}px;
-      height: ${size}px;
-      pointer-events: none;
-      animation: sparkle-fade ${lifetime}s ease-out forwards;
-      transform: rotate(${rotation}deg);
-    `;
+    // Set dynamic properties
+    sparkle.style.left = `${x}px`;
+    sparkle.style.top = `${y}px`;
+    sparkle.style.width = `${size}px`;
+    sparkle.style.height = `${size}px`;
+    sparkle.style.animation = `sparkle-fade ${lifetime}s ease-out forwards`;
+    sparkle.style.transform = `rotate(${rotation}deg)`;
     
     // Create cross shape using pseudo-elements via inline style
     sparkle.innerHTML = `
@@ -176,7 +217,7 @@ export function initHumanoidHover() {
     
     // Change cursor to cursor2.png and rotate 90 degrees
     if (customCursor) {
-      customCursor.style.backgroundImage = "url('assets/images/cursor2.png')";
+      customCursor.style.backgroundImage = "url('assets/icons/cursor2.png')";
       customCursor.style.transition = 'transform 0.4s ease-out';
       // Add rotation to the transform (keeping the translate3d)
       const currentTransform = customCursor.style.transform;

@@ -1,0 +1,20 @@
+/* Pebble Container and Pieces Styles */
+
+.pebble-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 1;
+  filter: sepia(100%) saturate(140%) hue-rotate(180deg) brightness(0.7) contrast(100%);
+}
+
+.pebble-piece {
+  position: absolute;
+  pointer-events: none;
+  background-size: 150%;
+  background-position: center;
+}
+

@@ -1,0 +1,14 @@
+/* Basement Glitch Effect - Snow Overlay */
+
+/* Glitch canvas overlay on entire page */
+#basement-glitch-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 999;
+  pointer-events: none;
+  opacity: 0.3;
+}
+

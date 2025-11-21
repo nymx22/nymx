@@ -1,0 +1,14 @@
+/* Basement Static Effect - Black and White Noise Overlay */
+
+/* Static canvas overlay on floor */
+#floor-static-canvas {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 33.33vh;
+  z-index: 10;
+  pointer-events: none;
+  opacity: 0.3;
+}
+

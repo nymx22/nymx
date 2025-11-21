@@ -7,142 +7,14 @@
     <link rel="icon" type="image/png" href="../assets/images/fav_icon.png">
     <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
     <link rel="stylesheet" href="../style/main.css" />
+    <link rel="stylesheet" href="../style/basement/layout.css" />
+    <link rel="stylesheet" href="../style/basement/wall.css" />
+    <link rel="stylesheet" href="../style/basement/floor.css" />
+    <link rel="stylesheet" href="../style/basement/pebbles.css" />
+    <link rel="stylesheet" href="../style/basement/glitch.css" />
+    <link rel="stylesheet" href="../style/basement/vignette.css" />
+    <link rel="stylesheet" href="../style/basement/cursor.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: findreplace, sans-serif;
-        min-height: 100vh;
-        overflow: hidden;
-        font-size: 16px; /* Base font size */
-        cursor: none;
-        position: relative;
-      }
-      
-      /* Top section - 2/3 height, glass wall */
-      .wall-section {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 66.67vh;
-        background: linear-gradient(180deg, 
-          rgba(200, 220, 240, 0.3) 0%, 
-          rgba(180, 210, 235, 0.4) 50%, 
-          rgba(200, 220, 240, 0.3) 100%);
-        backdrop-filter: blur(2px);
-        box-shadow: 
-          inset 0 0 100px rgba(255, 255, 255, 0.3),
-          inset 20px 0 80px rgba(255, 255, 255, 0.2),
-          inset -20px 0 80px rgba(255, 255, 255, 0.2);
-      }
-      
-      .wall-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: 
-          linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-        background-size: 200px 100%;
-        animation: glass-shine 8s ease-in-out infinite;
-      }
-      
-      @keyframes glass-shine {
-        0%, 100% {
-          opacity: 0.3;
-          transform: translateX(-100%);
-        }
-        50% {
-          opacity: 0.6;
-          transform: translateX(100%);
-        }
-      }
-      
-      /* Bottom section - 1/3 height, light grey pebble floor */
-      .floor-section {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 33.33vh;
-        background-color: #d3d3d3;
-        background-image: 
-          radial-gradient(circle at 20% 30%, rgba(200,200,200,0.8) 1px, transparent 1px),
-          radial-gradient(circle at 60% 70%, rgba(190,190,190,0.7) 1.5px, transparent 1.5px),
-          radial-gradient(circle at 40% 50%, rgba(195,195,195,0.6) 1px, transparent 1px),
-          radial-gradient(circle at 80% 20%, rgba(185,185,185,0.8) 1.2px, transparent 1.2px),
-          radial-gradient(circle at 10% 80%, rgba(205,205,205,0.7) 1px, transparent 1px),
-          radial-gradient(circle at 70% 40%, rgba(180,180,180,0.6) 1.3px, transparent 1.3px),
-          radial-gradient(circle at 30% 90%, rgba(198,198,198,0.8) 1px, transparent 1px),
-          radial-gradient(circle at 90% 60%, rgba(192,192,192,0.7) 1.4px, transparent 1.4px);
-        background-size: 40px 40px, 50px 50px, 45px 45px, 38px 38px, 42px 42px, 48px 48px, 44px 44px, 46px 46px;
-        background-position: 0 0, 10px 10px, 5px 15px, 20px 5px, 15px 20px, 8px 12px, 18px 8px, 12px 18px;
-      }
-      
-      * {
-        cursor: none !important;
-      }
-      
-      .custom-cursor {
-        position: fixed;
-        left: 0;
-        top: 0;
-        width: 64px;
-        height: 64px;
-        pointer-events: none;
-        z-index: 10000;
-        transform: translate3d(var(--mouse-x, -100px), var(--mouse-y, -100px), 0);
-        will-change: transform;
-        filter: drop-shadow(0 0 8px rgba(173, 216, 230, 0.6))
-                drop-shadow(0 0 15px rgba(173, 216, 230, 0.4));
-      }
-      
-      .custom-cursor img {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-      
-      /* Mobile - screens smaller than 768px */
-      @media (max-width: 767px) {
-        body {
-          font-size: 11px; /* -5 from base 16px */
-        }
-      }
-      
-      .basement-content {
-        position: fixed;
-        top: 20px;
-        left: 20px;
-        z-index: 1000;
-      }
-      
-      .back-link {
-        color: #000000;
-        text-decoration: none;
-        font-size: 1.2rem;
-        transition: opacity 0.3s ease;
-      }
-      
-      .back-link:hover {
-        opacity: 0.6;
-      }
-      
-      /* Glitch canvas */
-      #basement-glitch-canvas {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100vh;
-        z-index: 999;
-        pointer-events: none;
-      }
-    </style>
   </head>
   <body>
     <div class="custom-cursor">
@@ -153,12 +25,19 @@
     <div class="wall-section"></div>
     <div class="floor-section"></div>
     
+    <!-- Snow glitch overlay -->
     <div id="basement-glitch-canvas"></div>
+    
+    <!-- White vignette overlay -->
+    <div class="vignette-overlay"></div>
+    
     <div class="basement-content">
       <a href="../index.html" class="back-link">return</a>
     </div>
     
     <script type="module">
+      import { initPebbleFloor } from '../js/lib/desktop/pebbleFloor.js';
+      
       // Initialize custom cursor
       const customCursor = document.querySelector('.custom-cursor');
       
@@ -166,15 +45,18 @@
         customCursor.style.setProperty('--mouse-x', `${e.clientX - 32}px`);
         customCursor.style.setProperty('--mouse-y', `${e.clientY - 32}px`);
       }, { passive: true });
+      
+      // Initialize pebble floor
+      window.addEventListener('load', () => {
+        initPebbleFloor();
+      });
     </script>
     
     <script type="module">
       import { pureSnow } from '../js/effects/glitch/pureSnow.js';
       
-      // Initialize p5 sketch for basement snow effect
+      // Initialize p5 sketch for snow glitch on entire page
       const sketch = (p) => {
-        let opacity = 0.3;
-        
         p.setup = () => {
           const canvas = p.createCanvas(p.windowWidth, p.windowHeight);
           canvas.parent('basement-glitch-canvas');
@@ -183,12 +65,6 @@
         
         p.draw = () => {
           pureSnow(p);
-          
-          // Apply opacity
-          const canvasElement = document.querySelector('#basement-glitch-canvas canvas');
-          if (canvasElement) {
-            canvasElement.style.opacity = opacity;
-          }
         };
         
         p.windowResized = () => {
@@ -198,6 +74,7 @@
       
       new p5(sketch);
     </script>
+    
   </body>
 </html>
 

@@ -1,0 +1,43 @@
+/* Basement Layout Styles */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: findreplace, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+  font-size: 16px; /* Base font size */
+  cursor: none;
+  position: relative;
+}
+
+/* Mobile - screens smaller than 768px */
+@media (max-width: 767px) {
+  body {
+    font-size: 11px; /* -5 from base 16px */
+  }
+}
+
+* {
+  cursor: none !important;
+}
+
+/* Content positioning */
+.basement-content {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+}
+
+.back-link {
+  color: #000000;
+  text-decoration: none;
+  font-size: 1.2rem;
+  transition: opacity 0.3s ease;
+}
+
+.back-link:hover {
+  opacity: 0.6;
+}
+
