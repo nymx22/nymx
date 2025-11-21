@@ -1,0 +1,203 @@
+/* Hover.css - Humanoid hover interaction styles */
+
+.humanoid-glow-container {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) 
+          drop-shadow(0 0 40px rgba(255, 255, 255, 0.5));
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.8)) 
+            drop-shadow(0 0 40px rgba(255, 255, 255, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 30px rgba(255, 255, 255, 1)) 
+            drop-shadow(0 0 60px rgba(255, 255, 255, 0.7))
+            drop-shadow(0 0 80px rgba(255, 255, 255, 0.4));
+  }
+}
+
+.humanoid-left,
+.humanoid-right {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-out;
+  z-index: 2;
+}
+
+.humanoid-left {
+  left: 0;
+  top: 0;
+  transform-origin: left center;
+}
+
+.humanoid-right {
+  right: 0;
+  top: 0;
+  transform-origin: right center;
+}
+
+.humanoid-left img,
+.humanoid-right img {
+  position: absolute;
+  width: 200%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.humanoid-left img {
+  left: 0;
+  top: 0;
+  object-position: left center;
+}
+
+.humanoid-right img {
+  right: 0;
+  top: 0;
+  object-position: right center;
+}
+
+.white-space-link {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: white;
+  opacity: 0;
+  transition: opacity 0.6s ease-out, filter 0.6s ease-out;
+  z-index: 1;
+  cursor: none;
+  filter: drop-shadow(0 0 0px rgba(255, 255, 255, 0));
+}
+
+.white-space-link.active {
+  filter: drop-shadow(0 0 40px rgba(255, 255, 255, 1)) 
+          drop-shadow(0 0 60px rgba(255, 255, 255, 0.8))
+          drop-shadow(0 0 80px rgba(255, 255, 255, 0.6));
+}
+
+/* Cursor hint text */
+.cursor-hint {
+  position: fixed;
+  font-family: "Jersey 25", sans-serif;
+  color: #ffffff;
+  pointer-events: none;
+  z-index: 100000;
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  text-align: left;
+  line-height: 1.4;
+  white-space: nowrap;
+  filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8)) 
+          drop-shadow(0 0 20px rgba(173, 216, 230, 0.6));
+  animation: vertical-glitch 0.15s infinite, glitch-cutout 0.3s infinite;
+}
+
+.cursor-hint span {
+  display: inline-block;
+  animation: wave 2s ease-in-out infinite;
+}
+
+/* Wave animation for text */
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Vertical glitch animation */
+@keyframes vertical-glitch {
+  0% {
+    transform: translateY(0);
+  }
+  10% {
+    transform: translateY(-2px);
+  }
+  20% {
+    transform: translateY(2px);
+  }
+  30% {
+    transform: translateY(-1px);
+  }
+  40% {
+    transform: translateY(1px);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+  60% {
+    transform: translateY(0);
+  }
+  70% {
+    transform: translateY(1px);
+  }
+  80% {
+    transform: translateY(-1px);
+  }
+  90% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* Random vertical cutout glitch */
+@keyframes glitch-cutout {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+  10% {
+    clip-path: inset(20% 0 0 0);
+  }
+  15% {
+    clip-path: inset(0 0 0 0);
+  }
+  25% {
+    clip-path: inset(0 0 40% 0);
+  }
+  30% {
+    clip-path: inset(0 0 0 0);
+  }
+  40% {
+    clip-path: inset(35% 0 30% 0);
+  }
+  45% {
+    clip-path: inset(0 0 0 0);
+  }
+  55% {
+    clip-path: inset(10% 0 0 0);
+  }
+  60% {
+    clip-path: inset(0 0 0 0);
+  }
+  70% {
+    clip-path: inset(0 0 25% 0);
+  }
+  75% {
+    clip-path: inset(0 0 0 0);
+  }
+  85% {
+    clip-path: inset(15% 0 15% 0);
+  }
+  90% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+

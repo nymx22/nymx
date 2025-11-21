@@ -6,8 +6,8 @@
     font-family: findreplace, sans-serif !important;
     font-style: normal;
     font-weight: 300;
-    font-size: 15px;
-    color: #000000;
+    font-size: 18px;
+    color: #ffffff !important;
 }
 
 .dg * {
@@ -17,7 +17,7 @@
     /* Test pattern background using gradients */
   
   .dg .title {
-    color: #000000 !important;
+    color: #ffffff !important;
     background-color: transparent !important; /* Semi-transparent title bar */
   }
   
@@ -45,7 +45,7 @@
   /* Make slider track background transparent or very subtle */
   .dg .slider {
     background-color: rgba(255, 255, 255, 0.1) !important;
-    color: #000;
+    color: #ffffff !important;
   }
 
   
@@ -58,20 +58,20 @@
   .dg .close-top:hover,
   .dg .close-bottom:hover {
     background-color: transparent !important;
-    color: #000000 !important;
+    color: #ffffff !important;
   }
   
   /* Remove blue from input focus */
   .dg .c input[type=text]:focus {
     background-color: rgba(255, 255, 255, 0.2) !important;
-    border-color: #000000 !important;
+    border-color: #ffffff !important;
     outline: none !important;
   }
   
   /* Remove blue from any buttons */
   .dg button {
     background-color: transparent !important;
-    color: #000000 !important;
+    color: #ffffff !important;
   }
   
   .dg button:hover {
@@ -83,7 +83,7 @@
   .dg a:visited,
   .dg a:hover,
   .dg a:active {
-    color: #000000 !important;
+    color: #ffffff !important;
     background-color: transparent !important;
   }
   
@@ -102,11 +102,11 @@
   }
   
   .dg .c input[type=text] {
-    color: #000000 !important;
+    color: #ffffff !important;
     background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
     font-family: findreplace, sans-serif !important;
     font-style: normal;
-    font-size: 15px;
+    font-size: 18px;
     border-color: transparent !important;
   }
 
@@ -114,7 +114,7 @@
   .dg option {
     font-family: findreplace, sans-serif !important;
     background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
-    color: #000000 !important;
+    color: #ffffff !important;
   }
   
   /* Dropdown select styling */

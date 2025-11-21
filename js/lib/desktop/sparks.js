@@ -15,16 +15,6 @@ export function initWeldingSparks() {
   // Create sparks container
   const sparksContainer = document.createElement('div');
   sparksContainer.className = 'sparks-container';
-  sparksContainer.style.cssText = `
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-    z-index: 10;
-  `;
   
   container.appendChild(sparksContainer);
 
@@ -88,18 +78,14 @@ function generateSpark(sparksContainer, humanoidContainer) {
   ];
   const color = colors[Math.floor(Math.random() * colors.length)];
   
-  spark.style.cssText = `
-    position: absolute;
-    left: ${startX}px;
-    top: ${startY}px;
-    width: ${size}px;
-    height: ${size}px;
-    background: ${color};
-    border-radius: 50%;
-    box-shadow: 0 0 ${size * 2}px ${color};
-    pointer-events: none;
-    animation: spark-fade ${lifetime}s linear forwards;
-  `;
+  spark.className = 'spark';
+  spark.style.left = startX + 'px';
+  spark.style.top = startY + 'px';
+  spark.style.width = size + 'px';
+  spark.style.height = size + 'px';
+  spark.style.background = color;
+  spark.style.boxShadow = `0 0 ${size * 2}px ${color}`;
+  spark.style.animationDuration = lifetime + 's';
   
   sparksContainer.appendChild(spark);
   
@@ -128,24 +114,7 @@ function generateSpark(sparksContainer, humanoidContainer) {
   }, frameTime);
 }
 
-// Inject CSS animation for spark fade
-if (!document.querySelector('#spark-keyframes')) {
-  const style = document.createElement('style');
-  style.id = 'spark-keyframes';
-  style.textContent = `
-    @keyframes spark-fade {
-      0% {
-        opacity: 1;
-        transform: scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: scale(0.3);
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
+// Spark animation is now handled by sparks.css
 
 /**
  * Stop generating sparks
