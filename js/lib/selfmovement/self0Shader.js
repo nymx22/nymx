@@ -1,21 +1,25 @@
+import { Self } from './Self.js';
+
 export function initSelf0Shader() {
   let shader;
-  let selfImg;
   let canvas;
   let gui;
+  let self; // Self character instance
   
   const params = {
-    flicker: 0.3,
-    glitch: 0.5,
-    scanLines: 0.04,
-    tracking: 0.8,
-    colorShift: 0.1
+    flicker: 1.0,
+    glitch: 1.0,
+    scanLines: 0.2,
+    tracking: 1.0,
+    colorShift: 1.0
   };
   
   const sketch = function(p) {
     p.preload = function() {
       shader = p.loadShader('/shaders/self0.vert', '/shaders/self0.frag');
-      selfImg = p.loadImage('/assets/images/self0.PNG');
+      // Self will load its own images
+      self = new Self(p);
+      console.log('Shader loaded:', shader);
     };
     
     p.setup = function() {
@@ -23,13 +27,17 @@ export function initSelf0Shader() {
       const container = document.getElementById('self-shader-container');
       const containerHeight = container.offsetHeight;
       
-      // Calculate width to maintain aspect ratio
-      const aspectRatio = selfImg.width / selfImg.height;
-      const canvasWidth = containerHeight * aspectRatio;
+      // Canvas should be large enough for movement but positioned correctly
+      const canvasWidth = p.windowWidth;
       
       canvas = p.createCanvas(canvasWidth, containerHeight, p.WEBGL);
       canvas.parent('self-shader-container');
-      p.noStroke();
+      
+      // Set texture mode for proper UV mapping
+      p.textureMode(p.NORMAL);
+      
+      // Initialize Self at center (0, 0 in WEBGL coordinates)
+      self = new Self(p);
       
       // Initialize dat.GUI
       gui = new dat.GUI({ autoPlace: false });
@@ -37,38 +45,79 @@ export function initSelf0Shader() {
       document.body.appendChild(gui.domElement);
       
       // Add controls with increased ranges
-      gui.add(params, 'flicker', 0.0, 1.0).name('Flicker');
-      gui.add(params, 'glitch', 0.0, 1.0).name('Glitch');
-      gui.add(params, 'scanLines', 0.0, 0.2).name('Scan Lines');
-      gui.add(params, 'tracking', 0.0, 1.0).name('Tracking');
-      gui.add(params, 'colorShift', 0.0, 1.0).name('Color Shift');
+      gui.add(params, 'flicker', 0.0, 1.0).name('Flicker').onChange((val) => {
+        console.log('Flicker changed to:', val);
+      });
+      gui.add(params, 'glitch', 0.0, 5.0).name('Glitch').onChange((val) => {
+        console.log('Glitch changed to:', val);
+      });
+      gui.add(params, 'scanLines', 0.0, 0.2).name('Scan Lines').onChange((val) => {
+        console.log('Scan Lines changed to:', val);
+      });
+      gui.add(params, 'tracking', 0.0, 1.0).name('Tracking').onChange((val) => {
+        console.log('Tracking changed to:', val);
+      });
+      gui.add(params, 'colorShift', 0.0, 1.0).name('Color Shift').onChange((val) => {
+        console.log('Color Shift changed to:', val);
+      });
       
       // Setup hover hint text
       setupHintText();
+      
+      console.log('Setup complete. Initial params:', params);
     };
     
     p.draw = function() {
-      // Apply shader
-      p.shader(shader);
+      // Clear background
+      p.clear();
       
-      // Pass uniforms to shader
-      shader.setUniform('uTexture', selfImg);
-      shader.setUniform('uTime', p.millis());
-      shader.setUniform('uFlickerIntensity', params.flicker);
-      shader.setUniform('uGlitchIntensity', params.glitch);
-      shader.setUniform('uScanLineIntensity', params.scanLines);
-      shader.setUniform('uTrackingIntensity', params.tracking);
-      shader.setUniform('uColorShiftIntensity', params.colorShift);
+      // Update self character
+      self.update();
       
-      // Draw rectangle (shader applies to this)
-      p.rect(0, 0, p.width, p.height);
+      // Get current image from self
+      const currentImage = self.getCurrentImage();
+      
+      if (currentImage && currentImage.width > 0) {
+        // Calculate scaled dimensions
+        const scaledWidth = currentImage.width * self.scale;
+        const scaledHeight = currentImage.height * self.scale;
+        
+        // Draw with shader, positioned and flipped based on self state
+        p.push();
+        p.translate(self.x, self.y, 0);
+        
+        // Flip horizontally if moving left
+        if (self.direction === -1) {
+          p.scale(-1, 1);
+        }
+        
+        // Apply shader and pass uniforms
+        p.shader(shader);
+        shader.setUniform('uTexture', currentImage);
+        shader.setUniform('uTime', p.millis());
+        shader.setUniform('uFlickerIntensity', params.flicker);
+        shader.setUniform('uGlitchIntensity', params.glitch);
+        shader.setUniform('uScanLineIntensity', params.scanLines);
+        shader.setUniform('uTrackingIntensity', params.tracking);
+        shader.setUniform('uColorShiftIntensity', params.colorShift);
+        
+        // Draw rectangle (shader applies to this)
+        // Don't use p.texture() - texture is passed as uniform only
+        p.noStroke();
+        p.rect(-scaledWidth/2, -scaledHeight/2, scaledWidth, scaledHeight);
+        
+        p.pop();
+        
+        // Reset shader after drawing
+        p.resetShader();
+      }
     };
     
     p.windowResized = function() {
       const container = document.getElementById('self-shader-container');
       const containerHeight = container.offsetHeight;
-      const aspectRatio = selfImg.width / selfImg.height;
-      const canvasWidth = containerHeight * aspectRatio;
+      // Make canvas wide enough for movement
+      const canvasWidth = p.windowWidth;
       p.resizeCanvas(canvasWidth, containerHeight);
     };
   };
@@ -90,6 +139,7 @@ export function initSelf0Shader() {
       'how long has it been?',
       'welcome to the basement!',
       'who is this?',
+      'who am i?'
     ];
     
     let sparkleInterval;
@@ -122,7 +172,7 @@ export function initSelf0Shader() {
         // Add neon highlight to selected characters
         if (highlightIndices.includes(index)) {
           span.classList.add('neon-highlight');
-          // Random neon color (70% opacity for background)
+          // Random neon color
           const neonColors = [
             'rgba(255, 0, 255, 0.7)',   // Magenta
             'rgba(0, 255, 255, 0.7)',   // Cyan
@@ -133,7 +183,7 @@ export function initSelf0Shader() {
           const randomColor = neonColors[Math.floor(Math.random() * neonColors.length)];
           span.style.backgroundColor = randomColor;
           span.style.boxShadow = `0 0 10px ${randomColor}, 0 0 20px ${randomColor}`;
-          // Random character opacity between 30-60%
+          // Random character opacity between 50-80%
           span.style.opacity = (0.5 + Math.random() * 0.3).toFixed(2);
         }
         

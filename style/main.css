@@ -40,6 +40,7 @@ body {
   height: 100vh;
   z-index: 999;
   pointer-events: none;
+  /* mix-blend-mode is now controlled by GUI */
 }
 
 /* Humanoid container - centered */

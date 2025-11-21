@@ -17,8 +17,8 @@ float random(vec2 st) {
 void main() {
   vec2 uv = vTexCoord;
   
-  // Flip Y coordinate for p5.js
-  uv.y = 1.0 - uv.y;
+  // Don't flip Y coordinate when using rect() in WEBGL
+  // uv.y = 1.0 - uv.y;
   
   // FLICKERING EFFECT
   float flicker = random(vec2(uTime * 0.001)) * uFlickerIntensity;
@@ -31,8 +31,9 @@ void main() {
   float trackingError = 0.0;
   // Only apply tracking if intensity is above threshold (always on if slider > 0)
   if (uTrackingIntensity > 0.01) {
-    if (random(vec2(floor(uTime * 5.0), floor(uv.y * 20.0))) > 0.85) {
-      trackingError = (random(vec2(uTime, uv.y)) - 0.5) * uTrackingIntensity * 0.15;
+    // Increase probability and make it more visible
+    if (random(vec2(floor(uTime * 3.0), floor(uv.y * 15.0))) > 0.80) {
+      trackingError = (random(vec2(uTime * 0.1, uv.y)) - 0.5) * uTrackingIntensity * 0.3;
     }
   }
   vec2 uvTracking = uv;

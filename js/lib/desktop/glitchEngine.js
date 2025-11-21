@@ -17,8 +17,29 @@ export class GlitchEngine {
     // GUI parameters
     this.params = {
       mode: 'Off',
-      opacity: 0.8
+      opacity: 0.8,
+      blendMode: 'screen'
     };
+    
+    // Blend mode options
+    this.blendModes = [
+      'normal',
+      'multiply',
+      'screen',
+      'overlay',
+      'darken',
+      'lighten',
+      'color-dodge',
+      'color-burn',
+      'hard-light',
+      'soft-light',
+      'difference',
+      'exclusion',
+      'hue',
+      'saturation',
+      'color',
+      'luminosity'
+    ];
     
     // Effect mapping
     this.effectMap = {
@@ -34,7 +55,7 @@ export class GlitchEngine {
   }
 
   /**
-   * Randomize glitch mode and opacity
+   * Randomize glitch mode, opacity, and blend mode
    */
   randomize() {
     // Get random mode (excluding 'Off' at index 0)
@@ -43,6 +64,10 @@ export class GlitchEngine {
     
     // Random opacity between 0.3 and 1.0
     this.params.opacity = Math.random() * 0.7 + 0.3;
+    
+    // Random blend mode
+    const randomBlendIndex = Math.floor(Math.random() * this.blendModes.length);
+    this.params.blendMode = this.blendModes[randomBlendIndex];
     
     // Update GUI controllers to reflect random values
     if (this.gui) {
@@ -58,7 +83,13 @@ export class GlitchEngine {
       canvas.style.opacity = this.params.opacity;
     }
     
-    console.log(`Randomized: ${this.params.mode} at ${(this.params.opacity * 100).toFixed(0)}% opacity`);
+    // Apply blend mode to canvas container immediately
+    const canvasContainer = document.querySelector('#glitch-canvas');
+    if (canvasContainer) {
+      canvasContainer.style.mixBlendMode = this.params.blendMode;
+    }
+    
+    console.log(`Randomized: ${this.params.mode} at ${(this.params.opacity * 100).toFixed(0)}% opacity with ${this.params.blendMode} blend`);
   }
 
   /**
@@ -141,11 +172,25 @@ export class GlitchEngine {
         }
       });
     
-    // Set initial opacity
+    // Blend mode selector
+    this.gui.add(this.params, 'blendMode', this.blendModes)
+      .name('Blend Mode')
+      .onChange((value) => {
+        const canvasContainer = document.querySelector('#glitch-canvas');
+        if (canvasContainer) {
+          canvasContainer.style.mixBlendMode = value;
+        }
+      });
+    
+    // Set initial opacity and blend mode
     setTimeout(() => {
       const canvas = document.querySelector('#glitch-canvas canvas');
       if (canvas) {
         canvas.style.opacity = this.params.opacity;
+      }
+      const canvasContainer = document.querySelector('#glitch-canvas');
+      if (canvasContainer) {
+        canvasContainer.style.mixBlendMode = this.params.blendMode;
       }
     }, 100);
   }
