@@ -7,6 +7,7 @@ import { GlitchEngine } from './lib/glitchEngine.js';
 import { randomizeBgColor } from './lib/desktop/bgcolor.js';
 import { initHumanoidGlow } from './lib/desktop/glow.js';
 import { initWeldingSparks } from './lib/desktop/sparks.js';
+import { initCustomCursor } from './lib/desktop/cursor.js';
 
 domReady(() => {
   bootstrapDesktopUI();
@@ -26,4 +27,7 @@ domReady(() => {
   
   // Initialize welding sparks effect
   initWeldingSparks();
+  
+  // Initialize custom animated cursor
+  initCustomCursor();
 });
