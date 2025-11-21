@@ -29,8 +29,8 @@ void main() {
   
   // VHS TRACKING ERRORS (horizontal displacement)
   float trackingError = 0.0;
-  if (random(vec2(floor(uTime * 5.0), floor(uv.y * 20.0))) > 0.95) {
-    trackingError = (random(vec2(uTime, uv.y)) - 0.5) * uTrackingIntensity * 0.1;
+  if (random(vec2(floor(uTime * 5.0), floor(uv.y * 20.0))) > 0.85) {
+    trackingError = (random(vec2(uTime, uv.y)) - 0.5) * uTrackingIntensity * 0.15;
   }
   vec2 uvTracking = uv;
   uvTracking.x += trackingError;
