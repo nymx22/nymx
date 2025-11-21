@@ -12,10 +12,15 @@
   justify-content: center;
 }
 
-.self-image {
+#self-shader-container {
   height: 100%;
   width: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#self-shader-container canvas {
   display: block;
-  object-fit: contain;
 }
 

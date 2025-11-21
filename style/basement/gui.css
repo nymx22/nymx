@@ -1,0 +1,137 @@
+/* Basement dat.GUI Styles - Matching Homepage GUI */
+
+#basement-gui {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 10000 !important;
+}
+
+#basement-gui.dg {
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  font-family: findreplace, sans-serif !important;
+  font-style: normal;
+  font-weight: 300;
+  font-size: 15px;
+  color: #ffffff !important;
+}
+
+#basement-gui.dg * {
+  font-family: findreplace, sans-serif !important;
+}
+
+#basement-gui.dg .title {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  font-size: 15px !important;
+}
+
+#basement-gui.dg .cr {
+  background-color: transparent !important;
+}
+
+#basement-gui.dg .property-name {
+  background-color: transparent !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+}
+
+#basement-gui.dg .close-button {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+#basement-gui.dg .close-top {
+  background-color: transparent !important;
+}
+
+#basement-gui.dg .close-bottom {
+  background-color: transparent !important;
+}
+
+#basement-gui.dg .slider {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+#basement-gui.dg .slider-fg {
+  background-color: #86868673 !important;
+}
+
+#basement-gui.dg .close-button:hover,
+#basement-gui.dg .close-top:hover,
+#basement-gui.dg .close-bottom:hover {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+#basement-gui.dg .c input[type=text]:focus {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: #ffffff !important;
+  outline: none !important;
+}
+
+#basement-gui.dg button {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+#basement-gui.dg button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#basement-gui.dg a,
+#basement-gui.dg a:visited,
+#basement-gui.dg a:hover,
+#basement-gui.dg a:active {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+#basement-gui.dg * {
+  border-color: transparent !important;
+}
+
+#basement-gui.dg *:focus {
+  outline: none !important;
+  border-color: transparent !important;
+}
+
+#basement-gui.dg .dg {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+#basement-gui.dg .c input[type=text] {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  font-family: findreplace, sans-serif !important;
+  font-style: normal;
+  font-size: 15px;
+  border-color: transparent !important;
+}
+
+#basement-gui.dg select,
+#basement-gui.dg option {
+  font-family: findreplace, sans-serif !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  font-size: 15px !important;
+}
+
+#basement-gui.dg select {
+  border: none !important;
+  padding: 4px !important;
+}
+
+#basement-gui.dg li {
+  font-size: 15px !important;
+}
+
+#basement-gui.dg li:not(.folder) {
+  background-color: transparent !important;
+}
+
+#basement-gui.dg li.folder {
+  background-color: transparent !important;
+}
+

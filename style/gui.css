@@ -1,12 +1,19 @@
 /* gui.css - Custom styles for dat.GUI */
 
+.dg.ac {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+}
+
 .dg {
     /* Base background - faded dark */
     background-color: rgba(255, 255, 255, 0.25) !important;
     font-family: findreplace, sans-serif !important;
     font-style: normal;
     font-weight: 300;
-    font-size: 18px;
+    font-size: 15px;
     color: #ffffff !important;
 }
 
@@ -19,6 +26,7 @@
   .dg .title {
     color: #ffffff !important;
     background-color: transparent !important; /* Semi-transparent title bar */
+    font-size: 15px !important;
   }
   
   .dg .cr {
@@ -28,6 +36,7 @@
   /* Make the property name container transparent */
   .dg .property-name {
     background-color: transparent !important;
+    font-size: 15px !important;
   }
 
   .dg .close-button {
@@ -106,7 +115,7 @@
     background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
     font-family: findreplace, sans-serif !important;
     font-style: normal;
-    font-size: 18px;
+    font-size: 15px;
     border-color: transparent !important;
   }
 
@@ -115,10 +124,15 @@
     font-family: findreplace, sans-serif !important;
     background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
     color: #ffffff !important;
+    font-size: 15px !important;
   }
   
   /* Dropdown select styling */
   .dg select {
     border: none !important;
     padding: 4px !important;
+  }
+  
+  .dg li {
+    font-size: 15px !important;
   }
