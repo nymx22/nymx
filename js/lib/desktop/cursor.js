@@ -9,9 +9,12 @@ export function initCustomCursor() {
   const cursor = document.createElement('div');
   cursor.className = 'custom-cursor';
   
-  // Set initial CSS variables
-  cursor.style.setProperty('--mouse-x', '0px');
-  cursor.style.setProperty('--mouse-y', '0px');
+  // Set initial CSS variables to center of screen
+  cursor.style.setProperty('--mouse-x', `${window.innerWidth / 2 - 32}px`);
+  cursor.style.setProperty('--mouse-y', `${window.innerHeight / 2 - 32}px`);
+  
+  // Start with cursor hidden
+  cursor.style.opacity = '0';
 
   document.body.appendChild(cursor);
 
@@ -19,6 +22,8 @@ export function initCustomCursor() {
   document.addEventListener('mousemove', (e) => {
     cursor.style.setProperty('--mouse-x', `${e.clientX - 32}px`);
     cursor.style.setProperty('--mouse-y', `${e.clientY - 32}px`);
+    // Show cursor on first move
+    cursor.style.opacity = '1';
   }, { passive: true });
 
   // Hide cursor when mouse leaves window

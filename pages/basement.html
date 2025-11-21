@@ -14,6 +14,7 @@
     <link rel="stylesheet" href="../style/basement/wall.css" />
     <link rel="stylesheet" href="../style/basement/floor.css" />
     <link rel="stylesheet" href="../style/basement/pebbles.css" />
+    <link rel="stylesheet" href="../style/basement/stair.css" />
     <link rel="stylesheet" href="../style/basement/self.css" />
     <link rel="stylesheet" href="../style/basement/self0hint.css" />
     <link rel="stylesheet" href="../style/basement/glitch.css" />
@@ -46,20 +47,20 @@
       /* Hide content until loaded (but not cursor) */
       body.loading .wall-section,
       body.loading .floor-section,
+      body.loading .stair-container,
       body.loading .self-container,
       body.loading #basement-glitch-canvas,
-      body.loading .vignette-overlay,
-      body.loading .basement-content {
+      body.loading .vignette-overlay {
         opacity: 0;
       }
       
       /* Smooth fade-in for content */
       .wall-section,
       .floor-section,
+      .stair-container,
       .self-container,
       #basement-glitch-canvas,
-      .vignette-overlay,
-      .basement-content {
+      .vignette-overlay {
         transition: opacity 0.8s ease-in;
       }
     </style>
@@ -76,6 +77,11 @@
     <div class="wall-section"></div>
     <div class="floor-section"></div>
     
+    <!-- Stair on left side (return button) -->
+    <a href="../index.html" class="stair-container">
+      <div id="stair-shader-container"></div>
+    </a>
+    
       <!-- Self 0 with shader effects -->
       <div class="self-container">
         <div id="self-shader-container"></div>
@@ -87,14 +93,11 @@
     <!-- White vignette overlay -->
     <div class="vignette-overlay"></div>
     
-    <div class="basement-content">
-      <a href="../index.html" class="back-link">return</a>
-    </div>
-    
     <script type="module">
       import { initPebbleFloor } from '../js/lib/desktop/pebbleFloor.js';
       import { pureSnow } from '../js/effects/glitch/pureSnow.js';
       import { initSelf0Shader } from '../js/lib/basement/self0Shader.js';
+      import { initStairShader } from '../js/lib/basement/stairShader.js';
       
       // Wait for everything to load
       window.addEventListener('load', async () => {
@@ -112,6 +115,9 @@
         
         // Initialize self0 shader with GUI
         initSelf0Shader();
+        
+        // Initialize stair shader
+        initStairShader();
         
         // Initialize p5 sketch for snow glitch (optimized)
         const sketch = (p) => {

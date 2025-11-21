@@ -19,6 +19,7 @@
 
 .dg * {
     font-family: findreplace, sans-serif !important;
+    font-size: 15px !important;
 }
     
     /* Test pattern background using gradients */
@@ -31,6 +32,7 @@
   
   .dg .cr {
     background-color: transparent !important;
+    font-size: 15px !important;
   }
   
   /* Make the property name container transparent */
@@ -55,6 +57,7 @@
   .dg .slider {
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
+    font-size: 15px !important;
   }
 
   
