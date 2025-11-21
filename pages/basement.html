@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="../style/basement/wall.css" />
     <link rel="stylesheet" href="../style/basement/floor.css" />
     <link rel="stylesheet" href="../style/basement/pebbles.css" />
+    <link rel="stylesheet" href="../style/basement/self.css" />
     <link rel="stylesheet" href="../style/basement/glitch.css" />
     <link rel="stylesheet" href="../style/basement/vignette.css" />
     <link rel="stylesheet" href="../style/basement/cursor.css" />
@@ -39,6 +40,7 @@
       /* Hide content until loaded (but not cursor) */
       body.loading .wall-section,
       body.loading .floor-section,
+      body.loading .self-container,
       body.loading #basement-glitch-canvas,
       body.loading .vignette-overlay,
       body.loading .basement-content {
@@ -48,6 +50,7 @@
       /* Smooth fade-in for content */
       .wall-section,
       .floor-section,
+      .self-container,
       #basement-glitch-canvas,
       .vignette-overlay,
       .basement-content {
@@ -66,6 +69,11 @@
     <!-- Background sections -->
     <div class="wall-section"></div>
     <div class="floor-section"></div>
+    
+    <!-- Self 1 image in center -->
+    <div class="self-container">
+      <img src="../assets/images/self0.PNG" alt="self 1" class="self-image">
+    </div>
     
     <!-- Snow glitch overlay -->
     <div id="basement-glitch-canvas"></div>
