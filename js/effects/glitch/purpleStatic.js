@@ -14,7 +14,7 @@ export function purpleStatic(p) {
   
   // Generate chunky noise by using larger blocks instead of blur
   // This is much faster than generating full-res noise + blur
-  const chunkSize = 6; // Size of each noise block (simulates blur)
+  const chunkSize = 3; // Size of each noise block (smaller = more refined)
   
   for (let y = 0; y < height; y += chunkSize) {
     for (let x = 0; x < width; x += chunkSize) {
