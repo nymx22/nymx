@@ -40,9 +40,9 @@ export class Self {
       }
     });
     
-    // Load animation frames (self1, self2, self3)
+    // Load animation frames (self1, self2, self3) - lowercase .png
     for (let i = 1; i <= 3; i++) {
-      this.frames.push(this.p.loadImage(`/assets/images/self/self${i}.PNG`));
+      this.frames.push(this.p.loadImage(`/assets/images/self/self${i}.png`));
     }
   }
   
