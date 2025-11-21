@@ -5,9 +5,6 @@
  */
 
 export function initCustomCursor() {
-  // Hide default cursor
-  document.body.style.cursor = 'none';
-
   // Create custom cursor element
   const cursor = document.createElement('div');
   cursor.className = 'custom-cursor';
@@ -15,20 +12,6 @@ export function initCustomCursor() {
   // Set initial CSS variables
   cursor.style.setProperty('--mouse-x', '0px');
   cursor.style.setProperty('--mouse-y', '0px');
-  
-  cursor.style.cssText = `
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 64px;
-    height: 64px;
-    pointer-events: none;
-    z-index: 99999;
-    transform: translate3d(var(--mouse-x), var(--mouse-y), 0);
-    will-change: transform;
-    background: url('assets/gif/cursor.gif') no-repeat center / contain;
-    filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.9)) drop-shadow(0 0 20px rgba(173, 216, 230, 0.6)) drop-shadow(0 0 30px rgba(173, 216, 230, 0.4));
-  `;
 
   document.body.appendChild(cursor);
 

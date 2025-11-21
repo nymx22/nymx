@@ -5,18 +5,20 @@
  */
 
 export function initPebbleFloor() {
-  const floorSection = document.querySelector('.floor-section');
-  
-  if (!floorSection) {
-    console.error('Floor section not found');
-    return;
-  }
+  return new Promise((resolve, reject) => {
+    const floorSection = document.querySelector('.floor-section');
+    
+    if (!floorSection) {
+      console.error('Floor section not found');
+      reject(new Error('Floor section not found'));
+      return;
+    }
 
-  // Load the pebble image
-  const img = new Image();
-  img.src = '../assets/images/pebble.jpg';
-  
-  img.onload = () => {
+    // Load the pebble image
+    const img = new Image();
+    img.src = '../assets/images/pebble.jpg';
+    
+    img.onload = () => {
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     
@@ -44,93 +46,83 @@ export function initPebbleFloor() {
     
     // Determine square size to cut from image (use smaller dimension)
     const maxSquareSize = Math.min(img.width, img.height);
-    const squareSize = Math.floor(maxSquareSize / 4); // Cut larger squares (was /6)
+    const squareSize = Math.floor(maxSquareSize / 4);
     
-    // Create 30 random square pieces from the image
-    const pieces = [];
-    for (let i = 0; i < totalPieces; i++) {
-      // Random position in the source image (ensuring square fits)
-      const maxX = img.width - squareSize;
-      const maxY = img.height - squareSize;
-      const randomX = Math.floor(Math.random() * maxX);
-      const randomY = Math.floor(Math.random() * maxY);
-      
-      // Create a canvas for this piece
-      const pieceCanvas = document.createElement('canvas');
-      pieceCanvas.width = squareSize;
-      pieceCanvas.height = squareSize;
-      const pieceCtx = pieceCanvas.getContext('2d');
-      
-      // Draw the random square from the source image
-      pieceCtx.drawImage(
-        img,
-        randomX, randomY, // source x, y
-        squareSize, squareSize, // source width, height
-        0, 0, // destination x, y
-        squareSize, squareSize // destination width, height
-      );
-      
-      pieces.push(pieceCanvas.toDataURL());
-    }
+    // Pre-calculate values
+    const maxX = img.width - squareSize;
+    const maxY = img.height - squareSize;
+    const totalTiles = verticalTiles * horizontalTiles;
     
-    // Shuffle the pieces array for random order
-    for (let i = pieces.length - 1; i > 0; i--) {
+    // Create single reusable canvas for all pieces (optimization)
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = squareSize;
+    tempCanvas.height = squareSize;
+    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: false });
+    
+    // Generate random positions once
+    const positions = Array.from({ length: totalPieces }, () => ({
+      x: Math.floor(Math.random() * maxX),
+      y: Math.floor(Math.random() * maxY)
+    }));
+    
+    // Create randomized tile indices (combine shuffle into generation)
+    const tileIndices = Array.from({ length: totalTiles }, (_, i) => i % totalPieces);
+    for (let i = tileIndices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [pieces[i], pieces[j]] = [pieces[j], pieces[i]];
+      [tileIndices[i], tileIndices[j]] = [tileIndices[j], tileIndices[i]];
     }
     
-    // Create container for pebble pieces
+    // Create container and fragment for batch DOM insertion
     const pebbleContainer = document.createElement('div');
     pebbleContainer.className = 'pebble-container';
+    const fragment = document.createDocumentFragment();
     
-    // Create randomized tile order
-    const totalTiles = verticalTiles * horizontalTiles;
-    const tileOrder = [];
+    // Single loop: create and place all tiles
     for (let i = 0; i < totalTiles; i++) {
-      tileOrder.push(pieces[i % totalPieces]);
+      const pieceIndex = tileIndices[i];
+      const pos = positions[pieceIndex];
+      
+      // Draw piece to temp canvas
+      tempCtx.clearRect(0, 0, squareSize, squareSize);
+      tempCtx.drawImage(img, pos.x, pos.y, squareSize, squareSize, 0, 0, squareSize, squareSize);
+      
+      // Create tile element
+      const pieceDiv = document.createElement('div');
+      pieceDiv.className = 'pebble-piece';
+      
+      // Calculate position
+      const col = i % horizontalTiles;
+      const row = Math.floor(i / horizontalTiles);
+      
+      // Set styles (use cssText for better performance)
+      pieceDiv.style.cssText = `
+        left: ${col * tileWidth}px;
+        top: ${row * tileHeight}px;
+        width: ${tileWidth}px;
+        height: ${tileHeight}px;
+        background-image: url(${tempCanvas.toDataURL('image/webp', 0.8)});
+      `;
+      
+      fragment.appendChild(pieceDiv);
     }
     
-    // Shuffle the tile order for random placement
-    for (let i = tileOrder.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tileOrder[i], tileOrder[j]] = [tileOrder[j], tileOrder[i]];
-    }
+    // Single DOM operation
+    pebbleContainer.appendChild(fragment);
     
-    // Place pieces in grid with randomized order
-    let tileIndex = 0;
-    for (let row = 0; row < verticalTiles; row++) {
-      for (let col = 0; col < horizontalTiles; col++) {
-        // Use randomized tile order
-        const pieceData = tileOrder[tileIndex++];
-        
-        // Create a div to hold this piece
-        const pieceDiv = document.createElement('div');
-        pieceDiv.className = 'pebble-piece';
-        
-        // Position in grid
-        const posX = col * tileWidth;
-        const posY = row * tileHeight;
-        
-        // Set position and size via inline styles (dynamic values)
-        pieceDiv.style.left = `${posX}px`;
-        pieceDiv.style.top = `${posY}px`;
-        pieceDiv.style.width = `${tileWidth}px`;
-        pieceDiv.style.height = `${tileHeight}px`;
-        pieceDiv.style.backgroundImage = `url(${pieceData})`;
-        
-        pebbleContainer.appendChild(pieceDiv);
-      }
-    }
+      // Clear existing floor background and add pebble container
+      floorSection.style.backgroundImage = 'none';
+      floorSection.appendChild(pebbleContainer);
+      
+      console.log(`Pebble floor initialized: ${verticalTiles} rows × ${horizontalTiles} cols using ${totalPieces} random pieces`);
+      
+      // Resolve promise when complete
+      resolve();
+    };
     
-    // Clear existing floor background and add pebble container
-    floorSection.style.backgroundImage = 'none';
-    floorSection.appendChild(pebbleContainer);
-    
-    console.log(`Pebble floor initialized: ${verticalTiles} rows × ${horizontalTiles} cols using ${totalPieces} random pieces`);
-  };
-  
-  img.onerror = () => {
-    console.error('Failed to load pebble.png');
-  };
+    img.onerror = () => {
+      console.error('Failed to load pebble.jpg');
+      reject(new Error('Failed to load pebble.jpg'));
+    };
+  });
 }
 

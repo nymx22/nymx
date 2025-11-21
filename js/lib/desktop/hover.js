@@ -45,6 +45,18 @@ export function initHumanoidHover() {
   whiteSpace.href = 'pages/basement.html';
   whiteSpace.className = 'white-space-link';
   
+  // Add click handler for smooth transition
+  whiteSpace.addEventListener('click', (e) => {
+    e.preventDefault();
+    const transition = document.querySelector('.page-transition');
+    transition.classList.add('active');
+    
+    // Navigate after transition
+    setTimeout(() => {
+      window.location.href = 'pages/basement.html';
+    }, 500);
+  });
+  
   // Create hint text that follows cursor with wavy effect
   const hintText = document.createElement('div');
   hintText.className = 'cursor-hint';

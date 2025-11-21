@@ -23,8 +23,8 @@
         left: 0;
         width: 100%;
         height: 100vh;
-        background: #0353a4;
-        z-index: 10000;
+        background: #ffffff;
+        z-index: 9999;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -36,8 +36,7 @@
         pointer-events: none;
       }
       
-      /* Hide content until loaded */
-      body.loading .custom-cursor,
+      /* Hide content until loaded (but not cursor) */
       body.loading .wall-section,
       body.loading .floor-section,
       body.loading #basement-glitch-canvas,
@@ -47,7 +46,6 @@
       }
       
       /* Smooth fade-in for content */
-      .custom-cursor,
       .wall-section,
       .floor-section,
       #basement-glitch-canvas,
