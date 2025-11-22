@@ -147,7 +147,8 @@ export function initSelf0Shader() {
       'how long has it been?',
       'welcome to the basement!',
       'who is this?',
-      'who am i?'
+      'who am i?',
+      '*teary eyes*'
     ];
     
     let sparkleInterval;
@@ -155,18 +156,30 @@ export function initSelf0Shader() {
     let hintAnimationFrame = null;
 
     const updateHintPosition = () => {
+      // Calculate self's actual screen position
+      // Self's x is relative to canvas center (which is at screen center)
+      const screenCenterX = window.innerWidth / 2;
+      const selfScreenX = screenCenterX + self.x;
+      
+      // Get container to find self's vertical position
       const rect = container.getBoundingClientRect();
-      if (rect.width === 0 && rect.height === 0) return;
-      const centerX = rect.left + rect.width / 2;
-      const topY = rect.top - 20;
-      hintText.style.left = `${centerX}px`;
-      hintText.style.top = `${topY}px`;
+      if (rect.width === 0 && rect.height === 0) {
+        hintAnimationFrame = requestAnimationFrame(updateHintPosition);
+        return;
+      }
+      
+      // Position hint text above self
+      // Get self's height to position text above it
+      const selfImage = self.getCurrentImage();
+      const selfHeight = selfImage ? selfImage.height * self.scale : rect.height;
+      const selfTop = rect.top;
+      
+      hintText.style.left = `${selfScreenX}px`;
+      hintText.style.top = `${selfTop-10}px`; // Position at top of self, CSS transform will move it up
 
       if (currentText === 'welcome to the basement!') {
-        const sparklesX = rect.left + rect.width / 2;
-        const sparklesY = rect.top + rect.height / 2;
-        sparklesContainer.style.left = `${sparklesX}px`;
-        sparklesContainer.style.top = `${sparklesY}px`;
+        sparklesContainer.style.left = `${selfScreenX}px`;
+        sparklesContainer.style.top = `${selfTop + selfHeight / 2}px`;
       }
 
       hintAnimationFrame = requestAnimationFrame(updateHintPosition);

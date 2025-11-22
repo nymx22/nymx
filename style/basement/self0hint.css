@@ -10,7 +10,7 @@
   z-index: 9998;
   opacity: 0;
   transition: opacity 0.3s ease;
-  transform: translate(-50%, -120%);
+  transform: translateX(-50%) translateY(-100%);
   filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8))
           drop-shadow(0 0 20px rgba(173, 216, 230, 0.6))
           drop-shadow(0 0 30px rgba(173, 216, 230, 0.4));
