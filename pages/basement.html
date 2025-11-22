@@ -163,6 +163,18 @@
             bubbleEl.classList.remove('visible');
           }, 10000);
         }
+
+        const wallSection = document.querySelector('.wall-section');
+        const syncStairHeight = () => {
+          if (!wallSection) return;
+          const wallHeight = wallSection.offsetHeight;
+          document.documentElement.style.setProperty('--wall-height', `${wallHeight}px`);
+          document.documentElement.style.setProperty('--stair-bottom', `${window.innerHeight - wallHeight}px`);
+        };
+        window.addEventListener('resize', () => {
+          syncStairHeight();
+        }, { passive: true });
+        syncStairHeight();
         
         window.__pebbleResizeRAF = null;
         const schedulePebbleRebuild = () => {

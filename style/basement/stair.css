@@ -2,9 +2,10 @@
 
 .stair-container {
   position: fixed;
-  right: -10%; /* Move more to the left (negative value pushes left) */
-  bottom: 25vh; /* Align bottom with top of floor (floor is 25vh tall) */
-  height: 75vh; /* Fill the wall section (75vh) */
+  right: 0;
+  bottom: var(--stair-bottom, 25vh); /* Align bottom with top of floor */
+  height: var(--wall-height, 75vh); /* Match the wall height */
+  width: min(33vw, 320px);
   z-index: 400;
   display: flex;
   align-items: flex-end;
