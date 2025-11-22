@@ -75,3 +75,18 @@ body {
   letter-spacing: 0.08em;
 }
 
+/* Mobile scaling for control bubble */
+@media (max-width: 767px) {
+  .basement-control-bubble {
+    font-size: 0.85em; /* Scale down overall bubble */
+  }
+  
+  .basement-control-bubble .controls-label {
+    font-size: 0.7rem; /* Scale down label */
+  }
+  
+  .basement-control-bubble .controls-arrows {
+    font-size: 0.85rem; /* Scale down arrows */
+  }
+}
+

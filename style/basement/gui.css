@@ -28,6 +28,7 @@
 
 #basement-gui.dg .cr {
   background-color: transparent !important;
+  min-height: 40px !important;
 }
 
 #basement-gui.dg .property-name {
@@ -52,10 +53,19 @@
 #basement-gui.dg .slider {
   background-color: rgba(255, 255, 255, 0.1) !important;
   color: #ffffff !important;
+  height: 40px !important;
+  min-height: 40px !important;
 }
 
 #basement-gui.dg .slider-fg {
   background-color: #86868673 !important;
+  height: 100% !important;
+}
+
+/* Slider container */
+#basement-gui.dg .c.slider {
+  height: 50px !important;
+  min-height: 50px !important;
 }
 
 #basement-gui.dg .close-button:hover,
@@ -115,12 +125,14 @@
   font-family: findreplace, sans-serif !important;
   background-color: rgba(255, 255, 255, 0.25) !important;
   color: #ffffff !important;
-  font-size: 15px !important;
+  font-size: 12px !important; /* 3px smaller than slider title (15px) */
 }
 
 #basement-gui.dg select {
   border: none !important;
   padding: 4px !important;
+  height: 40px !important;
+  min-height: 40px !important;
 }
 
 #basement-gui.dg li {
@@ -133,5 +145,35 @@
 
 #basement-gui.dg li.folder {
   background-color: transparent !important;
+}
+
+@media (max-width: 767px) {
+  /* Reduce font size by 5px in mobile */
+  #basement-gui.dg, #basement-gui.dg * {
+    font-size: calc(15px - 5px) !important; /* 10px */
+  }
+  
+  /* Divide slider heights by 2 in mobile */
+  #basement-gui.dg .cr {
+    min-height: 20px !important; /* 40px / 2 */
+  }
+  
+  #basement-gui.dg .slider {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+  }
+  
+  #basement-gui.dg .c.slider {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+  }
+  
+  /* Divide select height by 2 in mobile */
+  #basement-gui.dg select {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+    padding: 2px !important; /* Reduce padding too */
+    font-size: 7px !important; /* 3px smaller than slider title (10px) */
+  }
 }
 

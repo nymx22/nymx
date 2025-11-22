@@ -33,6 +33,7 @@
   .dg .cr {
     background-color: transparent !important;
     font-size: 15px !important;
+    min-height: 40px !important;
   }
   
   /* Make the property name container transparent */
@@ -58,11 +59,20 @@
     background-color: rgba(255, 255, 255, 0.1) !important;
     color: #ffffff !important;
     font-size: 15px !important;
+    height: 30px !important;
+    min-height: 30px !important;
   }
 
   
   .dg .slider-fg {
     background-color: #86868673 !important;
+    height: 100% !important;
+  }
+  
+  /* Slider container */
+  .dg .c.slider {
+    height: 30px !important;
+    min-height: 30px !important;
   }
   
   /* Remove blue from close button */
@@ -127,13 +137,15 @@
     font-family: findreplace, sans-serif !important;
     background-color: rgba(255, 255, 255, 0.25) !important; /* Match GUI background */
     color: #ffffff !important;
-    font-size: 15px !important;
+    font-size: 12px !important; /* 3px smaller than slider title (15px) */
   }
   
   /* Dropdown select styling */
   .dg select {
     border: none !important;
     padding: 4px !important;
+    height: 30px !important;
+    min-height: 30px !important;
   }
   
   .dg li {
@@ -150,6 +162,29 @@
   }
 
   .dg, .dg * {
-    font-size: 13px !important;
+    font-size: calc(15px - 5px) !important; /* Reduce by 5px */
+  }
+  
+  /* Divide slider heights by 2 in mobile */
+  .dg .cr {
+    min-height: 20px !important; /* 40px / 2 */
+  }
+  
+  .dg .slider {
+    height: 15px !important; /* 30px / 2 */
+    min-height: 15px !important;
+  }
+  
+  .dg .c.slider {
+    height: 15px !important; /* 30px / 2 */
+    min-height: 15px !important;
+  }
+  
+  /* Divide select height by 2 in mobile */
+  .dg select {
+    height: 15px !important; /* 30px / 2 */
+    min-height: 15px !important;
+    padding: 2px !important; /* Reduce padding too */
+    font-size: 7px !important; /* 3px smaller than slider title (10px) */
   }
   }
