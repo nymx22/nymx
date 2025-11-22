@@ -27,6 +27,14 @@ export class Self {
     // Load all self images
     this.loadImages();
     
+    // Handle window resize to rescale character
+    window.addEventListener('resize', () => {
+      this.targetHeight = window.innerHeight * 0.3;
+      if (this.idleFrame && this.idleFrame.height > 0) {
+        this.scale = this.targetHeight / this.idleFrame.height;
+      }
+    });
+
     // Setup keyboard controls
     this.setupControls();
   }

@@ -110,8 +110,21 @@
           customCursor.style.setProperty('--mouse-y', `${e.clientY - 32}px`);
         }, { passive: true });
         
-        // Initialize pebble floor
-        await initPebbleFloor();
+      let pebbleFloorBusy = false;
+      const rebuildPebbleFloor = async () => {
+        if (pebbleFloorBusy) return;
+        pebbleFloorBusy = true;
+        try {
+          await initPebbleFloor();
+        } catch (error) {
+          console.error('Pebble floor rebuild failed', error);
+        } finally {
+          pebbleFloorBusy = false;
+        }
+      };
+
+      // Initialize pebble floor
+      await rebuildPebbleFloor();
         
         // Initialize self0 shader with GUI
         initSelf0Shader();
@@ -139,6 +152,11 @@
         
         new p5(sketch);
         
+        window.addEventListener('resize', () => {
+          clearTimeout(window.__pebbleResizeTimer);
+          window.__pebbleResizeTimer = setTimeout(rebuildPebbleFloor, 220);
+        }, { passive: true });
+
         // Wait for initial render, then smoothly transition
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {

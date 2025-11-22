@@ -14,6 +14,12 @@ export function initPebbleFloor() {
       return;
     }
 
+    // Remove any existing pebble tiles before re-rendering
+    const existing = floorSection.querySelector('.pebble-container');
+    if (existing) {
+      existing.remove();
+    }
+
     // Load the pebble image
     const img = new Image();
     img.src = '../assets/images/pebble.jpg';

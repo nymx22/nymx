@@ -154,7 +154,7 @@
 
 @media (max-width: 767px) {
   .cursor-hint-text {
-    font-size: calc(2rem - 5px);
+    font-size: 1.4rem;
   }
 }
 

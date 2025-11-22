@@ -144,7 +144,39 @@ export function initSelf0Shader() {
     
     let sparkleInterval;
     let currentText = '';
-    
+    let hintAnimationFrame = null;
+
+    const updateHintPosition = () => {
+      const rect = container.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
+      const centerX = rect.left + rect.width / 2;
+      const topY = rect.top - 20;
+      hintText.style.left = `${centerX}px`;
+      hintText.style.top = `${topY}px`;
+
+      if (currentText === 'welcome to the basement!') {
+        const sparklesX = rect.left + rect.width / 2;
+        const sparklesY = rect.top + rect.height / 2;
+        sparklesContainer.style.left = `${sparklesX}px`;
+        sparklesContainer.style.top = `${sparklesY}px`;
+      }
+
+      hintAnimationFrame = requestAnimationFrame(updateHintPosition);
+    };
+
+    const startHintFollow = () => {
+      if (hintAnimationFrame === null) {
+        updateHintPosition();
+      }
+    };
+
+    const stopHintFollow = () => {
+      if (hintAnimationFrame !== null) {
+        cancelAnimationFrame(hintAnimationFrame);
+        hintAnimationFrame = null;
+      }
+    };
+
     container.addEventListener('mouseenter', () => {
       // Pick random text on each hover
       currentText = hintTexts[Math.floor(Math.random() * hintTexts.length)];
@@ -191,6 +223,7 @@ export function initSelf0Shader() {
       });
       
       hintText.style.opacity = '1';
+      startHintFollow();
       
       // Only show sparkles for "welcome to the basement!"
       if (currentText === 'welcome to the basement!') {
@@ -206,23 +239,7 @@ export function initSelf0Shader() {
       sparklesContainer.style.opacity = '0';
       clearInterval(sparkleInterval);
       sparklesContainer.innerHTML = '';
-    });
-    
-    // Follow cursor
-    document.addEventListener('mousemove', (e) => {
-      if (hintText.style.opacity === '1') {
-        hintText.style.left = `${e.clientX}px`;
-        hintText.style.top = `${e.clientY - 30}px`;
-        
-        // Update sparkles position if showing
-        if (currentText === 'welcome to the basement!') {
-          const textRect = hintText.getBoundingClientRect();
-          const textCenterX = textRect.left + textRect.width / 2;
-          const textCenterY = textRect.top + textRect.height / 2;
-          sparklesContainer.style.left = `${textCenterX}px`;
-          sparklesContainer.style.top = `${textCenterY}px`;
-        }
-      }
+      stopHintFollow();
     });
   }
   
