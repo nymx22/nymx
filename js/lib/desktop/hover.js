@@ -166,6 +166,10 @@ export function initHumanoidHover() {
     const rect = hintText.getBoundingClientRect();
     if (rect.width === 0) return; // Text not visible yet
     
+    // Get background color from CSS variable or fallback to light blue
+    const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--bg-color').trim() || 'rgba(173, 216, 230, 0.9)';
+    const bgColorDim = getComputedStyle(document.documentElement).getPropertyValue('--bg-color-dim').trim() || 'rgba(173, 216, 230, 0.6)';
+    
     const sparkle = document.createElement('div');
     sparkle.className = 'hint-sparkle-cross';
     
@@ -184,7 +188,11 @@ export function initHumanoidHover() {
     sparkle.style.animation = `sparkle-fade ${lifetime}s ease-out forwards`;
     sparkle.style.transform = `rotate(${rotation}deg)`;
     
-    // Create cross shape using pseudo-elements via inline style
+    // Create cross shape using background color
+    const opacity = 0.8 + Math.random() * 0.2;
+    // Extract RGB values from the CSS variable and adjust opacity
+    const bgColorWithOpacity = bgColor.replace(/[\d.]+\)$/, `${opacity.toFixed(2)})`);
+    
     sparkle.innerHTML = `
       <div style="
         position: absolute;
@@ -192,8 +200,8 @@ export function initHumanoidHover() {
         height: 20%;
         top: 40%;
         left: 0;
-        background: rgba(173, 216, 230, ${0.8 + Math.random() * 0.2});
-        box-shadow: 0 0 ${size * 2}px rgba(173, 216, 230, 0.8);
+        background: ${bgColorWithOpacity};
+        box-shadow: 0 0 ${size * 2}px ${bgColorDim};
       "></div>
       <div style="
         position: absolute;
@@ -201,8 +209,8 @@ export function initHumanoidHover() {
         height: 100%;
         top: 0;
         left: 40%;
-        background: rgba(173, 216, 230, ${0.8 + Math.random() * 0.2});
-        box-shadow: 0 0 ${size * 2}px rgba(173, 216, 230, 0.8);
+        background: ${bgColorWithOpacity};
+        box-shadow: 0 0 ${size * 2}px ${bgColorDim};
       "></div>
     `;
     

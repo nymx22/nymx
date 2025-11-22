@@ -55,6 +55,14 @@ function extractAndSetColor(img) {
   // Set as background color
   document.body.style.backgroundColor = hexColor;
   
+  // Convert hex to RGB and store as CSS variables for cursor/sparkles
+  const rgb = hexToRgb(hexColor);
+  if (rgb) {
+    document.documentElement.style.setProperty('--bg-color', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`);
+    document.documentElement.style.setProperty('--bg-color-dim', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
+    document.documentElement.style.setProperty('--bg-color-faint', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`);
+  }
+  
   console.log(`Background color set to: ${hexColor} from pixel (${randomX}, ${randomY})`);
 }
 
@@ -63,5 +71,14 @@ function rgbToHex(r, g, b) {
     const hex = x.toString(16);
     return hex.length === 1 ? '0' + hex : hex;
   }).join('');
+}
+
+function hexToRgb(hex) {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  return result ? {
+    r: parseInt(result[1], 16),
+    g: parseInt(result[2], 16),
+    b: parseInt(result[3], 16)
+  } : null;
 }
 
