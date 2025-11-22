@@ -136,13 +136,16 @@
   color: #ffffff;
   pointer-events: none;
   z-index: 100000;
-  opacity: 0;
+  opacity: 0.0;
   transition: opacity 0.3s ease-out;
   text-align: left;
   line-height: 1.4;
   white-space: normal;
   max-width: calc(100vw - 40px);
   word-wrap: break-word;
+  background: var(--bg-color-hint, rgba(173, 216, 230, 0.95));
+  padding: 0.5em 0.8em;
+  border-radius: 8px;
   filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8)) 
           drop-shadow(0 0 20px rgba(173, 216, 230, 0.6));
   animation: vertical-glitch 0.15s infinite, glitch-cutout 0.3s infinite;

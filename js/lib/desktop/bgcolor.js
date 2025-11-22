@@ -61,6 +61,7 @@ function extractAndSetColor(img) {
     document.documentElement.style.setProperty('--bg-color', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.9)`);
     document.documentElement.style.setProperty('--bg-color-dim', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.6)`);
     document.documentElement.style.setProperty('--bg-color-faint', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.4)`);
+    document.documentElement.style.setProperty('--bg-color-hint', `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`);
   }
   
   console.log(`Background color set to: ${hexColor} from pixel (${randomX}, ${randomY})`);

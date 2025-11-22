@@ -1,0 +1,59 @@
+/* Tool Page Layout */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: findreplace, sans-serif;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #000000;
+  cursor: none;
+}
+
+.tool-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.humanoid-source {
+  display: none;
+}
+
+#corruption-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#corruption-canvas {
+  display: block;
+  max-width: 90vw;
+  max-height: 90vh;
+  width: auto;
+  height: auto;
+}
+
+#fps-display {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  color: #ffffff;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 18px;
+  z-index: 10000;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 10px 15px;
+  border-radius: 5px;
+}
+
+/* GUI styling is imported from gui.css */
+

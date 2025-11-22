@@ -1,0 +1,22 @@
+/* Basement Mirror Styles */
+
+.mirror-container {
+  position: fixed;
+  top: 55%;
+  left: 35%;
+  transform: translateY(-50%);
+  z-index: 400;
+  height: 30vh; /* 1/3 of self size (self is 30vh) */
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mirror-container img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corruption!</title>
+    <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
+    <link rel="stylesheet" href="../style/tool/layout.css" />
+    <link rel="stylesheet" href="../style/gui.css" />
+    <link rel="stylesheet" href="../style/desktop/cursor.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
+  </head>
+  <body>
+    <div class="custom-cursor"></div>
+    
+    <div class="tool-container">
+      <div class="humanoid-source">
+        <img src="../assets/gif/humanoid.gif" alt="Humanoid" id="humanoid-gif" style="display: none;">
+      </div>
+      
+      <div id="corruption-canvas-container">
+        <canvas id="corruption-canvas"></canvas>
+      </div>
+      
+      <div id="fps-display">FPS: --</div>
+    </div>
+    
+    <script type="module">
+      import { initCustomCursor } from '../js/lib/desktop/cursor.js';
+      
+      // Initialize custom cursor
+      initCustomCursor();
+      
+      // Load signal corruption
+      import('../js/lib/tool/signalCorruption.js');
+    </script>
+  </body>
+</html>
+
