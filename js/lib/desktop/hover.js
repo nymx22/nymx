@@ -14,6 +14,37 @@ export function initHumanoidHover() {
     return;
   }
 
+  const handleNavigate = () => {
+    const transition = document.querySelector('.page-transition');
+    if (transition) {
+      transition.classList.add('active');
+    }
+    setTimeout(() => {
+      window.location.href = 'pages/basement.html';
+    }, 500);
+  };
+
+  const setHumanoidAspect = () => {
+    if (!humanoid.naturalWidth || !humanoid.naturalHeight) return;
+    const aspect = humanoid.naturalWidth / humanoid.naturalHeight;
+    container.style.setProperty('--humanoid-aspect', aspect.toString());
+  };
+
+  if (humanoid.complete) {
+    setHumanoidAspect();
+  } else {
+    humanoid.addEventListener('load', setHumanoidAspect, { once: true });
+  }
+
+  const isMobile = window.innerWidth <= 768;
+  if (isMobile) {
+    humanoid.style.opacity = '1';
+    container.addEventListener('click', (e) => {
+      e.preventDefault();
+      handleNavigate();
+    }, { passive: true });
+  }
+
   // Create glow container that will hold everything
   const glowContainer = document.createElement('div');
   glowContainer.className = 'humanoid-glow-container';
@@ -48,13 +79,7 @@ export function initHumanoidHover() {
   // Add click handler for smooth transition
   whiteSpace.addEventListener('click', (e) => {
     e.preventDefault();
-    const transition = document.querySelector('.page-transition');
-    transition.classList.add('active');
-    
-    // Navigate after transition
-    setTimeout(() => {
-      window.location.href = 'pages/basement.html';
-    }, 500);
+    handleNavigate();
   });
   
   // Create hint text that follows cursor with wavy effect
@@ -122,7 +147,7 @@ export function initHumanoidHover() {
   }).join('');
   
   hintText.innerHTML = `
-    <div style="font-size: 2rem;">${wavyText}</div>
+    <div class="cursor-hint-text">${wavyText}</div>
   `;
   
   document.body.appendChild(hintText);

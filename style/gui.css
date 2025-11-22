@@ -139,3 +139,17 @@
   .dg li {
     font-size: 15px !important;
   }
+
+@media (max-width: 767px) {
+  .dg.ac {
+    top: 10px !important;
+    right: auto !important;
+    left: 10px !important;
+    width: calc(100% - 20px) !important;
+    margin: 0 auto;
+  }
+
+  .dg, .dg * {
+    font-size: 13px !important;
+  }
+  }
