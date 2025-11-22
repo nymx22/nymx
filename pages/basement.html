@@ -83,9 +83,13 @@
     </a>
     
       <!-- Self 0 with shader effects -->
-      <div class="self-container">
-        <div id="self-shader-container"></div>
+    <div class="self-container">
+      <div id="self-shader-container"></div>
+      <div class="basement-control-bubble" id="basementControlBubble">
+        <div class="controls-label">control:</div>
+        <div class="controls-arrows">&lt;-- left , right --&gt;</div>
       </div>
+    </div>
     
     <!-- Snow glitch overlay -->
     <div id="basement-glitch-canvas"></div>
@@ -152,9 +156,27 @@
         
         new p5(sketch);
         
+        const bubbleEl = document.getElementById('basementControlBubble');
+        if (bubbleEl) {
+          requestAnimationFrame(() => bubbleEl.classList.add('visible'));
+          setTimeout(() => {
+            bubbleEl.classList.remove('visible');
+          }, 10000);
+        }
+        
+        window.__pebbleResizeRAF = null;
+        const schedulePebbleRebuild = () => {
+          if (window.__pebbleResizeRAF) {
+            cancelAnimationFrame(window.__pebbleResizeRAF);
+          }
+          window.__pebbleResizeRAF = requestAnimationFrame(async () => {
+            window.__pebbleResizeRAF = null;
+            await rebuildPebbleFloor();
+          });
+        };
+
         window.addEventListener('resize', () => {
-          clearTimeout(window.__pebbleResizeTimer);
-          window.__pebbleResizeTimer = setTimeout(rebuildPebbleFloor, 220);
+          schedulePebbleRebuild();
         }, { passive: true });
 
         // Wait for initial render, then smoothly transition

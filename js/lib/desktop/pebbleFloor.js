@@ -20,6 +20,12 @@ export function initPebbleFloor() {
       existing.remove();
     }
 
+    // Indicate rebuild for smoother transition
+    floorSection.classList.add('rebuilding');
+    const cleanupRebuildIndicator = () => {
+      floorSection.classList.remove('rebuilding');
+    };
+
     // Load the pebble image
     const img = new Image();
     img.src = '../assets/images/pebble.jpg';
@@ -121,12 +127,16 @@ export function initPebbleFloor() {
       
       console.log(`Pebble floor initialized: ${verticalTiles} rows × ${horizontalTiles} cols using ${totalPieces} random pieces`);
       
+      // Remove rebuild indicator
+      cleanupRebuildIndicator();
+      
       // Resolve promise when complete
       resolve();
     };
     
     img.onerror = () => {
       console.error('Failed to load pebble.jpg');
+      cleanupRebuildIndicator();
       reject(new Error('Failed to load pebble.jpg'));
     };
   });
