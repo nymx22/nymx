@@ -85,6 +85,7 @@
     
     <!-- Mirror on left wall -->
     <div class="mirror-container">
+      <div class="mirror-glass-reflection"></div>
       <div class="mirror-reflection" id="mirrorReflection"></div>
       <img src="../assets/images/mirror.png" alt="Mirror" class="mirror-frame">
     </div>
@@ -107,8 +108,15 @@
     <script type="module">
       import { initPebbleFloor } from '../js/lib/desktop/pebbleFloor.js';
       import { pureSnow } from '../js/effects/glitch/pureSnow.js';
+      import { purpleStatic } from '../js/effects/glitch/purpleStatic.js';
       import { initSelf0Shader } from '../js/lib/selfmovement/self0Shader.js';
       import { initStairShader } from '../js/lib/basement/stairShader.js';
+      import { initMirrorReflection } from '../js/lib/basement/mirrorReflection.js';
+      
+      // Make pureSnow available globally for basement glitch
+      window.pureSnow = pureSnow;
+      // Make purpleStatic available globally for mirror reflection
+      window.purpleStatic = purpleStatic;
       
       // Wait for everything to load
       window.addEventListener('load', async () => {
@@ -139,6 +147,19 @@
         
         // Initialize self0 shader with GUI
         initSelf0Shader();
+        
+        // Wait a bit for self to be initialized, then setup mirror reflection
+        setTimeout(() => {
+          if (window.__selfInstance && window.__selfShader) {
+            console.log('Initializing mirror reflection with self instance:', window.__selfInstance);
+            initMirrorReflection(window.__selfInstance, window.__selfShader);
+          } else {
+            console.error('Self instance or shader not available:', {
+              instance: window.__selfInstance,
+              shader: window.__selfShader
+            });
+          }
+        }, 1000);
         
         // Initialize stair shader
         initStairShader();

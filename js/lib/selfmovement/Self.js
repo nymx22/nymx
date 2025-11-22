@@ -3,7 +3,7 @@ export class Self {
     this.p = p5Instance;
     this.x = 0; // Position relative to center
     this.y = 0;
-    this.speed = 5; // Movement speed in pixels per frame
+    this.speed = 12; // Movement speed in pixels per frame
     this.isMoving = false;
     this.direction = 1; // 1 for right, -1 for left
     this.currentFrame = 0;

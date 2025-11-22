@@ -6,6 +6,10 @@ export function initSelf0Shader() {
   let gui;
   let self; // Self character instance
   
+  // Export self and shader for mirror reflection
+  window.__selfInstance = null;
+  window.__selfShader = null;
+  
   const params = {
     flicker: 1.0,
     glitch: 1.0,
@@ -19,6 +23,8 @@ export function initSelf0Shader() {
       shader = p.loadShader('/shaders/self0.vert', '/shaders/self0.frag');
       // Self will load its own images
       self = new Self(p);
+      // Export for mirror reflection
+      window.__selfShader = shader;
       console.log('Shader loaded:', shader);
     };
     
@@ -38,6 +44,8 @@ export function initSelf0Shader() {
       
       // Initialize Self at center (0, 0 in WEBGL coordinates)
       self = new Self(p);
+      // Export for mirror reflection
+      window.__selfInstance = self;
       
       // Initialize dat.GUI
       gui = new dat.GUI({ autoPlace: false });

@@ -3,7 +3,7 @@
 .mirror-container {
   position: fixed;
   top: 55%;
-  left: 35%;
+  left: 15%;
   transform: translateY(-50%);
   z-index: 400;
   height: 30vh; /* 1/3 of self size (self is 30vh) */
@@ -11,12 +11,123 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: none;
 }
 
-.mirror-container img {
+.mirror-glass-reflection {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(0, 255, 255, 0.3) 0%,
+    rgba(0, 200, 255, 0.4) 25%,
+    rgba(64, 224, 208, 0.35) 50%,
+    rgba(0, 200, 255, 0.4) 75%,
+    rgba(0, 255, 255, 0.3) 100%
+  );
+  border-radius: 50%;
+  filter: blur(8px);
+  animation: liquify-wave 8s ease-in-out infinite;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+@keyframes liquify-wave {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    border-radius: 50% 40% 60% 30%;
+  }
+  25% {
+    transform: translate(-2%, 2%) scale(1.02);
+    border-radius: 60% 30% 50% 40%;
+  }
+  50% {
+    transform: translate(2%, -2%) scale(0.98);
+    border-radius: 40% 60% 30% 50%;
+  }
+  75% {
+    transform: translate(-1%, -1%) scale(1.01);
+    border-radius: 50% 30% 60% 40%;
+  }
+}
+
+.mirror-frame {
   height: 100%;
   width: auto;
   object-fit: contain;
   display: block;
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
 }
+
+/* Static overlay - only covers the mirror reflection image */
+.mirror-static-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3; /* Above the reflection canvas (z-index 1) but within reflection container */
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  opacity: 0.9;
+  /* Match the reflection's mask so static only shows where reflection shows */
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.5) 70%, rgba(0,0,0,0) 100%);
+  /* Ensure visibility */
+  display: block !important;
+  visibility: visible !important;
+}
+
+.mirror-reflection {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  opacity: 0; /* Hidden by default */
+  transition: opacity 0.5s ease-out; /* Smooth fade out */
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  /* Circular fade from center */
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 70%, rgba(0,0,0,0) 100%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 30%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.0) 70%, rgba(0,0,0,0) 100%);
+}
+
+.mirror-reflection.active {
+  opacity: 0.25; /* Show when self is in range */
+  transition: opacity 0.3s ease-in; /* Faster fade in */
+}
+
+.mirror-reflection canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  pointer-events: none;
+  z-index: 1;
+}
+
+
+.mirror-static-overlay canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  pointer-events: none;
+}
+
 
