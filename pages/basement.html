@@ -165,11 +165,13 @@
         }
 
         const wallSection = document.querySelector('.wall-section');
+        const floorSection = document.querySelector('.floor-section');
         const syncStairHeight = () => {
-          if (!wallSection) return;
+          if (!wallSection || !floorSection) return;
           const wallHeight = wallSection.offsetHeight;
+          const floorHeight = floorSection.offsetHeight;
           document.documentElement.style.setProperty('--wall-height', `${wallHeight}px`);
-          document.documentElement.style.setProperty('--stair-bottom', `${window.innerHeight - wallHeight}px`);
+          document.documentElement.style.setProperty('--floor-height', `${floorHeight}px`);
         };
         window.addEventListener('resize', () => {
           syncStairHeight();

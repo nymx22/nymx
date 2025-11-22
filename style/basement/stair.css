@@ -3,7 +3,7 @@
 .stair-container {
   position: fixed;
   right: 0;
-  bottom: var(--stair-bottom, 25vh); /* Align bottom with top of floor */
+  bottom: var(--floor-height, 25vh); /* Sit directly above the floor section */
   height: var(--wall-height, 75vh); /* Match the wall height */
   width: min(33vw, 320px);
   z-index: 400;
