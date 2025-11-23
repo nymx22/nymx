@@ -11,7 +11,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  pointer-events: auto; /* Enable hover */
+  cursor: pointer;
 }
 
 .mirror-glass-reflection {
@@ -128,6 +129,51 @@
   height: 100% !important;
   display: block !important;
   pointer-events: none;
+}
+
+/* Mirror hint text */
+.mirror-hint-text {
+  position: fixed;
+  pointer-events: none;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  transform: translateX(-50%) translateY(-100%);
+  filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8))
+          drop-shadow(0 0 20px rgba(173, 216, 230, 0.6))
+          drop-shadow(0 0 30px rgba(173, 216, 230, 0.4));
+  animation: mirror-hint-vertical-glitch 0.3s infinite;
+}
+
+@media (max-width: 767px) {
+  .mirror-hint-text {
+    font-size: 18px;
+  }
+}
+
+@keyframes mirror-hint-vertical-glitch {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+  20% {
+    clip-path: inset(3% 0 5% 0);
+  }
+  40% {
+    clip-path: inset(8% 0 2% 0);
+  }
+  60% {
+    clip-path: inset(2% 0 10% 0);
+  }
+  80% {
+    clip-path: inset(6% 0 4% 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 

@@ -86,18 +86,28 @@ export class Self {
   }
   
   update() {
+    // Calculate boundaries based on window width and self's width
+    const selfImage = this.getCurrentImage();
+    const selfWidth = selfImage ? selfImage.width * this.scale : 0;
+    const screenCenterX = window.innerWidth / 2;
+    const maxLeft = -(screenCenterX - selfWidth / 2);  // Left boundary
+    const maxRight = screenCenterX - selfWidth / 2;    // Right boundary
+    
     // Update position based on key states
     if (this.keys.right) {
-      this.x += this.speed;
+      this.x = Math.min(this.x + this.speed, maxRight);
       this.direction = 1;
       this.isMoving = true;
     } else if (this.keys.left) {
-      this.x -= this.speed;
+      this.x = Math.max(this.x - this.speed, maxLeft);
       this.direction = -1;
       this.isMoving = true;
     } else {
       this.isMoving = false;
     }
+    
+    // Clamp position to boundaries (in case of window resize)
+    this.x = Math.max(maxLeft, Math.min(this.x, maxRight));
     
     // Update animation frame
     if (this.isMoving) {

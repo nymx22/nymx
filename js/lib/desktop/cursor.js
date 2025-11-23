@@ -5,9 +5,15 @@
  */
 
 export function initCustomCursor() {
-  // Create custom cursor element
-  const cursor = document.createElement('div');
-  cursor.className = 'custom-cursor';
+  // Check if custom cursor element already exists
+  let cursor = document.querySelector('.custom-cursor');
+  
+  if (!cursor) {
+    // Create custom cursor element if it doesn't exist
+    cursor = document.createElement('div');
+    cursor.className = 'custom-cursor';
+    document.body.appendChild(cursor);
+  }
   
   // Set initial CSS variables to center of screen
   cursor.style.setProperty('--mouse-x', `${window.innerWidth / 2 - 32}px`);
@@ -15,8 +21,6 @@ export function initCustomCursor() {
   
   // Start with cursor hidden
   cursor.style.opacity = '0';
-
-  document.body.appendChild(cursor);
 
   // Create sparkle container for cursor2 firework effect
   const sparkleContainer = document.createElement('div');

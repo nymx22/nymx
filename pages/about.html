@@ -3,18 +3,138 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>About</title>
-    <link rel="stylesheet" href="/style/reset.css" />
-    <link rel="stylesheet" href="/style/variables.css" />
-    <link rel="stylesheet" href="/style/main.css" />
+    <title>about</title>
+    <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
+    <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../style/main.css" />
+    <link rel="stylesheet" href="../style/basement/cursor.css" />
+    <link rel="stylesheet" href="../style/about/pokemon.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" defer></script>
+    <style>
+      body {
+        background: #f8d878;
+        background-image: 
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.03) 2px,
+            rgba(0, 0, 0, 0.03) 4px
+          );
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 10001;
+        background: rgba(0, 0, 0, 0.3);
+        border: 2px solid #000;
+        color: #fff;
+        padding: 8px 16px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: bold;
+      }
+      .back-button:hover {
+        background: rgba(0, 0, 0, 0.5);
+        border-color: #333;
+      }
+    </style>
   </head>
   <body>
-    <header>
-      <h1>About</h1>
-      <a href="/">Home</a>
-    </header>
-    <main>
-      <p>Placeholder for the about section.</p>
-    </main>
+    <div class="custom-cursor"></div>
+    <a href="/pages/basement.html" class="back-button">← Back</a>
+    <div class="pokemon-stat-screen">
+      <div class="pokemon-header">
+        <div class="pokemon-title">POKEMON SKILLS</div>
+        <div class="pokemon-nav-tabs">
+          <div class="nav-circle active"></div>
+          <div class="nav-circle active"></div>
+          <div class="nav-circle"></div>
+          <div class="nav-circle blue"></div>
+        </div>
+        <div class="pokemon-page-indicator">+PAGE</div>
+      </div>
+      <div class="pokemon-content">
+        <div class="pokemon-left-panel">
+          <div class="pokemon-info-top">
+            <span class="pokemon-level">Lv79</span>
+            <span class="pokemon-name">Mr. Charmy</span>
+            <span class="pokemon-gender">♂</span>
+          </div>
+          <div class="pokemon-sprite-area">
+            <!-- Sprite will go here -->
+          </div>
+        </div>
+        <div class="pokemon-right-panel">
+          <div class="pokemon-stats">
+            <div class="pokemon-stat-row">
+              <div class="stat-label">HP</div>
+              <div class="stat-value">231/231</div>
+              <div class="hp-bar-container">
+                <div class="hp-bar" style="width: 100%"></div>
+              </div>
+            </div>
+            <div class="pokemon-stat-row">
+              <div class="stat-label">ATTACK</div>
+              <div class="stat-value">159</div>
+            </div>
+            <div class="pokemon-stat-row">
+              <div class="stat-label">DEFENSE</div>
+              <div class="stat-value">139</div>
+            </div>
+            <div class="pokemon-stat-row">
+              <div class="stat-label">SP.ATK</div>
+              <div class="stat-value">217</div>
+            </div>
+            <div class="pokemon-stat-row">
+              <div class="stat-label">SP.DEF</div>
+              <div class="stat-value">148</div>
+            </div>
+            <div class="pokemon-stat-row">
+              <div class="stat-label">SPEED</div>
+              <div class="stat-value">206</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pokemon-bottom-section">
+        <div class="pokemon-exp-section">
+          <div class="exp-label">EXP. POINTS</div>
+          <div class="exp-value">521110</div>
+          <div class="next-level-label">NEXT LV.</div>
+          <div class="next-level-value">5150</div>
+          <div class="exp-bar-container">
+            <div class="exp-bar-label">EXP</div>
+            <div class="exp-bar">
+              <div class="exp-bar-fill" style="width: 85%"></div>
+            </div>
+          </div>
+        </div>
+        <div class="pokemon-ability-section">
+          <div class="ability-label">ABILITY</div>
+          <div class="ability-name">BLAZE</div>
+          <div class="ability-description">Ups FIRE moves in a pinch.</div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initCustomCursor } from '../js/lib/desktop/cursor.js';
+      
+      // Initialize custom cursor
+      initCustomCursor();
+    </script>
   </body>
 </html>

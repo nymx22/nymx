@@ -1,0 +1,283 @@
+/* QQ Window Styles - Classic QQ Instant Messaging Interface */
+
+.qqWindow {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 200px;
+  height: 350px;
+  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 50%, #4a90c4 100%);
+  border: 2px solid #2d6fa3;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  font-family: findreplace, sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.qqWindow.qq-window-visible {
+  display: flex;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Title Bar */
+.qq-window-titlebar {
+  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 50%, #1e4d7a 100%);
+  color: white;
+  padding: 6px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: move;
+  user-select: none;
+  height: 32px;
+  border-bottom: 1px solid #1e4d7a;
+  border-radius: 6px 6px 0 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.qq-titlebar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.qq-profile-photo {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  flex-shrink: 0;
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.qq-window-title {
+  font-size: 12px;
+  font-weight: normal;
+  flex: 1;
+  font-family: findreplace, sans-serif;
+}
+
+.qq-window-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.qq-window-controls button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  width: 20px;
+  height: 16px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qq-window-controls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.qq-window-close:hover {
+  background: #e74c3c !important;
+}
+
+/* Chat Area */
+.qq-window-chat-area {
+  flex: 1;
+  background: #ffffff;
+  display: flex;
+  overflow: hidden;
+  border-bottom: 1px solid #b8d4e0;
+}
+
+.qq-chat-messages-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
+}
+
+.qq-chat-messages {
+  min-height: 100%;
+}
+
+.qq-profile-section {
+  width: 60px;
+  background: linear-gradient(to bottom, #d0e8f0 0%, #b3d9f2 100%);
+  border-left: 1px solid #7bb3d9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 4px;
+  box-shadow: inset -1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.qq-profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.qq-profile-photo-large {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 100%);
+  border: 2px solid #1e4d7a;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.qq-profile-name {
+  font-size: 10px;
+  color: #333;
+  text-align: center;
+  font-weight: normal;
+}
+
+/* Chat Messages */
+.qq-message {
+  padding: 4px 8px;
+  margin: 4px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: findreplace, sans-serif;
+  word-wrap: break-word;
+  max-width: 80%;
+}
+
+.qq-message-sent {
+  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 100%);
+  color: #1e4d7a;
+  margin-left: auto;
+  text-align: right;
+  border: 1px solid #4a9dd9;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.qq-message-received {
+  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
+  color: #333;
+  margin-right: auto;
+  border: 1px solid #b3d9f2;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* Input Area */
+.qq-window-input-area {
+  background: linear-gradient(to bottom, #d0e8f0 0%, #b3d9f2 100%);
+  border-top: 1px solid #7bb3d9;
+  padding: 4px;
+}
+
+.qq-input-field-container {
+  margin-bottom: 4px;
+}
+
+.qq-input-field {
+  width: 100%;
+  height: 60px;
+  border: 1px solid #7bb3d9;
+  background: linear-gradient(to bottom, #ffffff 0%, #f5f9fa 100%);
+  color: #333;
+  padding: 4px;
+  font-size: 12px;
+  font-family: findreplace, sans-serif;
+  resize: none;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.qq-input-field::placeholder {
+  color: #7bb3d9;
+}
+
+.qq-input-field:focus {
+  outline: 1px solid #2d6fa3;
+  border-color: #2d6fa3;
+  background: #ffffff;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 4px rgba(45, 111, 163, 0.3);
+}
+
+/* Bottom Bar */
+.qq-window-bottom-bar {
+  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 100%);
+  border-top: 1px solid #4a9dd9;
+  padding: 4px 8px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  border-radius: 0 0 6px 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.qq-send-btn,
+.qq-close-btn {
+  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
+  border: 1px solid #7bb3d9;
+  padding: 4px 12px;
+  font-size: 11px;
+  cursor: pointer;
+  color: #1e4d7a;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.qq-send-btn:hover,
+.qq-close-btn:hover {
+  background: linear-gradient(to bottom, #e8f4f8 0%, #d0e8f0 100%);
+  border-color: #4a9dd9;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.qq-send-btn {
+  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 100%);
+  color: white;
+  border-color: #1e4d7a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.qq-send-btn:hover {
+  background: linear-gradient(to bottom, #5ba3d9 0%, #3d7fb3 100%);
+  border-color: #2d6fa3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+/* Scrollbar styling */
+.qq-chat-messages-container::-webkit-scrollbar {
+  width: 12px;
+}
+
+.qq-chat-messages-container::-webkit-scrollbar-track {
+  background: linear-gradient(to bottom, #e8f4f8 0%, #d0e8f0 100%);
+}
+
+.qq-chat-messages-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, #7bb3d9 0%, #4a9dd9 100%);
+  border-radius: 6px;
+  border: 1px solid #2d6fa3;
+}
+
+.qq-chat-messages-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 100%);
+}
+

@@ -7,7 +7,7 @@
   width: 64px;
   height: 64px;
   pointer-events: none;
-  z-index: 10000;
+  z-index: 10001;
   transform: translate3d(var(--mouse-x, -100px), var(--mouse-y, -100px), 0);
   will-change: transform;
   filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.9))

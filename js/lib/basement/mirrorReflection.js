@@ -21,6 +21,175 @@ export function initMirrorReflection(selfInstance, selfShader) {
   staticOverlay.className = 'mirror-static-overlay';
   mirrorReflection.appendChild(staticOverlay);
   
+  // Create hint text for mirror hover
+  const mirrorHintText = document.createElement('div');
+  mirrorHintText.className = 'mirror-hint-text';
+  mirrorHintText.textContent = 'talk... to me?';
+  document.body.appendChild(mirrorHintText);
+  
+  let hintAnimationFrame = null;
+  
+  // Update hint text position to follow mirror
+  const updateMirrorHintPosition = () => {
+    const rect = mirrorContainer.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+      hintAnimationFrame = requestAnimationFrame(updateMirrorHintPosition);
+      return;
+    }
+    const centerX = rect.left + rect.width / 2;
+    const topY = rect.top - 20;
+    mirrorHintText.style.left = `${centerX}px`;
+    mirrorHintText.style.top = `${topY}px`;
+    hintAnimationFrame = requestAnimationFrame(updateMirrorHintPosition);
+  };
+  
+  // Show/hide hint text on hover
+  mirrorContainer.addEventListener('mouseenter', () => {
+    mirrorHintText.style.opacity = '1';
+    if (hintAnimationFrame === null) {
+      updateMirrorHintPosition();
+    }
+  });
+  
+  mirrorContainer.addEventListener('mouseleave', () => {
+    mirrorHintText.style.opacity = '0';
+    if (hintAnimationFrame !== null) {
+      cancelAnimationFrame(hintAnimationFrame);
+      hintAnimationFrame = null;
+    }
+  });
+  
+  // Create QQ window
+  const qqWindow = document.createElement('div');
+  qqWindow.className = 'qqWindow';
+  qqWindow.innerHTML = `
+    <div class="qq-window-titlebar">
+      <div class="qq-titlebar-left">
+        <div class="qq-profile-photo"></div>
+        <span class="qq-window-title">nymx.22</span>
+      </div>
+      <div class="qq-window-controls">
+        <button class="qq-window-close">×</button>
+      </div>
+    </div>
+    <div class="qq-window-chat-area">
+      <div class="qq-chat-messages-container">
+        <div class="qq-chat-messages">
+          <!-- Messages will appear here -->
+        </div>
+      </div>
+      <div class="qq-profile-section">
+        <div class="qq-profile-avatar">
+          <div class="qq-profile-photo-large"></div>
+          <div class="qq-profile-name">Angel</div>
+        </div>
+      </div>
+    </div>
+    <div class="qq-window-input-area">
+      <div class="qq-input-field-container">
+        <textarea class="qq-input-field" placeholder="Type a message..."></textarea>
+      </div>
+    </div>
+    <div class="qq-window-bottom-bar">
+      <button class="qq-send-btn">Send</button>
+      <button class="qq-close-btn">Close</button>
+    </div>
+  `;
+  document.body.appendChild(qqWindow);
+  
+  // Navigate to about page when clicking on mirror (temporarily disabled)
+  // mirrorContainer.addEventListener('click', () => {
+  //   window.location.href = '../pages/about.html';
+  // });
+  
+  // Close window handlers
+  const closeWindow = () => {
+    qqWindow.classList.remove('qq-window-visible');
+  };
+  
+  qqWindow.querySelector('.qq-window-close').addEventListener('click', closeWindow);
+  qqWindow.querySelector('.qq-close-btn').addEventListener('click', closeWindow);
+  
+  // Send button functionality
+  const sendBtn = qqWindow.querySelector('.qq-send-btn');
+  const inputField = qqWindow.querySelector('.qq-input-field');
+  const chatMessages = qqWindow.querySelector('.qq-chat-messages');
+  
+  const sendMessage = () => {
+    const message = inputField.value.trim();
+    if (message) {
+      // Create message element
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'qq-message qq-message-sent';
+      messageDiv.textContent = message;
+      chatMessages.appendChild(messageDiv);
+      
+      // Clear input
+      inputField.value = '';
+      
+      // Scroll to bottom
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  };
+  
+  sendBtn.addEventListener('click', sendMessage);
+  inputField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+  
+  // Make window draggable
+  const titleBar = qqWindow.querySelector('.qq-window-titlebar');
+  let isDragging = false;
+  let currentX;
+  let currentY;
+  let initialX;
+  let initialY;
+  let xOffset = 0;
+  let yOffset = 0;
+  
+  titleBar.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+  
+  function dragStart(e) {
+    if (e.target.classList.contains('qq-window-close')) {
+      return; // Don't drag if clicking on control buttons
+    }
+    
+    initialX = e.clientX - xOffset;
+    initialY = e.clientY - yOffset;
+    
+    if (e.target === titleBar || titleBar.contains(e.target)) {
+      isDragging = true;
+    }
+  }
+  
+  function drag(e) {
+    if (isDragging) {
+      e.preventDefault();
+      currentX = e.clientX - initialX;
+      currentY = e.clientY - initialY;
+      
+      xOffset = currentX;
+      yOffset = currentY;
+      
+      setTranslate(currentX, currentY, qqWindow);
+    }
+  }
+  
+  function dragEnd(e) {
+    initialX = currentX;
+    initialY = currentY;
+    isDragging = false;
+  }
+  
+  function setTranslate(xPos, yPos, el) {
+    el.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
+  }
+  
   // Function to check if self is within mirror's horizontal range
   const isSelfInMirrorRange = () => {
     const mirrorRect = mirrorContainer.getBoundingClientRect();
