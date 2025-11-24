@@ -23,6 +23,14 @@ body {
   }
 }
 
+/* Landscape orientation - only for mobile/tablet devices (not desktop) */
+@media screen and (orientation: landscape) and (max-width: 1024px) {
+  .humanoid-container {
+    /* Adjust humanoid for landscape view */
+    width: min(90vw, calc(80vh * var(--humanoid-aspect, 1)));
+  }
+}
+
 * {
   cursor: none !important;
 }
