@@ -91,8 +91,9 @@ body {
 }
 
 /* Landscape orientation - only for mobile/tablet devices (not desktop) */
-/* Add landscape-specific styles here as needed */
-@media screen and (orientation: landscape) and (max-width: 1024px) {
+/* Using both orientation and aspect-ratio for better iOS Safari compatibility */
+@media screen and (orientation: landscape) and (max-width: 1024px),
+       screen and (min-aspect-ratio: 4/3) and (max-width: 1024px) {
   /* Landscape-specific styles for basement on mobile/tablet can be added here */
 }
 
