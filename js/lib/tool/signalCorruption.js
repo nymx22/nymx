@@ -9,29 +9,55 @@ let gui;
 let fps = 0;
 let frameCount = 0;
 let lastTime = performance.now();
+let shaderLoaded = false;
 
 const params = {
-  intensity: 0.5,
-  scanLines: 0.1,
-  colorShift: 0.3,
-  displacement: 0.5,
-  noise: 0.2,
-  chromaticAberration: 0.8
+  intensity: 1.0,
+  scanLines: 0.3,
+  colorShift: 0.6,
+  displacement: 0.8,
+  noise: 0.4,
+  chromaticAberration: 1.0
 };
 
 const sketch = function(p) {
   p.preload = function() {
-    // Load shader
-    shader = p.loadShader('/shaders/humanoid-corruption.vert', '/shaders/humanoid-corruption.frag');
+    // Load shader - try relative path first, then absolute
+    try {
+      shader = p.loadShader('../shaders/humanoid-corruption.vert', '../shaders/humanoid-corruption.frag');
+      shaderLoaded = true;
+      console.log('Shader loading started');
+    } catch (error) {
+      console.error('Shader load error:', error);
+      try {
+        shader = p.loadShader('/shaders/humanoid-corruption.vert', '/shaders/humanoid-corruption.frag');
+        shaderLoaded = true;
+      } catch (e) {
+        console.error('Shader failed to load with both paths:', e);
+        shaderLoaded = false;
+      }
+    }
     
     // Load humanoid GIF
-    humanoidImg = p.loadImage('/assets/gif/humanoid.gif');
+    try {
+      humanoidImg = p.loadImage('../assets/gif/humanoid.gif');
+      console.log('Humanoid image loading started');
+    } catch (error) {
+      console.error('Failed to load humanoid image:', error);
+      try {
+        humanoidImg = p.loadImage('/assets/gif/humanoid.gif');
+      } catch (e) {
+        console.error('Failed to load humanoid image with both paths:', e);
+      }
+    }
   };
   
   p.setup = function() {
-    const container = document.getElementById('corruption-canvas-container');
-    const containerWidth = container.offsetWidth;
-    const containerHeight = container.offsetHeight;
+    // Use full window dimensions
+    const containerWidth = window.innerWidth;
+    const containerHeight = window.innerHeight;
+    
+    console.log('Canvas setup:', containerWidth, 'x', containerHeight);
     
     // Create WEBGL canvas
     const canvas = p.createCanvas(containerWidth, containerHeight, p.WEBGL);
@@ -49,8 +75,8 @@ const sketch = function(p) {
   };
   
   p.draw = function() {
-    // Clear background
-    p.clear();
+    // Clear background with black
+    p.background(0);
     
     if (humanoidImg && humanoidImg.width > 0) {
       // Calculate aspect ratio and size
@@ -59,35 +85,58 @@ const sketch = function(p) {
       
       let displayWidth, displayHeight;
       if (imgAspect > canvasAspect) {
-        // Image is wider
-        displayWidth = p.width * 0.8;
+        // Image is wider - fit to width
+        displayWidth = p.width * 0.9;
         displayHeight = displayWidth / imgAspect;
       } else {
-        // Image is taller
-        displayHeight = p.height * 0.8;
+        // Image is taller - fit to height
+        displayHeight = p.height * 0.9;
         displayWidth = displayHeight * imgAspect;
       }
       
-      // Apply shader
-      p.shader(shader);
-      
-      // Pass uniforms to shader
-      shader.setUniform('uTexture', humanoidImg);
-      shader.setUniform('uTime', p.millis());
-      shader.setUniform('uIntensity', params.intensity);
-      shader.setUniform('uScanLineIntensity', params.scanLines);
-      shader.setUniform('uColorShiftIntensity', params.colorShift);
-      shader.setUniform('uDisplacementIntensity', params.displacement);
-      shader.setUniform('uNoiseIntensity', params.noise);
-      shader.setUniform('uChromaticAberration', params.chromaticAberration);
-      
-      // Draw rectangle with shader (centered)
-      p.noStroke();
-      p.rectMode(p.CENTER);
-      p.rect(0, 0, displayWidth, displayHeight);
-      
-      // Reset shader
-      p.resetShader();
+      // Check if shader is loaded and compiled before using it
+      if (shader && shader._fragShader && shader._vertShader && shader._fragShader !== -1 && shader._vertShader !== -1) {
+        try {
+          // Apply shader
+          p.shader(shader);
+          
+          // Pass uniforms to shader
+          shader.setUniform('uTexture', humanoidImg);
+          shader.setUniform('uTime', p.millis() * 0.001);
+          shader.setUniform('uIntensity', params.intensity);
+          shader.setUniform('uScanLineIntensity', params.scanLines);
+          shader.setUniform('uColorShiftIntensity', params.colorShift);
+          shader.setUniform('uDisplacementIntensity', params.displacement);
+          shader.setUniform('uNoiseIntensity', params.noise);
+          shader.setUniform('uChromaticAberration', params.chromaticAberration);
+          
+          // Draw rectangle with shader (centered)
+          p.noStroke();
+          p.rectMode(p.CENTER);
+          p.rect(0, 0, displayWidth, displayHeight);
+          
+          // Reset shader
+          p.resetShader();
+        } catch (error) {
+          console.error('Shader rendering error:', error);
+          // Fallback to texture rendering
+          p.noStroke();
+          p.texture(humanoidImg);
+          p.rectMode(p.CENTER);
+          p.rect(0, 0, displayWidth, displayHeight);
+        }
+      } else {
+        // Fallback: render without shader using texture (always works)
+        p.noStroke();
+        p.texture(humanoidImg);
+        p.rectMode(p.CENTER);
+        p.rect(0, 0, displayWidth, displayHeight);
+      }
+    } else {
+      // Show loading message or placeholder
+      p.fill(255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text('Loading...', 0, 0);
     }
     
     // Update FPS
@@ -102,10 +151,7 @@ const sketch = function(p) {
   };
   
   p.windowResized = function() {
-    const container = document.getElementById('corruption-canvas-container');
-    const containerWidth = container.offsetWidth;
-    const containerHeight = container.offsetHeight;
-    p.resizeCanvas(containerWidth, containerHeight);
+    p.resizeCanvas(window.innerWidth, window.innerHeight);
   };
 };
 
@@ -118,12 +164,12 @@ function initGUI() {
   
   gui = new dat.GUI();
   
-  gui.add(params, 'intensity', 0.0, 1.0).name('Intensity').step(0.01);
-  gui.add(params, 'scanLines', 0.0, 0.5).name('Scan Lines').step(0.01);
-  gui.add(params, 'colorShift', 0.0, 1.0).name('Color Shift').step(0.01);
-  gui.add(params, 'displacement', 0.0, 1.0).name('Displacement').step(0.01);
-  gui.add(params, 'noise', 0.0, 0.5).name('Noise').step(0.01);
-  gui.add(params, 'chromaticAberration', 0.0, 1.0).name('Chromatic Aberration').step(0.01);
+  gui.add(params, 'intensity', 0.0, 2.0).name('Intensity').step(0.01);
+  gui.add(params, 'scanLines', 0.0, 1.0).name('Scan Lines').step(0.01);
+  gui.add(params, 'colorShift', 0.0, 2.0).name('Color Shift').step(0.01);
+  gui.add(params, 'displacement', 0.0, 2.0).name('Displacement').step(0.01);
+  gui.add(params, 'noise', 0.0, 1.0).name('Noise').step(0.01);
+  gui.add(params, 'chromaticAberration', 0.0, 2.0).name('Chromatic Aberration').step(0.01);
 }
 
 function updateFPS() {

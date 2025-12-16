@@ -23,14 +23,14 @@ void main() {
   if (uDisplacementIntensity > 0.01) {
     float displacementChance = random(vec2(floor(uTime * 3.0), floor(uv.y * 20.0)));
     if (displacementChance > 0.92) {
-      displacement = (random(vec2(uTime, uv.y)) - 0.5) * uDisplacementIntensity * 0.1;
+      displacement = (random(vec2(uTime, uv.y)) - 0.5) * uDisplacementIntensity * 0.2;
     }
   }
   vec2 uvDisplaced = uv;
   uvDisplaced.x += displacement;
   
   // Chromatic aberration (RGB separation)
-  float chromaOffset = uChromaticAberration * uIntensity * 0.02;
+  float chromaOffset = uChromaticAberration * uIntensity * 0.05;
   float r = texture2D(uTexture, uvDisplaced + vec2(chromaOffset, 0.0)).r;
   float g = texture2D(uTexture, uvDisplaced).g;
   float b = texture2D(uTexture, uvDisplaced - vec2(chromaOffset, 0.0)).b;
@@ -46,13 +46,13 @@ void main() {
   // Scan lines (horizontal interference)
   float scanLine = 0.0;
   if (uScanLineIntensity > 0.01) {
-    scanLine = sin(uv.y * 800.0 + uTime * 0.05) * uScanLineIntensity;
+    scanLine = sin(uv.y * 800.0 + uTime * 0.1) * uScanLineIntensity * 0.3;
     color += scanLine;
   }
   
   // Noise (signal degradation)
   if (uNoiseIntensity > 0.01) {
-    float noise = (random(vec2(uv * 100.0 + uTime * 0.1)) - 0.5) * uNoiseIntensity;
+    float noise = (random(vec2(uv * 100.0 + uTime * 0.1)) - 0.5) * uNoiseIntensity * 0.5;
     color += noise;
   }
   

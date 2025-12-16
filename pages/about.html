@@ -5,15 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>about</title>
     <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
-    <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
+    <link rel="stylesheet" href="https://use.typekit.net/njg8xol.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../style/main.css" />
     <link rel="stylesheet" href="../style/basement/layout.css" />
     <link rel="stylesheet" href="../style/basement/wall.css" />
-    <link rel="stylesheet" href="../style/basement/floor.css" />
-    <link rel="stylesheet" href="../style/basement/brick.css" />
     <link rel="stylesheet" href="../style/desktop/cursor.css" />
     <link rel="stylesheet" href="../style/basement/qqWindow.css" />
     <link rel="stylesheet" href="../style/about/pokemon.css" />
@@ -25,22 +22,20 @@
         overflow: hidden;
       }
       
-      /* Add wall and floor sections like basement */
+      /* Apply Typekit font to all elements on about page */
+      /* Replace 'YOUR_FONT_NAME' with the actual font family name from Adobe Fonts */
+      /* Check browser console for detected font name, or check your Adobe Fonts project */
+      * {
+        font-family: var(--typekit-font, 'YOUR_FONT_NAME'), sans-serif !important;
+      }
+      
+      /* Wall section - full height */
       .wall-section {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 75vh;
-        z-index: 0;
-      }
-      
-      .floor-section {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 25vh;
+        height: 100vh;
         z-index: 0;
       }
       .back-button {
@@ -52,7 +47,7 @@
         border: 2px solid #000;
         color: #fff;
         padding: 8px 16px;
-        font-family: 'Courier New', monospace;
+        font-family: 'njg8xol', sans-serif;
         font-size: 14px;
         cursor: pointer;
         border-radius: 4px;
@@ -78,7 +73,6 @@
   </head>
   <body>
     <div class="wall-section"></div>
-    <div class="floor-section"></div>
     <div class="custom-cursor"></div>
     <a href="/pages/basement.html" class="back-button">← Back</a>
     
@@ -120,12 +114,13 @@
     <!-- Pokémon Stat Window -->
     <div class="pokemon-stat-screen" id="pokemonWindow">
       <div class="pokemon-header">
-        <div class="pokemon-title">POKEMON SKILLS</div>
-        <div class="pokemon-nav-tabs">
-          <div class="nav-circle active"></div>
-          <div class="nav-circle active"></div>
-          <div class="nav-circle"></div>
-          <div class="nav-circle blue"></div>
+        <div class="pokemon-title">STATS</div>
+        <div class="pokemon-nav-icons">
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon active"></div>
+          <div class="nav-icon"></div>
+          <div class="nav-icon"></div>
         </div>
         <div class="pokemon-window-controls">
           <button class="pokemon-window-close">×</button>
@@ -133,82 +128,126 @@
       </div>
       <div class="pokemon-content">
         <div class="pokemon-left-panel">
-          <div class="pokemon-info-top">
-            <span class="pokemon-level">Lv79</span>
-            <span class="pokemon-name">Mr. Charmy</span>
-            <span class="pokemon-gender">♂</span>
+          <div class="pokemon-info-box">
+            <div class="pokemon-name-row">
+              <img src="../assets/icons/fav_icon.png" alt="Poké Ball" class="pokeball-icon">
+              <span class="pokemon-name">Kidling</span>
+              <span class="pokemon-gender">♂</span>
+            </div>
+            <div class="pokemon-level">Lv. 7</div>
           </div>
           <div class="pokemon-sprite-area">
-            <!-- Sprite will go here -->
+            <img src="../assets/icons/fav_icon.png" alt="Pokémon" class="pokemon-sprite">
+          </div>
+          <div class="pokemon-navigation">
+            <div class="nav-dots">
+              <span class="nav-dot"></span>
+              <span class="nav-dot"></span>
+              <span class="nav-dot"></span>
+            </div>
+            <div class="nav-arrows">
+              <span class="nav-arrow-up">▲</span>
+              <span class="nav-arrow-down">▼</span>
+            </div>
+          </div>
+          <div class="pokemon-item">
+            <div class="item-label">Item</div>
+            <div class="item-value">None</div>
           </div>
         </div>
         <div class="pokemon-right-panel">
-          <div class="pokemon-stats">
-            <div class="pokemon-stat-row">
-              <div class="stat-label">HP</div>
-              <div class="stat-value">231/231</div>
-              <div class="hp-bar-container">
-                <div class="hp-bar" style="width: 100%"></div>
+          <div class="pokemon-stats-box">
+            <div class="pokemon-stat-hp">
+              <div class="stat-hp-header">
+                <span class="stat-label-hp">HP</span>
+                <span class="stat-hp-values">18/24</span>
+                <span class="stat-hp-extra">26/0</span>
+              </div>
+              <div class="hp-bar-wrapper">
+                <div class="hp-bar-label">HP</div>
+                <div class="hp-bar-container">
+                  <div class="hp-bar" style="width: 75%"></div>
+                </div>
               </div>
             </div>
-            <div class="pokemon-stat-row">
-              <div class="stat-label">ATTACK</div>
-              <div class="stat-value">159</div>
+            <div class="pokemon-stat-item">
+              <span class="stat-label">Attack</span>
+              <span class="stat-value-main">15</span>
+              <span class="stat-value-extra">22/1</span>
             </div>
-            <div class="pokemon-stat-row">
-              <div class="stat-label">DEFENSE</div>
-              <div class="stat-value">139</div>
+            <div class="pokemon-stat-item">
+              <span class="stat-label">Defense</span>
+              <span class="stat-value-main">13</span>
+              <span class="stat-value-extra">10/0</span>
             </div>
-            <div class="pokemon-stat-row">
-              <div class="stat-label">SP.ATK</div>
-              <div class="stat-value">217</div>
+            <div class="pokemon-stat-item">
+              <span class="stat-label">Sp. Atk</span>
+              <span class="stat-value-main">12</span>
+              <span class="stat-value-extra">31/0</span>
             </div>
-            <div class="pokemon-stat-row">
-              <div class="stat-label">SP.DEF</div>
-              <div class="stat-value">148</div>
+            <div class="pokemon-stat-item">
+              <span class="stat-label">Sp. Def</span>
+              <span class="stat-value-main">13</span>
+              <span class="stat-value-extra">29/0</span>
             </div>
-            <div class="pokemon-stat-row">
-              <div class="stat-label">SPEED</div>
-              <div class="stat-value">206</div>
+            <div class="pokemon-stat-item">
+              <span class="stat-label">Speed</span>
+              <span class="stat-value-main">14</span>
+              <span class="stat-value-extra">22/1</span>
             </div>
-          </div>
-        </div>
-      </div>
-      <div class="pokemon-bottom-section">
-        <div class="pokemon-exp-section">
-          <div class="exp-label">EXP. POINTS</div>
-          <div class="exp-value">521110</div>
-          <div class="next-level-label">NEXT LV.</div>
-          <div class="next-level-value">5150</div>
-          <div class="exp-bar-container">
-            <div class="exp-bar-label">EXP</div>
-            <div class="exp-bar">
-              <div class="exp-bar-fill" style="width: 85%"></div>
+            <div class="pokemon-ability">
+              <div class="ability-label">Ability</div>
+              <div class="ability-name">Blaze</div>
+              <div class="ability-description">Powers up Fire-type moves in a pinch.</div>
             </div>
           </div>
-        </div>
-        <div class="pokemon-ability-section">
-          <div class="ability-label">ABILITY</div>
-          <div class="ability-name">BLAZE</div>
-          <div class="ability-description">Ups FIRE moves in a pinch.</div>
         </div>
       </div>
     </div>
 
     <script type="module">
       import { initCustomCursor } from '../js/lib/desktop/cursor.js';
-      import { initBrickFloor } from '../js/lib/desktop/brickFloor.js';
-      
       // Initialize custom cursor
       initCustomCursor();
       
-      // Initialize brick floor
-      window.addEventListener('load', async () => {
-        try {
-          await initBrickFloor();
-        } catch (error) {
-          console.error('Brick floor initialization failed', error);
-        }
+      // Debug: Check what fonts are loaded from Typekit
+      // Open browser console to see the font family name
+      window.addEventListener('load', () => {
+        setTimeout(() => {
+          // Check all @font-face rules
+          const styleSheets = Array.from(document.styleSheets);
+          const fontFamilies = new Set();
+          
+          styleSheets.forEach(sheet => {
+            try {
+              if (sheet.href && sheet.href.includes('typekit.net')) {
+                const rules = Array.from(sheet.cssRules || []);
+                rules.forEach(rule => {
+                  if (rule instanceof CSSFontFaceRule) {
+                    const fontFamily = rule.style.fontFamily;
+                    fontFamilies.add(fontFamily);
+                    console.log('Found Typekit font:', fontFamily);
+                  }
+                });
+              }
+            } catch (e) {
+              // Cross-origin - try alternative method
+            }
+          });
+          
+          if (fontFamilies.size > 0) {
+            console.log('Available Typekit fonts:', Array.from(fontFamilies));
+            // Apply the first found font
+            const fontName = Array.from(fontFamilies)[0];
+            document.documentElement.style.setProperty('--typekit-font', fontName);
+            document.body.style.fontFamily = `${fontName}, sans-serif`;
+          } else {
+            console.warn('No Typekit fonts found. Please check:');
+            console.warn('1. Go to your Adobe Fonts project page');
+            console.warn('2. Look for "Web Project" or "Font Family" name');
+            console.warn('3. Use that exact name in CSS (case-sensitive)');
+          }
+        }, 500);
       });
       
       // Initialize QQ window functionality
