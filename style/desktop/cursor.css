@@ -4,8 +4,8 @@
   position: fixed;
   left: 0;
   top: 0;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   pointer-events: none;
   z-index: 99999;
   transform: translate3d(var(--mouse-x, 0px), var(--mouse-y, 0px), 0);

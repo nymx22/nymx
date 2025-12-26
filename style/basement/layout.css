@@ -13,8 +13,25 @@ body {
 
 /* Mobile - screens smaller than 768px */
 @media (max-width: 767px) {
+  html {
+    overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+  }
+  
   body {
     font-size: 11px; /* -5 from base 16px */
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%;
+    height: 200%;
+    overflow: hidden;
+  }
+  
+  /* Scale up GUI to compensate for body scaling */
+  #basement-gui {
+    transform: scale(2);
+    transform-origin: bottom center;
   }
 }
 

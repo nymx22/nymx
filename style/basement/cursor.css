@@ -4,8 +4,8 @@
   position: fixed;
   left: 0;
   top: 0;
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   pointer-events: none;
   z-index: 10001;
   transform: translate3d(var(--mouse-x, -100px), var(--mouse-y, -100px), 0);
@@ -19,5 +19,12 @@
   width: 100%;
   height: 100%;
   display: block;
+}
+
+/* Mobile - scale up cursor to compensate for body scaling */
+@media (max-width: 767px) {
+  .custom-cursor {
+    transform: translate3d(var(--mouse-x, -100px), var(--mouse-y, -100px), 0) scale(2);
+  }
 }
 
