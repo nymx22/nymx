@@ -16,6 +16,10 @@
     <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
   </head>
   <body>
+    <audio id="background-music" loop preload="auto">
+      <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <div class="custom-cursor"></div>
     
     <div class="tool-container">
@@ -29,7 +33,11 @@
     </div>
     
     <script type="module">
+      import { initBackgroundMusic } from '../js/lib/music.js';
       import { initCustomCursor } from '../js/lib/desktop/cursor.js';
+      
+      // Initialize background music
+      initBackgroundMusic();
       
       // Initialize custom cursor
       initCustomCursor();

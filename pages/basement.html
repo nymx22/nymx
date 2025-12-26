@@ -23,6 +23,10 @@
     <link rel="stylesheet" href="../style/basement/vignette.css" />
     <link rel="stylesheet" href="../style/basement/cursor.css" />
     <link rel="stylesheet" href="../style/basement/gui.css" />
+    <audio id="background-music" loop preload="auto">
+      <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
     <style>
@@ -107,7 +111,11 @@
     <div class="vignette-overlay"></div>
     
     <script type="module">
+      import { initBackgroundMusic } from '../js/lib/music.js';
       import { initPebbleFloor } from '../js/lib/desktop/pebbleFloor.js';
+      
+      // Initialize background music
+      initBackgroundMusic();
       import { pureSnow } from '../js/effects/glitch/pureSnow.js';
       import { purpleStatic } from '../js/effects/glitch/purpleStatic.js';
       import { initSelf0Shader } from '../js/lib/selfmovement/self0Shader.js';

@@ -14,6 +14,10 @@
     <link rel="stylesheet" href="../style/desktop/cursor.css" />
     <link rel="stylesheet" href="../style/basement/qqWindow.css" />
     <link rel="stylesheet" href="../style/about/pokemon.css" />
+    <audio id="background-music" loop preload="auto">
+      <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <!-- Firebase SDK (compat version for regular script tags) -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -321,9 +325,9 @@
         const nameSpan = document.createElement('span');
         nameSpan.className = 'qq-message-name';
         nameSpan.textContent = userName + ': ';
-        nameSpan.style.fontWeight = 'bold';
         
         const textSpan = document.createElement('span');
+        textSpan.className = 'qq-message-text';
         textSpan.textContent = message;
         
         messageDiv.appendChild(nameSpan);
