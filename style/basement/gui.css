@@ -148,15 +148,9 @@
 }
 
 @media (max-width: 767px) {
-  /* Position at bottom center in mobile */
+  /* Hide GUI in mobile */
   #basement-gui {
-    top: auto !important;
-    bottom: 20px !important;
-    right: auto !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 40px) !important;
-    max-width: 400px !important;
+    display: none !important;
   }
   
   /* Reduce font size by 5px in mobile */

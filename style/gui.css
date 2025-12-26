@@ -154,14 +154,7 @@
 
 @media (max-width: 767px) {
   .dg.ac {
-    top: auto !important;
-    bottom: 20px !important;
-    right: auto !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    width: calc(100% - 40px) !important;
-    max-width: 400px !important;
-    margin: 0 auto;
+    display: none !important;
   }
 
   .dg, .dg * {

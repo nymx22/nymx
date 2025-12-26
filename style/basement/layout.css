@@ -13,25 +13,8 @@ body {
 
 /* Mobile - screens smaller than 768px */
 @media (max-width: 767px) {
-  html {
-    overflow: hidden;
-    width: 100vw;
-    height: 100vh;
-  }
-  
   body {
     font-size: 11px; /* -5 from base 16px */
-    transform: scale(0.5);
-    transform-origin: top left;
-    width: 200%;
-    height: 200%;
-    overflow: hidden;
-  }
-  
-  /* Scale up GUI to compensate for body scaling */
-  #basement-gui {
-    transform: scale(2);
-    transform-origin: bottom center;
   }
 }
 
@@ -92,18 +75,10 @@ body {
   letter-spacing: 0.08em;
 }
 
-/* Mobile scaling for control bubble */
+/* Hide control bubble on mobile */
 @media (max-width: 767px) {
   .basement-control-bubble {
-    font-size: 0.85em; /* Scale down overall bubble */
-  }
-  
-  .basement-control-bubble .controls-label {
-    font-size: 0.7rem; /* Scale down label */
-  }
-  
-  .basement-control-bubble .controls-arrows {
-    font-size: 0.85rem; /* Scale down arrows */
+    display: none !important;
   }
 }
 

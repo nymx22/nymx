@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=375, initial-scale=1.0">
+  <title>Mobile View - Home</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #1a1a1a;
+      font-family: Arial, sans-serif;
+    }
+    .mobile-frame {
+      width: 375px;
+      height: 667px;
+      border: 8px solid #333;
+      border-radius: 25px;
+      overflow: hidden;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+      background: #000;
+      position: relative;
+    }
+    .mobile-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 4px;
+      background: #333;
+      border-radius: 0 0 4px 4px;
+      z-index: 10000;
+    }
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .controls {
+      margin-top: 20px;
+      text-align: center;
+      color: white;
+    }
+    .controls button {
+      margin: 5px;
+      padding: 10px 20px;
+      background: #4a90c4;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .controls button:hover {
+      background: #357abd;
+    }
+  </style>
+</head>
+<body>
+  <div>
+    <div class="mobile-frame">
+      <iframe id="mobileFrame" src="index.html"></iframe>
+    </div>
+    <div class="controls">
+      <button onclick="reload()">Reload</button>
+      <button onclick="toggleSize()">Toggle Size</button>
+      <div style="margin-top: 10px; color: #888; font-size: 12px;">
+        iPhone SE size (375×667)
+      </div>
+    </div>
+  </div>
+  <script>
+    let isSmall = false;
+    function reload() {
+      document.getElementById('mobileFrame').src = document.getElementById('mobileFrame').src;
+    }
+    function toggleSize() {
+      const frame = document.querySelector('.mobile-frame');
+      if (isSmall) {
+        frame.style.width = '375px';
+        frame.style.height = '667px';
+        isSmall = false;
+      } else {
+        frame.style.width = '320px';
+        frame.style.height = '568px';
+        isSmall = true;
+      }
+    }
+  </script>
+</body>
+</html>
+

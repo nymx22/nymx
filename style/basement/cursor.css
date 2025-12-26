@@ -21,10 +21,3 @@
   display: block;
 }
 
-/* Mobile - scale up cursor to compensate for body scaling */
-@media (max-width: 767px) {
-  .custom-cursor {
-    transform: translate3d(var(--mouse-x, -100px), var(--mouse-y, -100px), 0) scale(2);
-  }
-}
-
