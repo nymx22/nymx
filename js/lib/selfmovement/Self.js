@@ -24,6 +24,10 @@ export class Self {
       right: false
     };
     
+    // Mobile tap-to-move target
+    this.targetX = null;
+    this.isMobile = window.innerWidth <= 767;
+    
     // Load all self images
     this.loadImages();
     
@@ -33,9 +37,11 @@ export class Self {
       if (this.idleFrame && this.idleFrame.height > 0) {
         this.scale = this.targetHeight / this.idleFrame.height;
       }
+      // Update mobile detection on resize
+      this.isMobile = window.innerWidth <= 767;
     });
 
-    // Setup keyboard controls
+    // Setup controls (keyboard for desktop, touch/click for mobile)
     this.setupControls();
   }
   
@@ -55,34 +61,106 @@ export class Self {
   }
   
   setupControls() {
-    // Listen for arrow key presses
-    window.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowRight') {
-        this.keys.right = true;
-        this.direction = 1;
-        this.isMoving = true;
-      } else if (e.key === 'ArrowLeft') {
-        this.keys.left = true;
-        this.direction = -1;
-        this.isMoving = true;
-      }
-    });
-    
-    // Listen for arrow key releases
-    window.addEventListener('keyup', (e) => {
-      if (e.key === 'ArrowRight') {
-        this.keys.right = false;
-      } else if (e.key === 'ArrowLeft') {
-        this.keys.left = false;
-      }
+    // Desktop: Keyboard controls
+    if (!this.isMobile) {
+      // Listen for arrow key presses
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') {
+          this.keys.right = true;
+          this.direction = 1;
+          this.isMoving = true;
+        } else if (e.key === 'ArrowLeft') {
+          this.keys.left = true;
+          this.direction = -1;
+          this.isMoving = true;
+        }
+      });
       
-      // Stop moving if no keys are pressed
-      if (!this.keys.left && !this.keys.right) {
-        this.isMoving = false;
-        this.currentFrame = 0;
-        this.frameCounter = 0;
-      }
-    });
+      // Listen for arrow key releases
+      window.addEventListener('keyup', (e) => {
+        if (e.key === 'ArrowRight') {
+          this.keys.right = false;
+        } else if (e.key === 'ArrowLeft') {
+          this.keys.left = false;
+        }
+        
+        // Stop moving if no keys are pressed
+        if (!this.keys.left && !this.keys.right) {
+          this.isMoving = false;
+          this.currentFrame = 0;
+          this.frameCounter = 0;
+        }
+      });
+    } else {
+      // Mobile: Touch/click to move
+      const handleTap = (e) => {
+        // PRIORITY: Check for links/interactive elements FIRST before anything else
+        const target = e.target;
+        const linkElement = target.closest('a');
+        const buttonElement = target.closest('button');
+        
+        // If clicking on links or buttons, let the browser handle it - don't interfere
+        if (linkElement || buttonElement) {
+          return; // Let the link handle the click
+        }
+        
+        // Get touch or mouse position
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // Check if click is within stair-container or shader-container bounds using coordinates
+        const stairEl = document.querySelector('.stair-container');
+        const shaderEl = document.querySelector('#stair-shader-container');
+        
+        // Check shader container first (actual image size) if it exists
+        if (shaderEl) {
+          const shaderRect = shaderEl.getBoundingClientRect();
+          if (clientX >= shaderRect.left && clientX <= shaderRect.right && 
+              clientY >= shaderRect.top && clientY <= shaderRect.bottom) {
+            // Click is within shader/image bounds - trigger the link navigation
+            e.preventDefault();
+            e.stopPropagation();
+            if (stairEl) {
+              stairEl.click();
+            }
+            return;
+          }
+        }
+        
+        // Fallback: Check stair container bounds
+        if (stairEl) {
+          const rect = stairEl.getBoundingClientRect();
+          if (clientX >= rect.left && clientX <= rect.right && 
+              clientY >= rect.top && clientY <= rect.bottom) {
+            // Click is within stair bounds - trigger the link navigation
+            e.preventDefault();
+            e.stopPropagation();
+            // Programmatically click the link to navigate
+            stairEl.click();
+            return;
+          }
+        }
+        
+        // Only prevent default if we're actually handling movement (not a link)
+        e.preventDefault();
+        
+        // Convert screen X to world X (relative to center)
+        const screenCenterX = window.innerWidth / 2;
+        const targetWorldX = clientX - screenCenterX;
+        
+        // Set target position
+        this.targetX = targetWorldX;
+        this.isMoving = true;
+        
+        // Set direction based on target
+        this.direction = targetWorldX > this.x ? 1 : -1;
+      };
+      
+      // Add touch and click listeners with lower priority (use capture: false)
+      // This allows links to handle clicks first in the bubble phase
+      window.addEventListener('touchstart', handleTap, { passive: false, capture: false });
+      window.addEventListener('click', handleTap, { capture: false });
+    }
   }
   
   update() {
@@ -93,17 +171,38 @@ export class Self {
     const maxLeft = -(screenCenterX - selfWidth / 2);  // Left boundary
     const maxRight = screenCenterX - selfWidth / 2;    // Right boundary
     
-    // Update position based on key states
-    if (this.keys.right) {
-      this.x = Math.min(this.x + this.speed, maxRight);
-      this.direction = 1;
-      this.isMoving = true;
-    } else if (this.keys.left) {
-      this.x = Math.max(this.x - this.speed, maxLeft);
-      this.direction = -1;
-      this.isMoving = true;
-    } else {
-      this.isMoving = false;
+    if (this.isMobile && this.targetX !== null) {
+      // Mobile: Move towards target position
+      const distance = this.targetX - this.x;
+      const absDistance = Math.abs(distance);
+      
+      if (absDistance > 2) {
+        // Still moving towards target
+        const moveAmount = Math.min(this.speed, absDistance);
+        this.x += distance > 0 ? moveAmount : -moveAmount;
+        this.direction = distance > 0 ? 1 : -1;
+        this.isMoving = true;
+      } else {
+        // Reached target
+        this.x = this.targetX;
+        this.targetX = null;
+        this.isMoving = false;
+        this.currentFrame = 0;
+        this.frameCounter = 0;
+      }
+    } else if (!this.isMobile) {
+      // Desktop: Update position based on key states
+      if (this.keys.right) {
+        this.x = Math.min(this.x + this.speed, maxRight);
+        this.direction = 1;
+        this.isMoving = true;
+      } else if (this.keys.left) {
+        this.x = Math.max(this.x - this.speed, maxLeft);
+        this.direction = -1;
+        this.isMoving = true;
+      } else {
+        this.isMoving = false;
+      }
     }
     
     // Clamp position to boundaries (in case of window resize)

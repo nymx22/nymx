@@ -28,3 +28,22 @@
   transform: translateX(-50%);
 }
 
+/* Mobile - shrink self character */
+@media (max-width: 767px) {
+  .self-container {
+    transform: translateX(-50%) scale(0.85); /* Shrink to 85% */
+    height: 30vh; /* Keep original height to prevent clipping */
+    overflow: visible; /* Allow content to overflow if needed */
+    align-items: center; /* Center vertically to prevent top cutoff */
+  }
+  
+  #self-shader-container {
+    height: 100%;
+    transform: scale(0.85); /* Scale the container */
+  }
+  
+  #self-shader-container canvas {
+    transform: translateX(-50%) scale(0.85); /* Scale the canvas */
+  }
+}
+

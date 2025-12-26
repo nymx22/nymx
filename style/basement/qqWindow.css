@@ -281,3 +281,30 @@
   background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 100%);
 }
 
+/* Mobile - smaller text sizes */
+@media (max-width: 767px) {
+  .qqWindow {
+    font-size: 9px !important; /* Smaller base font */
+  }
+  
+  .qqWindow * {
+    font-size: 0.75em !important; /* Scale down all text by 25% */
+  }
+  
+  .qq-title {
+    font-size: 10px !important;
+  }
+  
+  .qq-profile-name {
+    font-size: 9px !important;
+  }
+  
+  .qq-message-text {
+    font-size: 8px !important;
+  }
+  
+  .qq-input-field {
+    font-size: 8px !important;
+  }
+}
+

@@ -19,7 +19,7 @@
 
 @media (max-width: 767px) {
   .self0-hint-text {
-    font-size: 18px;
+    font-size: 14px; /* Smaller hint text */
   }
 }
 

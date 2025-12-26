@@ -6,12 +6,13 @@
   bottom: var(--floor-height, 25vh); /* Sit directly above the floor section */
   height: var(--wall-height, 75vh); /* Match the wall height */
   width: min(33vw, 320px);
-  z-index: 400;
+  z-index: 300; /* Behind character (self is z-index 500) */
   display: flex;
   align-items: flex-end;
   cursor: pointer;
   text-decoration: none;
   transition: opacity 0.3s ease;
+  pointer-events: auto; /* Ensure link is clickable */
 }
 
 .stair-container:hover {
@@ -29,5 +30,17 @@
 
 #stair-shader-container canvas {
   display: block;
+}
+
+/* Mobile - shrink stairs, keep on right, behind character */
+@media (max-width: 767px) {
+  .stair-container {
+    right: 50px; /* Keep on right side */
+    z-index: 300; /* Behind character (self is z-index 500) */
+    pointer-events: auto; /* Ensure link is clickable even when behind */
+    transform: scale(0.6); /* Shrink to 60% of original size */
+    transform-origin: right bottom; /* Scale from bottom-right corner */
+    width: min(20vw, 200px); /* Smaller width */
+  }
 }
 

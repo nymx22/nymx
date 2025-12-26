@@ -14,7 +14,11 @@ body {
 /* Mobile - screens smaller than 768px */
 @media (max-width: 767px) {
   body {
-    font-size: 11px; /* -5 from base 16px */
+    font-size: 8px; /* Smaller base font size */
+  }
+  
+  .back-link {
+    font-size: 0.9rem !important; /* Smaller back link */
   }
 }
 
