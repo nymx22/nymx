@@ -7,10 +7,10 @@
   transform: translate(-50%, -50%) scale(0.8);
   width: 200px;
   height: 350px;
-  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 50%, #4a90c4 100%);
-  border: 2px solid #2d6fa3;
+  background: linear-gradient(to bottom, #CBDCEB 0%, #E8DFCA 50%, #F5EFE6 100%);
+  border: 2px solid #6D94C5;
   border-radius: 8px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   z-index: 9999;
   display: none;
   flex-direction: column;
@@ -30,8 +30,8 @@
 
 /* Title Bar */
 .qq-window-titlebar {
-  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 50%, #1e4d7a 100%);
-  color: white;
+  background: linear-gradient(to bottom, #6D94C5 0%, #6D94C5 50%, #6D94C5 100%);
+  color: #FFFFFF; /* White text for better contrast */
   padding: 6px 8px;
   display: flex;
   justify-content: space-between;
@@ -39,7 +39,7 @@
   cursor: move;
   user-select: none;
   height: 32px;
-  border-bottom: 1px solid #1e4d7a;
+  border-bottom: 1px solid #6D94C5;
   border-radius: 6px 6px 0 0;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
@@ -99,17 +99,17 @@
 /* Chat Area */
 .qq-window-chat-area {
   flex: 1;
-  background: #ffffff;
+  background: #FFFFFF; /* White background */
   display: flex;
   overflow: hidden;
-  border-bottom: 1px solid #b8d4e0;
+  border-bottom: 1px solid #6D94C5;
 }
 
 .qq-chat-messages-container {
   flex: 1;
   overflow-y: auto;
   padding: 8px;
-  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
+  background: #FFFFFF; /* White background */
 }
 
 .qq-chat-messages {
@@ -117,14 +117,7 @@
 }
 
 .qq-profile-section {
-  width: 60px;
-  background: linear-gradient(to bottom, #d0e8f0 0%, #b3d9f2 100%);
-  border-left: 1px solid #7bb3d9;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 8px 4px;
-  box-shadow: inset -1px 0 2px rgba(0, 0, 0, 0.1);
+  display: none; /* Removed - right part of chat box */
 }
 
 .qq-profile-avatar {
@@ -163,26 +156,26 @@
 }
 
 .qq-message-sent {
-  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 100%);
-  color: #1e4d7a;
+  background: linear-gradient(to bottom, #6D94C5 0%, #6D94C5 100%);
+  color: #FFFFFF; /* White text for better contrast */
   margin-left: auto;
   text-align: right;
-  border: 1px solid #4a9dd9;
+  border: 1px solid #6D94C5;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .qq-message-received {
-  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
-  color: #333;
+  background: linear-gradient(to bottom, #FFFFFF 0%, #F5EFE6 100%);
+  color: #6D94C5;
   margin-right: auto;
-  border: 1px solid #b3d9f2;
+  border: 1px solid #6D94C5;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 /* Input Area */
 .qq-window-input-area {
-  background: linear-gradient(to bottom, #d0e8f0 0%, #b3d9f2 100%);
-  border-top: 1px solid #7bb3d9;
+  background: linear-gradient(to bottom, #CBDCEB 0%, #E8DFCA 100%);
+  border-top: 1px solid #6D94C5;
   padding: 4px;
 }
 
@@ -193,9 +186,9 @@
 .qq-input-field {
   width: 100%;
   height: 60px;
-  border: 1px solid #7bb3d9;
-  background: linear-gradient(to bottom, #ffffff 0%, #f5f9fa 100%);
-  color: #333;
+  border: 1px solid #6D94C5;
+  background: #FFFFFF; /* White background for input */
+  color: #6D94C5;
   padding: 4px;
   font-size: 12px;
   font-family: findreplace, sans-serif;
@@ -205,20 +198,21 @@
 }
 
 .qq-input-field::placeholder {
-  color: #7bb3d9;
+  color: #6D94C5;
+  opacity: 0.6;
 }
 
 .qq-input-field:focus {
-  outline: 1px solid #2d6fa3;
-  border-color: #2d6fa3;
-  background: #ffffff;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 4px rgba(45, 111, 163, 0.3);
+  outline: 1px solid #6D94C5;
+  border-color: #6D94C5;
+  background: #FFFFFF;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1), 0 0 4px rgba(109, 148, 197, 0.3);
 }
 
 /* Bottom Bar */
 .qq-window-bottom-bar {
-  background: linear-gradient(to bottom, #b3d9f2 0%, #7bb3d9 100%);
-  border-top: 1px solid #4a9dd9;
+  background: linear-gradient(to bottom, #CBDCEB 0%, #E8DFCA 100%);
+  border-top: 1px solid #6D94C5;
   padding: 4px 8px;
   display: flex;
   justify-content: flex-end;
@@ -231,12 +225,12 @@
 
 .qq-send-btn,
 .qq-close-btn {
-  background: linear-gradient(to bottom, #ffffff 0%, #e8f4f8 100%);
-  border: 1px solid #7bb3d9;
+  background: linear-gradient(to bottom, #F5EFE6 0%, #E8DFCA 100%);
+  border: 1px solid #6D94C5;
   padding: 4px 12px;
   font-size: 11px;
   cursor: pointer;
-  color: #1e4d7a;
+  color: #6D94C5;
   border-radius: 4px;
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
@@ -244,21 +238,21 @@
 
 .qq-send-btn:hover,
 .qq-close-btn:hover {
-  background: linear-gradient(to bottom, #e8f4f8 0%, #d0e8f0 100%);
-  border-color: #4a9dd9;
+  background: linear-gradient(to bottom, #E8DFCA 0%, #CBDCEB 100%);
+  border-color: #6D94C5;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .qq-send-btn {
-  background: linear-gradient(to bottom, #4a9dd9 0%, #2d6fa3 100%);
-  color: white;
-  border-color: #1e4d7a;
+  background: linear-gradient(to bottom, #6D94C5 0%, #6D94C5 100%);
+  color: #FFFFFF; /* White text for better contrast */
+  border-color: #6D94C5;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .qq-send-btn:hover {
-  background: linear-gradient(to bottom, #5ba3d9 0%, #3d7fb3 100%);
-  border-color: #2d6fa3;
+  background: linear-gradient(to bottom, #6D94C5 0%, #6D94C5 100%);
+  border-color: #6D94C5;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }
 

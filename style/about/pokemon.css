@@ -1,15 +1,16 @@
 /* Pokémon Nintendo DS Stat Screen Styles */
 
-.pokemon-top-bar {
+.pokemon-top-bar,
+.pokemon-stat-screen {
   position: fixed;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.8);
   width: 640px;
   height: 480px;
-  background: #c0c0c0;
-  border: 2px solid #000;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  background: #F5EFE6; /* Light beige background */
+  border: 2px solid #6D94C5; /* Medium blue border */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   z-index: 10000;
   display: none;
   flex-direction: column;
@@ -26,16 +27,16 @@
   transform: translate(-50%, -50%) scale(1);
 }
 
-/* Header - Green bar */
+/* Header */
 .pokemon-header {
-  background: #598aab;
-  color: #fff;
+  background: #6D94C5; /* Medium muted blue */
+  color: #FFFFFF; /* White text for better contrast */
   padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   height: 28px;
-  border-bottom: 2px solid #000;
+  border-bottom: 2px solid #6D94C5;
   cursor: move;
   user-select: none;
 }
@@ -43,7 +44,7 @@
 .pokemon-title {
   font-size: 14px;
   font-weight: bold;
-  color: #fff;
+  color: #FFFFFF; /* White text for better contrast */
 }
 
 .pokemon-nav-icons {
@@ -61,8 +62,8 @@
 }
 
 .nav-icon.active {
-  background: #00a000;
-  border-color: #fff;
+  background: #808080;
+  border-color: #000;
   position: relative;
 }
 
@@ -72,7 +73,7 @@
   bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  color: #00a000;
+  color: #808080;
   font-size: 10px;
 }
 
@@ -111,7 +112,7 @@
   display: flex;
   padding: 8px;
   gap: 8px;
-  background: #c0c0c0;
+  background: #E8DFCA; /* Warmer beige */
 }
 
 /* Left Panel */
@@ -123,8 +124,8 @@
 }
 
 .pokemon-info-box {
-  background: #e0e0e0;
-  border: 2px solid #808080;
+  background: #FFFFFF; /* White background */
+  border: 2px solid #6D94C5; /* Medium blue border */
   padding: 6px 8px;
   border-radius: 2px;
 }
@@ -164,8 +165,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f0f0f0;
-  border: 2px solid #808080;
+  background: #FFFFFF; /* White background */
+  border: 2px solid #6D94C5; /* Medium blue border */
   border-radius: 2px;
   min-height: 200px;
   padding: 10px;
@@ -212,8 +213,8 @@
 }
 
 .pokemon-item {
-  background: #e0e0e0;
-  border: 2px solid #808080;
+  background: #FFFFFF; /* White background */
+  border: 2px solid #6D94C5; /* Medium blue border */
   padding: 6px 8px;
   border-radius: 2px;
 }
@@ -239,8 +240,8 @@
 
 .pokemon-stats-box {
   flex: 1;
-  background: #e0e0e0;
-  border: 3px solid #00a000;
+  background: #FFFFFF; /* White background */
+  border: 3px solid #6D94C5; /* Medium blue border */
   border-radius: 4px;
   padding: 10px;
   display: flex;
@@ -300,8 +301,9 @@
 
 .hp-bar {
   height: 100%;
-  background: linear-gradient(to bottom, #00ff00 0%, #00a000 100%);
-  border-right: 1px solid #008000;
+  background: #808080;
+  border-right: 1px solid #666;
+  display: none; /* Hide the green HP bar */
 }
 
 .pokemon-stat-item {

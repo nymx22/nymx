@@ -43,20 +43,35 @@ export function initMirrorReflection(selfInstance, selfShader) {
     hintAnimationFrame = requestAnimationFrame(updateMirrorHintPosition);
   };
   
-  // Show/hide hint text on hover
-  mirrorContainer.addEventListener('mouseenter', () => {
+  // Show/hide hint text on hover (desktop) or tap (mobile)
+  const showHint = () => {
     mirrorHintText.style.opacity = '1';
     if (hintAnimationFrame === null) {
       updateMirrorHintPosition();
     }
-  });
+  };
   
-  mirrorContainer.addEventListener('mouseleave', () => {
+  const hideHint = () => {
     mirrorHintText.style.opacity = '0';
     if (hintAnimationFrame !== null) {
       cancelAnimationFrame(hintAnimationFrame);
       hintAnimationFrame = null;
     }
+  };
+  
+  // Desktop: hover events
+  mirrorContainer.addEventListener('mouseenter', showHint);
+  mirrorContainer.addEventListener('mouseleave', hideHint);
+  
+  // Mobile: touch events (don't prevent default to allow click navigation)
+  mirrorContainer.addEventListener('touchstart', () => {
+    showHint();
+  });
+  mirrorContainer.addEventListener('touchend', () => {
+    // Delay hide to allow click to register
+    setTimeout(() => {
+      hideHint();
+    }, 500); // Show for 0.5 seconds after tap
   });
   
   // Create QQ window
@@ -97,10 +112,10 @@ export function initMirrorReflection(selfInstance, selfShader) {
   `;
   document.body.appendChild(qqWindow);
   
-  // Navigate to about page when clicking on mirror (temporarily disabled)
-  // mirrorContainer.addEventListener('click', () => {
-  //   window.location.href = '../pages/about.html';
-  // });
+  // Navigate to about page when clicking on mirror
+  mirrorContainer.addEventListener('click', () => {
+    window.location.href = '../pages/about.html';
+  });
   
   // Close window handlers
   const closeWindow = () => {

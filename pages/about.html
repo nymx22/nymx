@@ -29,7 +29,7 @@
         font-family: var(--typekit-font, 'YOUR_FONT_NAME'), sans-serif !important;
       }
       
-      /* Wall section - full height */
+      /* Wall section - full height with new color palette */
       .wall-section {
         position: fixed;
         top: 0;
@@ -37,15 +37,16 @@
         width: 100%;
         height: 100vh;
         z-index: 0;
+        background: #CBDCEB; /* Very light soft blue - consistent background */
       }
       .back-button {
         position: fixed;
         top: 20px;
         left: 20px;
         z-index: 10001;
-        background: rgba(0, 0, 0, 0.3);
-        border: 2px solid #000;
-        color: #fff;
+        background: #E8DFCA; /* Warmer beige */
+        border: 2px solid #6D94C5; /* Medium blue border */
+        color: #6D94C5; /* Medium blue text */
         padding: 8px 16px;
         font-family: 'njg8xol', sans-serif;
         font-size: 14px;
@@ -57,8 +58,8 @@
         font-weight: bold;
       }
       .back-button:hover {
-        background: rgba(0, 0, 0, 0.5);
-        border-color: #333;
+        background: #CBDCEB; /* Light blue on hover */
+        border-color: #6D94C5;
       }
       .qq-profile-photo,
       .qq-profile-photo-large {
@@ -91,12 +92,6 @@
         <div class="qq-chat-messages-container">
           <div class="qq-chat-messages">
             <!-- Messages will appear here -->
-          </div>
-        </div>
-        <div class="qq-profile-section">
-          <div class="qq-profile-avatar">
-            <div class="qq-profile-photo-large" id="profilePhotoLarge"></div>
-            <div class="qq-profile-name">Angel</div>
           </div>
         </div>
       </div>
@@ -258,7 +253,6 @@
       const inputField = qqWindow.querySelector('.qq-input-field');
       const chatMessages = qqWindow.querySelector('.qq-chat-messages');
       const profilePhoto = document.getElementById('profilePhoto');
-      const profilePhotoLarge = document.getElementById('profilePhotoLarge');
       const pokemonWindow = document.getElementById('pokemonWindow');
       const pokemonCloseBtn = pokemonWindow.querySelector('.pokemon-window-close');
       
@@ -297,7 +291,6 @@
       };
       
       profilePhoto.addEventListener('click', openPokemonWindow);
-      profilePhotoLarge.addEventListener('click', openPokemonWindow);
       
       // Close Pokémon window
       const closePokemonWindow = () => {

@@ -157,7 +157,12 @@
 
 @media (max-width: 767px) {
   .cursor-hint-text {
-    font-size: 1.4rem;
+    font-size: 0.9rem; /* Much smaller text on mobile */
+  }
+  
+  .cursor-hint {
+    padding: 0.3em 0.5em; /* Smaller padding */
+    font-size: 0.7rem; /* Smaller base font */
   }
 }
 

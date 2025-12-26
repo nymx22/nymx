@@ -21,3 +21,11 @@
   display: block;
 }
 
+/* Mobile - smaller cursor */
+@media (max-width: 767px) {
+  .custom-cursor {
+    width: 32px;
+    height: 32px;
+  }
+}
+

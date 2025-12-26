@@ -16,7 +16,7 @@
 }
 
 .stair-container:hover {
-  opacity: 0.8;
+  opacity: 1;
 }
 
 #stair-shader-container {
@@ -26,6 +26,15 @@
   align-items: flex-end;
   justify-content: flex-start;
   pointer-events: none;
+  transition: filter 0.3s ease;
+  filter: none; /* Reset filter by default */
+}
+
+/* Apply glow to the shader container (actual image) instead of the whole container */
+.stair-container:hover #stair-shader-container {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))
+          drop-shadow(0 0 20px rgba(255, 255, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) !important;
 }
 
 #stair-shader-container canvas {

@@ -34,6 +34,8 @@ export function initStairShader() {
       
       canvas = p.createCanvas(canvasWidth, containerHeight, p.WEBGL);
       canvas.parent('stair-shader-container');
+      // Ensure canvas doesn't block pointer events (parent has pointer-events: none)
+      canvas.elt.style.pointerEvents = 'none';
       p.noStroke();
       
       // Simple fade-in duration
@@ -44,12 +46,14 @@ export function initStairShader() {
       
       // Setup hover listeners on stair container
       const stairContainer = document.querySelector('.stair-container');
-      stairContainer.addEventListener('mouseenter', () => {
-        isHovered = true;
-      });
-      stairContainer.addEventListener('mouseleave', () => {
-        isHovered = false;
-      });
+      if (stairContainer) {
+        stairContainer.addEventListener('mouseenter', () => {
+          isHovered = true;
+        });
+        stairContainer.addEventListener('mouseleave', () => {
+          isHovered = false;
+        });
+      }
       
       // Hide after 20 seconds
       setTimeout(() => {
@@ -90,15 +94,21 @@ export function initStairShader() {
         glitchIntensity = (p.sin(timeSinceComplete * glitchFrequency) + 1.0) * 0.5; // 0 to 1
       }
       
-      // Calculate target visibility based on 20-second rule
-      if (hideAfter20Seconds && !isHovered) {
-        targetVisibility = 0.0; // Hidden
+      // PRIORITY: Hover always shows stairs, then check 20-second rule
+      if (isHovered) {
+        // Hover takes priority - always visible
+        targetVisibility = 1.0;
+      } else if (hideAfter20Seconds) {
+        // Only hide if not hovered AND 20 seconds have passed
+        targetVisibility = 0.0;
       } else {
-        targetVisibility = 1.0; // Visible
+        // Default: visible
+        targetVisibility = 1.0;
       }
       
       // Smoothly interpolate current visibility towards target
-      const fadeSpeed = 0.05; // Adjust for faster/slower fade
+      // Faster fade-in when hovering, slower fade-out when hiding
+      const fadeSpeed = isHovered ? 0.15 : 0.05; // Faster when hovering
       currentVisibility += (targetVisibility - currentVisibility) * fadeSpeed;
       
       // Apply shader

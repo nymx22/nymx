@@ -203,8 +203,8 @@ export function initSelf0Shader() {
       }
     };
 
-    container.addEventListener('mouseenter', () => {
-      // Pick random text on each hover
+    const showHint = () => {
+      // Pick random text on each hover/tap
       currentText = hintTexts[Math.floor(Math.random() * hintTexts.length)];
       
       // Split text into characters for glitch effect (preserve spaces)
@@ -258,14 +258,30 @@ export function initSelf0Shader() {
           createSparkle(sparklesContainer);
         }, 100);
       }
-    });
+    };
     
-    container.addEventListener('mouseleave', () => {
+    const hideHint = () => {
       hintText.style.opacity = '0';
       sparklesContainer.style.opacity = '0';
       clearInterval(sparkleInterval);
       sparklesContainer.innerHTML = '';
       stopHintFollow();
+    };
+    
+    // Desktop: hover events
+    container.addEventListener('mouseenter', showHint);
+    container.addEventListener('mouseleave', hideHint);
+    
+    // Mobile: touch events
+    container.addEventListener('touchstart', (e) => {
+      e.preventDefault(); // Prevent default touch behavior
+      showHint();
+    });
+    container.addEventListener('touchend', (e) => {
+      // Delay hide to allow interaction
+      setTimeout(() => {
+        hideHint();
+      }, 500); // Show for 0.5 seconds after tap
     });
   }
   
