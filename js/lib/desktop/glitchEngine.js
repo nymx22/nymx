@@ -152,6 +152,11 @@ export class GlitchEngine {
     
     this.gui = new dat.GUI();
     
+    // Close GUI on mobile devices initially
+    if (window.innerWidth <= 767) {
+      this.gui.close();
+    }
+    
     // Mode selector
     this.gui.add(this.params, 'mode', this.modeOptions)
       .name('Glitch Mode')

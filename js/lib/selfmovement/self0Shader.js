@@ -69,6 +69,11 @@ export function initSelf0Shader() {
         console.log('Color Shift changed to:', val);
       });
       
+      // Close GUI on mobile devices initially
+      if (window.innerWidth <= 767) {
+        gui.close();
+      }
+      
       // Setup hover hint text
       setupHintText();
       

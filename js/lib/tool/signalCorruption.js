@@ -164,6 +164,11 @@ function initGUI() {
   
   gui = new dat.GUI();
   
+  // Close GUI on mobile devices initially
+  if (window.innerWidth <= 767) {
+    gui.close();
+  }
+  
   gui.add(params, 'intensity', 0.0, 2.0).name('Intensity').step(0.01);
   gui.add(params, 'scanLines', 0.0, 1.0).name('Scan Lines').step(0.01);
   gui.add(params, 'colorShift', 0.0, 2.0).name('Color Shift').step(0.01);
