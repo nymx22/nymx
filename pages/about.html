@@ -14,6 +14,9 @@
     <link rel="stylesheet" href="../style/desktop/cursor.css" />
     <link rel="stylesheet" href="../style/basement/qqWindow.css" />
     <link rel="stylesheet" href="../style/about/pokemon.css" />
+    <!-- Firebase SDK (compat version for regular script tags) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" defer></script>
     <style>
       body {
@@ -89,10 +92,14 @@
         </div>
       </div>
       <div class="qq-window-chat-area">
-        <div class="qq-chat-messages-container">
-          <div class="qq-chat-messages">
+        <div class="qq-chat-messages-container" id="chatMessagesContainer" style="display: none;">
+          <div class="qq-chat-messages" id="chatMessages">
             <!-- Messages will appear here -->
           </div>
+        </div>
+        <div class="qq-name-input-section" id="nameInputSection">
+          <input type="text" class="qq-name-input" id="userNameInput" placeholder="Enter your name..." maxlength="20">
+          <button class="qq-name-submit-btn" id="nameSubmitBtn">Start Chat</button>
         </div>
       </div>
       <div class="qq-window-input-area">
@@ -100,8 +107,13 @@
           <textarea class="qq-input-field" placeholder="Type a message..."></textarea>
         </div>
       </div>
+      <div class="qq-user-display-section" id="userDisplaySection" style="display: none;">
+        <div class="qq-user-avatar" id="userAvatar"></div>
+        <span class="qq-user-name" id="userNameDisplay"></span>
+        <button type="button" class="qq-change-name-btn" id="changeNameBtn">Change</button>
+      </div>
       <div class="qq-window-bottom-bar">
-        <button class="qq-send-btn">Send</button>
+        <button type="button" class="qq-send-btn">Send</button>
         <button class="qq-close-btn">Close</button>
       </div>
     </div>
@@ -200,6 +212,37 @@
       </div>
     </div>
 
+    <!-- Firebase Configuration -->
+    <script>
+      // TODO: Replace these values with your Firebase config from Firebase Console
+      // To find these values:
+      // 1. Go to https://console.firebase.google.com/
+      // 2. Select your project
+      // 3. Click the gear icon ⚙️ → Project settings
+      // 4. Scroll to "Your apps" section
+      // 5. Click on your web app (or create one if you haven't)
+      // 6. Copy the firebaseConfig object values below
+      
+      const firebaseConfig = {
+  apiKey: "AIzaSyDUIdEVa8kXin1R_1I2JlV0cl-PBSCQ6_c",
+  authDomain: "nymx-chat.firebaseapp.com",
+  databaseURL: "https://nymx-chat-default-rtdb.firebaseio.com",
+  projectId: "nymx-chat",
+  storageBucket: "nymx-chat.firebasestorage.app",
+  messagingSenderId: "445185128474",
+  appId: "1:445185128474:web:c098690079a107989179a3"
+};
+
+      // Initialize Firebase
+      if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        window.database = firebase.database();
+        console.log('Firebase initialized successfully');
+      } else {
+        console.error('Firebase SDK not loaded. Check if scripts are loaded correctly.');
+      }
+    </script>
+
     <script type="module">
       import { initCustomCursor } from '../js/lib/desktop/cursor.js';
       // Initialize custom cursor
@@ -251,39 +294,214 @@
       const closeBottomBtn = qqWindow.querySelector('.qq-close-btn');
       const sendBtn = qqWindow.querySelector('.qq-send-btn');
       const inputField = qqWindow.querySelector('.qq-input-field');
-      const chatMessages = qqWindow.querySelector('.qq-chat-messages');
+      const chatMessages = document.getElementById('chatMessages');
+      const chatMessagesContainer = document.getElementById('chatMessagesContainer');
+      const nameInputSection = document.getElementById('nameInputSection');
+      const userNameInput = document.getElementById('userNameInput');
+      const nameSubmitBtn = document.getElementById('nameSubmitBtn');
+      const userDisplaySection = document.getElementById('userDisplaySection');
+      const userAvatar = document.getElementById('userAvatar');
+      const userNameDisplay = document.getElementById('userNameDisplay');
+      const changeNameBtn = document.getElementById('changeNameBtn');
       const profilePhoto = document.getElementById('profilePhoto');
       const pokemonWindow = document.getElementById('pokemonWindow');
       const pokemonCloseBtn = pokemonWindow.querySelector('.pokemon-window-close');
       
+      // Chat state
+      let currentUserName = '';
+      let userNameSet = false;
+      let messageListener = null;
+      const displayedMessageKeys = new Set(); // Track displayed message keys to prevent duplicates
+      
+      // Display message function (must be defined before loadMessages)
+      const displayMessage = (userName, message, isOwner, timestamp) => {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = isOwner ? 'qq-message qq-message-received' : 'qq-message qq-message-sent';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'qq-message-name';
+        nameSpan.textContent = userName + ': ';
+        nameSpan.style.fontWeight = 'bold';
+        
+        const textSpan = document.createElement('span');
+        textSpan.textContent = message;
+        
+        messageDiv.appendChild(nameSpan);
+        messageDiv.appendChild(textSpan);
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      };
+      
+      // Load existing messages
+      const loadMessages = () => {
+        if (!window.database) {
+          console.error('Firebase database not available');
+          return;
+        }
+        
+        displayedMessageKeys.clear(); // Reset tracked keys
+        
+        window.database.ref('messages').orderByChild('timestamp').once('value', (snapshot) => {
+          chatMessages.innerHTML = ''; // Clear existing
+          snapshot.forEach((childSnapshot) => {
+            const msgKey = childSnapshot.key;
+            const msg = childSnapshot.val();
+            displayMessage(msg.userName, msg.message, msg.isOwner || false, msg.timestamp);
+            displayedMessageKeys.add(msgKey); // Track loaded messages
+          });
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }).catch((error) => {
+          console.error('Error loading messages:', error);
+        });
+      };
+      
+      // Listen for new messages in real-time
+      const startListeningForMessages = () => {
+        if (!window.database) {
+          console.error('Firebase database not available');
+          return;
+        }
+        
+        // Listen for new messages added after page load
+        messageListener = window.database.ref('messages').orderByChild('timestamp').on('child_added', (snapshot) => {
+          const msgKey = snapshot.key;
+          // Only display if we haven't shown this message yet
+          if (!displayedMessageKeys.has(msgKey)) {
+            const msg = snapshot.val();
+            displayMessage(msg.userName, msg.message, msg.isOwner || false, msg.timestamp);
+            displayedMessageKeys.add(msgKey);
+          }
+        });
+      };
+      
+      // Send button functionality
+      const sendMessage = () => {
+        if (!userNameSet) {
+          alert('Please enter your name first');
+          if (userNameInput) {
+            userNameInput.focus();
+          }
+          return;
+        }
+        
+        if (!window.database) {
+          console.error('Firebase database not available');
+          alert('Chat is not available. Please refresh the page.');
+          return;
+        }
+        
+        const message = inputField.value.trim();
+        if (message) {
+          // Save to Firebase
+          const messageData = {
+            userName: currentUserName,
+            message: message,
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isOwner: false // visitor messages
+          };
+          
+          window.database.ref('messages').push(messageData)
+            .then(() => {
+              inputField.value = '';
+              chatMessages.scrollTop = chatMessages.scrollHeight;
+            })
+            .catch((error) => {
+              console.error('Error sending message:', error);
+              alert('Failed to send message. Please try again.');
+            });
+        }
+      };
+      
+      // Check if user name is stored in localStorage
+      const storedName = localStorage.getItem('nymx_chat_username');
+      if (storedName) {
+        currentUserName = storedName;
+        userNameSet = true;
+        nameInputSection.style.display = 'none';
+        userDisplaySection.style.display = 'flex';
+        userNameDisplay.textContent = storedName;
+        chatMessagesContainer.style.display = 'block';
+        loadMessages();
+        startListeningForMessages();
+      }
+      
+      // Change name button functionality
+      if (changeNameBtn) {
+        changeNameBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log('Change name button clicked');
+          nameInputSection.style.display = 'flex';
+          userDisplaySection.style.display = 'none';
+          if (currentUserName) {
+            userNameInput.value = currentUserName; // Pre-fill with current name
+          }
+          userNameInput.focus();
+        });
+      } else {
+        console.error('Change name button not found');
+      }
+      
+      // Name input functionality
+      nameSubmitBtn.addEventListener('click', () => {
+        const name = userNameInput.value.trim();
+        if (name) {
+          currentUserName = name;
+          userNameSet = true;
+          localStorage.setItem('nymx_chat_username', name);
+          nameInputSection.style.display = 'none';
+          userDisplaySection.style.display = 'flex';
+          userNameDisplay.textContent = name;
+          chatMessagesContainer.style.display = 'block';
+          loadMessages();
+          startListeningForMessages();
+        }
+      });
+      
+      userNameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          nameSubmitBtn.click();
+        }
+      });
+      
       // Close QQ window handlers
       const closeQQWindow = () => {
+        // Stop listening to messages when closing
+        if (messageListener) {
+          window.database.ref('messages').off('child_added', messageListener);
+        }
         window.location.href = '/pages/basement.html';
       };
       
       closeBtn.addEventListener('click', closeQQWindow);
       closeBottomBtn.addEventListener('click', closeQQWindow);
       
-      // Send button functionality
-      const sendMessage = () => {
-        const message = inputField.value.trim();
-        if (message) {
-          const messageDiv = document.createElement('div');
-          messageDiv.className = 'qq-message qq-message-sent';
-          messageDiv.textContent = message;
-          chatMessages.appendChild(messageDiv);
-          inputField.value = '';
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-      };
-      
-      sendBtn.addEventListener('click', sendMessage);
-      inputField.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+      // Set up send button event listener
+      if (sendBtn && inputField) {
+        sendBtn.addEventListener('click', (e) => {
           e.preventDefault();
+          e.stopPropagation();
+          console.log('Send button clicked, calling sendMessage');
           sendMessage();
-        }
-      });
+        });
+        
+        inputField.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Enter key pressed, calling sendMessage');
+            sendMessage();
+          }
+        });
+        
+        console.log('Send button and Enter key listeners set up successfully');
+      } else {
+        console.error('Send button or input field not found', { 
+          sendBtn: !!sendBtn, 
+          inputField: !!inputField 
+        });
+      }
       
       // Open Pokémon window when profile photo is clicked
       const openPokemonWindow = () => {
