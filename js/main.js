@@ -42,6 +42,7 @@ domReady(() => {
 /**
  * Initialize background music
  * Handles autoplay restrictions and user interaction
+ * Attempts to unlock audio automatically using Web Audio API
  */
 function initBackgroundMusic() {
   const audio = document.getElementById('background-music');
@@ -56,28 +57,74 @@ function initBackgroundMusic() {
   // Set volume (0.0 to 1.0)
   audio.volume = 0.5;
   
-  // Function to play audio on user interaction
   let hasStartedPlaying = false;
+  
+  // Try to unlock audio context using Web Audio API
+  const unlockAudio = () => {
+    try {
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      if (AudioContext) {
+        const audioContext = new AudioContext();
+        
+        // Create a silent buffer
+        const buffer = audioContext.createBuffer(1, 1, 22050);
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        source.start(0);
+        
+        // Resume audio context (required in some browsers)
+        if (audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+        
+        console.log('Background music: Audio context unlocked');
+        return true;
+      }
+    } catch (e) {
+      console.log('Background music: Could not unlock audio context', e);
+    }
+    return false;
+  };
+  
+  // Function to play audio
+  const tryPlay = () => {
+    if (hasStartedPlaying) return false;
+    
+    const playPromise = audio.play();
+    
+    if (playPromise !== undefined) {
+      return playPromise
+        .then(() => {
+          console.log('Background music: Started playing successfully');
+          hasStartedPlaying = true;
+          return true;
+        })
+        .catch((error) => {
+          console.log('Background music: Play attempt failed', error);
+          return false;
+        });
+    }
+    return Promise.resolve(false);
+  };
+  
+  // Function to play audio on user interaction (fallback)
   const playOnInteraction = () => {
     if (hasStartedPlaying) return;
     
     console.log('Background music: User interaction detected, attempting to play');
-    audio.play()
-      .then(() => {
-        console.log('Background music: Started playing after user interaction');
-        hasStartedPlaying = true;
+    tryPlay().then(success => {
+      if (success) {
         // Remove listeners after successful play
         document.removeEventListener('click', playOnInteraction);
         document.removeEventListener('touchstart', playOnInteraction);
         document.removeEventListener('keydown', playOnInteraction);
         document.removeEventListener('mousemove', playOnInteraction);
-      })
-      .catch(err => {
-        console.error('Background music: Could not play audio after interaction', err);
-      });
+      }
+    });
   };
   
-  // Set up user interaction listeners immediately
+  // Set up user interaction listeners as fallback
   document.addEventListener('click', playOnInteraction, { once: true });
   document.addEventListener('touchstart', playOnInteraction, { once: true });
   document.addEventListener('keydown', playOnInteraction, { once: true });
@@ -100,39 +147,56 @@ function initBackgroundMusic() {
     console.log('Audio duration:', audio.duration, 'seconds');
   });
   
-  // Try to play immediately if audio is ready
-  const tryPlay = () => {
-    if (hasStartedPlaying) return;
+  // Try to unlock audio immediately
+  unlockAudio();
+  
+  // Try multiple play attempts with delays
+  const attemptAutoPlay = () => {
+    // Try immediately
+    tryPlay();
     
-    const playPromise = audio.play();
+    // Try after short delay
+    setTimeout(() => {
+      if (!hasStartedPlaying) {
+        console.log('Background music: Retry attempt 1');
+        tryPlay();
+      }
+    }, 100);
     
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          console.log('Background music: Started playing successfully');
-          hasStartedPlaying = true;
-          // Remove listeners after successful play
-          document.removeEventListener('click', playOnInteraction);
-          document.removeEventListener('touchstart', playOnInteraction);
-          document.removeEventListener('keydown', playOnInteraction);
-          document.removeEventListener('mousemove', playOnInteraction);
-        })
-        .catch((error) => {
-          console.log('Background music: Autoplay prevented, waiting for user interaction', error);
-          // Listeners are already set up above
-        });
-    }
+    // Try after medium delay
+    setTimeout(() => {
+      if (!hasStartedPlaying) {
+        console.log('Background music: Retry attempt 2');
+        tryPlay();
+      }
+    }, 500);
+    
+    // Try after longer delay
+    setTimeout(() => {
+      if (!hasStartedPlaying) {
+        console.log('Background music: Retry attempt 3');
+        tryPlay();
+      }
+    }, 1000);
   };
   
   // Try play if audio is already ready
   if (audio.readyState >= 2) { // HAVE_CURRENT_DATA or higher
     console.log('Background music: Audio already ready, attempting immediate play');
-    tryPlay();
+    attemptAutoPlay();
   } else {
     // Wait for audio to be ready
     audio.addEventListener('canplay', () => {
       console.log('Background music: Audio can play');
-      tryPlay();
+      attemptAutoPlay();
     }, { once: true });
   }
+  
+  // Also try when page becomes visible (if it was hidden)
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && !hasStartedPlaying) {
+      console.log('Background music: Page visible, attempting to play');
+      setTimeout(() => tryPlay(), 100);
+    }
+  });
 }
