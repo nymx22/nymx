@@ -112,9 +112,9 @@ export function initMirrorReflection(selfInstance, selfShader) {
   `;
   document.body.appendChild(qqWindow);
   
-  // Navigate to about page when clicking on mirror
+  // Navigate to talk page when clicking on mirror
   mirrorContainer.addEventListener('click', () => {
-    window.location.href = '../pages/about.html';
+    window.location.href = '../pages/talk.html';
   });
   
   // Close window handlers
