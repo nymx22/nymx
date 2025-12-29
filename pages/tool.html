@@ -30,6 +30,15 @@
       <div id="corruption-canvas-container"></div>
       
       <div id="fps-display">FPS: --</div>
+      
+      <div id="upload-container">
+        <label for="image-upload" class="upload-label">
+          <input type="file" id="image-upload" accept="image/*,video/*" style="display: none;">
+          <span class="upload-button">Upload Image/Video</span>
+        </label>
+        <button id="flip-button" class="upload-button" style="margin-left: 10px;">Flip</button>
+        <button id="save-button" class="upload-button" style="margin-left: 10px; display: none;">Save Video</button>
+      </div>
     </div>
     
     <script type="module">

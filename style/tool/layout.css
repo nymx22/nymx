@@ -55,3 +55,43 @@ body {
 
 /* GUI styling is imported from gui.css */
 
+/* Upload Container - positioned below GUI (contains both buttons) */
+#upload-container {
+  position: fixed;
+  right: 20px;
+  z-index: 10001;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  /* Position will be set dynamically by JavaScript to be below GUI */
+}
+
+.upload-label {
+  cursor: pointer;
+  display: inline-block;
+}
+
+.upload-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #6D94C5;
+  color: #FFFFFF;
+  border: 2px solid #6D94C5;
+  border-radius: 6px;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.upload-button:hover {
+  background: #5a7ba8;
+  border-color: #5a7ba8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.upload-button:active {
+  transform: translateY(0);
+}
+
