@@ -39,6 +39,7 @@ const params = {
   colorShift: Math.random() * 0.8 + 0.2, // 0.2 to 1.0
   displacement: Math.random() * 0.6 + 0.4, // 0.4 to 1.0
   noise: Math.random() * 0.6 + 0.2, // 0.2 to 0.8
+  noiseSize: 1, // Noise pixel size (1 = single pixel, higher = blocks)
   chromaticAberration: Math.random() * 0.8 + 0.2, // 0.2 to 1.0
   opacity: 1.0, // Always 1.0
   blendMode: 'screen' // Default blend mode
@@ -81,6 +82,7 @@ function randomizeParams() {
   params.colorShift = Math.random() * 0.8 + 0.2;
   params.displacement = Math.random() * 0.6 + 0.4;
   params.noise = Math.random() * 0.6 + 0.2;
+  params.noiseSize = Math.floor(Math.random() * 4) + 1; // 1 to 4 pixels
   params.chromaticAberration = Math.random() * 0.8 + 0.2;
   params.opacity = 1.0; // Always 1.0
   
@@ -142,9 +144,18 @@ const sketch = function(p) {
   };
   
   p.setup = function() {
-    // Use full window dimensions
-    const containerWidth = window.innerWidth;
-    const containerHeight = window.innerHeight;
+    // Use full window dimensions, but limit to prevent memory issues
+    const maxDimension = 3840; // Maximum safe dimension (4K width)
+    let containerWidth = window.innerWidth;
+    let containerHeight = window.innerHeight;
+    
+    // Scale down if too large to prevent memory issues
+    if (containerWidth > maxDimension || containerHeight > maxDimension) {
+      const scale = Math.min(maxDimension / containerWidth, maxDimension / containerHeight);
+      containerWidth = Math.floor(containerWidth * scale);
+      containerHeight = Math.floor(containerHeight * scale);
+      console.warn('Canvas scaled down to prevent memory issues:', containerWidth, 'x', containerHeight);
+    }
     
     console.log('Canvas setup:', containerWidth, 'x', containerHeight);
     
@@ -155,6 +166,7 @@ const sketch = function(p) {
     canvas.id('corruption-canvas');
     
     // Performance optimizations (like GlitchEngine)
+    // Use pixelDensity(1) to reduce memory usage
     p.pixelDensity(1);
     p.frameRate(30);
     
@@ -365,10 +377,16 @@ const sketch = function(p) {
                 },
                 constrain: p.constrain.bind(p),
                 map: p.map.bind(p),
-                color: p.color.bind(p)
+                color: p.color.bind(p),
+                noiseSize: params.noiseSize // Pass noiseSize to effects
               };
               
-              effect(effectP5);
+              // Call effect with noiseSize parameter if it's smear
+              if (jsEffectMode === 'smear') {
+                effect(effectP5, params.noiseSize);
+              } else {
+                effect(effectP5);
+              }
               effectLayer.updatePixels();
             }
           }
@@ -392,7 +410,7 @@ const sketch = function(p) {
           };
           
           if (params.noise > 0 && jsEffectMode !== 'static' && jsEffectMode !== 'smear') {
-            applyNoiseEffect(helperP5, params.noise);
+            applyNoiseEffect(helperP5, params.noise, params.noiseSize);
           }
 
           if (params.scanLines > 0) {
@@ -471,23 +489,53 @@ const sketch = function(p) {
 };
 
 // Helper function to apply noise effect based on noise parameter
-function applyNoiseEffect(p, noiseIntensity) {
+function applyNoiseEffect(p, noiseIntensity, noiseSize = 1) {
   p.loadPixels();
   const pixels = p.pixels;
   const width = p.width;
   const height = p.height;
   
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const index = (x + y * width) * 4;
-      
-      // Add random noise scaled by intensity
-      const noise = (Math.random() - 0.5) * noiseIntensity * 255;
-      
-      pixels[index] = Math.max(0, Math.min(255, pixels[index] + noise)); // R
-      pixels[index + 1] = Math.max(0, Math.min(255, pixels[index + 1] + noise)); // G
-      pixels[index + 2] = Math.max(0, Math.min(255, pixels[index + 2] + noise)); // B
-      // Alpha stays the same
+  // If noiseSize is 1, use pixel-by-pixel noise (original behavior)
+  if (noiseSize === 1) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const index = (x + y * width) * 4;
+        
+        // Add random noise scaled by intensity
+        const noise = (Math.random() - 0.5) * noiseIntensity * 255;
+        
+        pixels[index] = Math.max(0, Math.min(255, pixels[index] + noise)); // R
+        pixels[index + 1] = Math.max(0, Math.min(255, pixels[index + 1] + noise)); // G
+        pixels[index + 2] = Math.max(0, Math.min(255, pixels[index + 2] + noise)); // B
+        // Alpha stays the same
+      }
+    }
+  } else {
+    // Block-based noise: apply same noise value to a block of pixels
+    // This creates a pixelated/chunky noise effect
+    const noiseSizeInt = Math.floor(noiseSize);
+    for (let y = 0; y < height; y += noiseSizeInt) {
+      for (let x = 0; x < width; x += noiseSizeInt) {
+        // Generate noise value for this block (same for all pixels in block)
+        const noiseR = (Math.random() - 0.5) * noiseIntensity * 255;
+        const noiseG = (Math.random() - 0.5) * noiseIntensity * 255;
+        const noiseB = (Math.random() - 0.5) * noiseIntensity * 255;
+        
+        // Apply noise to all pixels in this block
+        for (let blockY = 0; blockY < noiseSizeInt && (y + blockY) < height; blockY++) {
+          for (let blockX = 0; blockX < noiseSizeInt && (x + blockX) < width; blockX++) {
+            const px = x + blockX;
+            const py = y + blockY;
+            const index = (px + py * width) * 4;
+            
+            // Apply different noise to each color channel for more visible effect
+            pixels[index] = Math.max(0, Math.min(255, pixels[index] + noiseR)); // R
+            pixels[index + 1] = Math.max(0, Math.min(255, pixels[index + 1] + noiseG)); // G
+            pixels[index + 2] = Math.max(0, Math.min(255, pixels[index + 2] + noiseB)); // B
+            // Alpha stays the same
+          }
+        }
+      }
     }
   }
   
@@ -633,6 +681,9 @@ function initGUI() {
   gui.add(params, 'noise', 0.0, 1.0).name('Noise').step(0.01).onChange(function(value) {
     console.log('Noise changed to:', value);
   });
+  gui.add(params, 'noiseSize', 1, 20, 1).name('Noise Size').onChange(function(value) {
+    console.log('Noise Size changed to:', value);
+  });
   gui.add(params, 'chromaticAberration', 0.0, 2.0).name('Chromatic Aberration').step(0.01).onChange(function(value) {
     console.log('Chromatic Aberration changed to:', value);
   });
@@ -709,10 +760,26 @@ function setupImageUpload() {
     const isImageFile = file.type.startsWith('image/');
     const isVideoFile = file.type.startsWith('video/');
     
-    if (!isImageFile && !isVideoFile) {
+    // Also check file extension for .mov files (browser might not detect MIME type correctly)
+    const fileName = file.name.toLowerCase();
+    const isMovFile = fileName.endsWith('.mov') || fileName.endsWith('.mp4') || fileName.endsWith('.webm') || fileName.endsWith('.avi') || fileName.endsWith('.m4v');
+    
+    console.log('File upload:', {
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      isImageFile: isImageFile,
+      isVideoFile: isVideoFile,
+      isMovFile: isMovFile
+    });
+    
+    if (!isImageFile && !isVideoFile && !isMovFile) {
       alert('Please select an image or video file');
       return;
     }
+    
+    // Treat .mov and other video extensions as video files
+    const shouldTreatAsVideo = isVideoFile || isMovFile;
     
     // Create FileReader to load the file
     const reader = new FileReader();
@@ -725,7 +792,7 @@ function setupImageUpload() {
         if (p5Instance) {
           clearInterval(checkP5AndLoad);
           
-          if (isVideoFile) {
+          if (shouldTreatAsVideo) {
             // Load video using p5.js's createVideo method
             try {
               // Remove old video if exists
@@ -739,8 +806,9 @@ function setupImageUpload() {
               
               // Use p5.js's createVideo to properly create a video element
               // This ensures p5.js recognizes it as a valid media element
+              console.log('Creating video element for:', fileName);
               humanoidVideo = p5Instance.createVideo(fileUrl, function() {
-                console.log('Video uploaded and loaded successfully (p5.js)');
+                console.log('✅ Video uploaded and loaded successfully (p5.js)');
                 console.log('Video dimensions:', humanoidVideo.width, 'x', humanoidVideo.height);
                 console.log('Video readyState:', humanoidVideo.elt.readyState);
                 
@@ -754,15 +822,32 @@ function setupImageUpload() {
                 humanoidVideo.hide(); // Hide video element, we'll render it on canvas
                 
                 // Start playing video
-                humanoidVideo.play().catch(function(err) {
-                  console.error('Failed to play video:', err);
-                  // Try again after a short delay
-                  setTimeout(function() {
-                    humanoidVideo.play().catch(function(err2) {
-                      console.error('Failed to play video on retry:', err2);
+                try {
+                  const playPromise = humanoidVideo.play();
+                  if (playPromise && typeof playPromise.catch === 'function') {
+                    playPromise.catch(function(err) {
+                      console.error('Failed to play video:', err);
+                      // Try again after a short delay
+                      setTimeout(function() {
+                        try {
+                          const retryPromise = humanoidVideo.play();
+                          if (retryPromise && typeof retryPromise.catch === 'function') {
+                            retryPromise.catch(function(err2) {
+                              console.error('Failed to play video on retry:', err2);
+                            });
+                          }
+                        } catch (err2) {
+                          console.error('Failed to play video on retry:', err2);
+                        }
+                      }, 500);
                     });
-                  }, 500);
-                });
+                  } else {
+                    // play() doesn't return a Promise, just call it
+                    humanoidVideo.play();
+                  }
+                } catch (err) {
+                  console.error('Error calling play():', err);
+                }
                 
                 // Show save button
                 const saveButton = document.getElementById('save-button');
@@ -779,17 +864,48 @@ function setupImageUpload() {
                 humanoidVideo.elt.addEventListener('canplay', function() {
                   console.log('Video can play, readyState:', humanoidVideo.elt.readyState);
                   if (humanoidVideo.elt.paused) {
-                    humanoidVideo.play().catch(function(err) {
-                      console.error('Failed to play video on canplay:', err);
-                    });
+                    try {
+                      const playPromise = humanoidVideo.play();
+                      if (playPromise && typeof playPromise.catch === 'function') {
+                        playPromise.catch(function(err) {
+                          console.error('Failed to play video on canplay:', err);
+                        });
+                      }
+                    } catch (err) {
+                      console.error('Error calling play() on canplay:', err);
+                    }
                   }
                 });
                 
-                humanoidVideo.elt.addEventListener('error', function(err) {
-                  console.error('Failed to load video:', err);
-                  console.error('Video error details:', humanoidVideo.elt.error);
-                  alert('Failed to load video. Please try another file.');
-                });
+              humanoidVideo.elt.addEventListener('error', function(err) {
+                console.error('❌ Failed to load video:', err);
+                console.error('Video error details:', humanoidVideo.elt.error);
+                console.error('Video error code:', humanoidVideo.elt.error ? humanoidVideo.elt.error.code : 'N/A');
+                console.error('Video error message:', humanoidVideo.elt.error ? humanoidVideo.elt.error.message : 'N/A');
+                alert('Failed to load video. The file format may not be supported by your browser. Try converting to MP4 or WebM format.');
+              });
+              
+              // Add additional error listeners
+              humanoidVideo.elt.addEventListener('loadstart', function() {
+                console.log('Video load started');
+              });
+              
+              humanoidVideo.elt.addEventListener('loadedmetadata', function() {
+                console.log('Video metadata loaded');
+                console.log('Video dimensions (HTML):', humanoidVideo.elt.videoWidth, 'x', humanoidVideo.elt.videoHeight);
+              });
+              
+              humanoidVideo.elt.addEventListener('canplay', function() {
+                console.log('Video can play');
+              });
+              
+              humanoidVideo.elt.addEventListener('stalled', function() {
+                console.warn('Video loading stalled');
+              });
+              
+              humanoidVideo.elt.addEventListener('suspend', function() {
+                console.warn('Video loading suspended');
+              });
               }
             } catch (error) {
               console.error('Error loading video:', error);
