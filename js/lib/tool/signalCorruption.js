@@ -5,8 +5,11 @@
  */
 
 // Import JS glitch effects (ES6 modules)
-import { smear } from '../../effects/glitch/smear.js';
+import { blueBands } from '../../effects/glitch/blueBands.js';
+import { pureSnow } from '../../effects/glitch/pureSnow.js';
 import { purpleStatic } from '../../effects/glitch/purpleStatic.js';
+import { colorLineNoise } from '../../effects/glitch/colorLineNoise.js';
+import { smear } from '../../effects/glitch/smear.js';
 
 let shader;
 let humanoidImg;
@@ -18,23 +21,94 @@ let frameCount = 0;
 let lastTime = performance.now();
 let shaderLoaded = false;
 let p5Instance = null; // Store p5 instance for image upload
-let imageFlipped = false; // Track if image is flipped
+// imageFlipped removed - flip functionality no longer needed
 let useShader = false; // Toggle between shader and JS effects (default to JS effects)
-let jsEffectMode = 'smear'; // 'none', 'smear', 'purpleStatic' - default to 'smear' to show effect
+// Randomize effect mode on load - all effects from index page
+const effectModes = ['none', 'band', 'snow', 'static', 'color', 'smear'];
+let jsEffectMode = effectModes[Math.floor(Math.random() * (effectModes.length - 1)) + 1]; // Random effect mode (excluding 'none')
 let canvasMode = 'P2D'; // Current canvas mode: 'P2D' or 'WEBGL'
 let needsCanvasRecreate = false; // Flag to recreate canvas when switching modes
 let mediaRecorder = null; // For recording video
 let recordedChunks = []; // Store recorded video chunks
 let isRecording = false; // Track recording state
 
+// Initialize params with randomized values
 const params = {
-  intensity: 1.0,
-  scanLines: 0.3,
-  colorShift: 0.6,
-  displacement: 0.8,
-  noise: 0.4,
-  chromaticAberration: 1.0
+  intensity: Math.random() * 0.8 + 0.2, // 0.2 to 1.0
+  scanLines: Math.random() * 0.7 + 0.1, // 0.1 to 0.8
+  colorShift: Math.random() * 0.8 + 0.2, // 0.2 to 1.0
+  displacement: Math.random() * 0.6 + 0.4, // 0.4 to 1.0
+  noise: Math.random() * 0.6 + 0.2, // 0.2 to 0.8
+  chromaticAberration: Math.random() * 0.8 + 0.2, // 0.2 to 1.0
+  opacity: 1.0, // Always 1.0
+  blendMode: 'screen' // Default blend mode
 };
+
+// Blend mode options (from index page)
+const blendModes = [
+  'normal',
+  'multiply',
+  'screen',
+  'overlay',
+  'darken',
+  'lighten',
+  'color-dodge',
+  'color-burn',
+  'hard-light',
+  'soft-light',
+  'difference',
+  'exclusion',
+  'hue',
+  'saturation',
+  'color',
+  'luminosity'
+];
+
+// Effect mapping (from index page)
+const effectMap = {
+  'none': null,
+  'band': blueBands,
+  'snow': pureSnow,
+  'static': purpleStatic,
+  'color': colorLineNoise,
+  'smear': smear
+};
+
+// Function to randomize all parameters
+function randomizeParams() {
+  params.intensity = Math.random() * 0.8 + 0.2;
+  params.scanLines = Math.random() * 0.7 + 0.1;
+  params.colorShift = Math.random() * 0.8 + 0.2;
+  params.displacement = Math.random() * 0.6 + 0.4;
+  params.noise = Math.random() * 0.6 + 0.2;
+  params.chromaticAberration = Math.random() * 0.8 + 0.2;
+  params.opacity = 1.0; // Always 1.0
+  
+  // Random blend mode
+  const randomBlendIndex = Math.floor(Math.random() * blendModes.length);
+  params.blendMode = blendModes[randomBlendIndex];
+  
+  // Update GUI controllers if they exist
+  if (gui) {
+    gui.__controllers.forEach(function(controller) {
+      if (controller.property in params) {
+        controller.setValue(params[controller.property]);
+      }
+    });
+  }
+  
+  // Apply opacity and blend mode to canvas
+  const canvas = document.querySelector('#corruption-canvas');
+  if (canvas) {
+    canvas.style.opacity = params.opacity;
+  }
+  const canvasContainer = document.querySelector('#corruption-canvas-container');
+  if (canvasContainer) {
+    canvasContainer.style.mixBlendMode = params.blendMode;
+  }
+  
+  console.log('Parameters randomized:', params);
+}
 
 const sketch = function(p) {
   // Store p5 instance globally for image upload
@@ -55,8 +129,15 @@ const sketch = function(p) {
       console.log('Shader loadShader called with relative path, object:', shader);
     }
     
-    // Load humanoid GIF
-    humanoidImg = p.loadImage('../assets/gif/humanoid.gif');
+    // Load humanoid GIF with success/error callbacks
+    humanoidImg = p.loadImage('../assets/gif/humanoid.gif', 
+      function(img) {
+        console.log('✅ GIF loaded successfully!', img.width, 'x', img.height);
+      },
+      function(err) {
+        console.error('❌ Failed to load GIF:', err);
+      }
+    );
     console.log('Image loadImage called');
   };
   
@@ -108,7 +189,7 @@ const sketch = function(p) {
         console.log('Video loaded:', !!(videoElt && videoElt.readyState >= 1));
         console.log('Video dimensions:', humanoidVideo.width || videoElt.videoWidth, 'x', humanoidVideo.height || videoElt.videoHeight);
       }
-      console.log('Image flipped:', imageFlipped);
+      // Image flip removed
       console.log('Current params:', JSON.stringify(params));
       console.log('=====================================');
     }
@@ -145,13 +226,24 @@ const sketch = function(p) {
         // Skip this frame
         return;
       }
-    } else if (humanoidImg && humanoidImg.width > 0) {
-      // Image is loaded
-      mediaWidth = humanoidImg.width;
-      mediaHeight = humanoidImg.height;
-      mediaAspect = mediaWidth / mediaHeight;
+    } else if (humanoidImg) {
+      // Check if image is loaded
+      if (humanoidImg.width > 0) {
+        mediaWidth = humanoidImg.width;
+        mediaHeight = humanoidImg.height;
+        mediaAspect = mediaWidth / mediaHeight;
+      } else {
+        // Still loading, show loading message
+        p.fill(255);
+        p.textAlign(p.CENTER, p.CENTER);
+        p.text('Loading GIF...', p.width / 2, p.height / 2);
+        return;
+      }
     } else {
       // No media loaded
+      p.fill(255);
+      p.textAlign(p.CENTER, p.CENTER);
+      p.text('Upload an image or video', p.width / 2, p.height / 2);
       return;
     }
     
@@ -223,103 +315,143 @@ const sketch = function(p) {
           console.log('ℹ Shader requires WEBGL mode. Currently in P2D mode for JS effects. Toggle "Use Shader" to switch modes.');
         }
         
-        // Render image first (P2D mode - like GlitchEngine)
-        p.push();
+        // STEP 1: Draw image/GIF first (GIFs animate automatically when drawn each frame)
         p.imageMode(p.CENTER);
         
-        // Apply flip if needed
-        if (imageFlipped) {
-          p.translate(p.width / 2, p.height / 2);
-          p.scale(-1, 1);
-          p.translate(-p.width / 2, -p.height / 2);
+        if (isVideo && humanoidVideo) {
+          const videoElt = humanoidVideo.elt || humanoidVideo;
+          if (videoElt.paused && humanoidVideo.play) {
+            humanoidVideo.play().catch(function(err) {
+              console.error('Failed to play video:', err);
+            });
+          }
+          p.image(humanoidVideo, p.width / 2, p.height / 2, displayWidth, displayHeight);
+        } else if (humanoidImg && humanoidImg.width > 0) {
+          // Draw GIF - it will animate automatically
+          p.image(humanoidImg, p.width / 2, p.height / 2, displayWidth, displayHeight);
+        } else {
+          // Debug: show message if image not loaded
+          p.fill(255);
+          p.textAlign(p.CENTER, p.CENTER);
+          p.textSize(24);
+          p.text('Image not loaded', p.width / 2, p.height / 2);
         }
         
-        // Draw image or video centered
-        if (isVideo && humanoidVideo) {
-          // Ensure video is playing (check via .elt if it's a p5.MediaElement)
-          const videoElt = humanoidVideo.elt || humanoidVideo;
-          if (videoElt.paused) {
-            if (humanoidVideo.play) {
-              humanoidVideo.play().catch(function(err) {
-                console.error('Failed to play video:', err);
-              });
-            } else if (videoElt.play) {
-              videoElt.play().catch(function(err) {
-                console.error('Failed to play video:', err);
-              });
+        // STEP 2: Apply all glitch effects in a single layer
+        if (jsEffectMode !== 'none' || params.noise > 0 || params.scanLines > 0 || params.colorShift > 0 || params.chromaticAberration > 0) {
+          // Create a single effect layer for all effects - must match canvas size exactly
+          const effectLayer = p.createGraphics(p.width, p.height);
+          
+          // Apply main glitch effect if enabled
+          if (jsEffectMode !== 'none') {
+            const effect = effectMap[jsEffectMode];
+            
+            if (effect && typeof effect === 'function') {
+              // Apply effect to the layer
+              const effectP5 = {
+                width: effectLayer.width,
+                height: effectLayer.height,
+                frameCount: p.frameCount,
+                millis: p.millis,
+                noise: p.noise.bind(p),
+                random: p.random.bind(p),
+                loadPixels: () => effectLayer.loadPixels(),
+                updatePixels: () => effectLayer.updatePixels(),
+                get pixels() { return effectLayer.pixels; },
+                set pixels(val) { 
+                  if (val && val.length === effectLayer.pixels.length) {
+                    effectLayer.pixels = val;
+                  }
+                },
+                constrain: p.constrain.bind(p),
+                map: p.map.bind(p),
+                color: p.color.bind(p)
+              };
+              
+              effect(effectP5);
+              effectLayer.updatePixels();
             }
           }
-          // Render video on canvas - p5.js should recognize it now
-          try {
-            // Use the p5 video element directly (p5.js handles it)
-            p.image(humanoidVideo, p.width / 2, p.height / 2, displayWidth, displayHeight);
-          } catch (error) {
-            console.error('Error rendering video:', error);
-            console.error('Video object:', humanoidVideo);
-            console.error('Video type:', typeof humanoidVideo);
-            // Fallback: show error message
-            p.fill(255);
-            p.textAlign(p.CENTER, p.CENTER);
-            p.text('Error rendering video', p.width / 2, p.height / 2);
+          
+          // Apply additional effects to the same layer
+          // Create a proxy object for helper functions that need p5 properties
+          const helperP5 = {
+            width: effectLayer.width,
+            height: effectLayer.height,
+            frameCount: p.frameCount,
+            millis: p.millis,
+            loadPixels: () => effectLayer.loadPixels(),
+            updatePixels: () => effectLayer.updatePixels(),
+            get pixels() { return effectLayer.pixels; },
+            set pixels(val) { 
+              if (val && val.length === effectLayer.pixels.length) {
+                effectLayer.pixels = val;
+              }
+            },
+            constrain: p.constrain.bind(p)
+          };
+          
+          if (params.noise > 0 && jsEffectMode !== 'static' && jsEffectMode !== 'smear') {
+            applyNoiseEffect(helperP5, params.noise);
           }
-        } else if (humanoidImg) {
-          p.image(humanoidImg, p.width / 2, p.height / 2, displayWidth, displayHeight);
-        }
-        
-        p.pop();
-        
-        // Apply JavaScript-based glitch effects if enabled (like GlitchEngine)
-        // Only apply if intensity > 0
-        if (jsEffectMode !== 'none' && params.intensity > 0) {
-          // Save current pixels before applying effect
-          p.loadPixels();
-          const originalPixels = new Uint8ClampedArray(p.pixels);
-          
-          // Apply the selected JS effect
-          if (jsEffectMode === 'smear' && typeof smear === 'function') {
-            smear(p);
-          } else if (jsEffectMode === 'purpleStatic' && typeof purpleStatic === 'function') {
-            purpleStatic(p);
-          }
-          
-          // Now blend the effect with the original based on intensity
-          p.loadPixels();
-          const effectPixels = p.pixels;
-          const intensity = params.intensity;
-          
-          // Blend effect with original based on intensity
-          for (let i = 0; i < effectPixels.length; i += 4) {
-            // Mix original and effect based on intensity
-            effectPixels[i] = originalPixels[i] * (1 - intensity) + effectPixels[i] * intensity;
-            effectPixels[i + 1] = originalPixels[i + 1] * (1 - intensity) + effectPixels[i + 1] * intensity;
-            effectPixels[i + 2] = originalPixels[i + 2] * (1 - intensity) + effectPixels[i + 2] * intensity;
-            effectPixels[i + 3] = originalPixels[i + 3]; // Keep alpha
-          }
-          
-          p.updatePixels();
-          
-          // Apply additional effects based on other params
-          if (params.noise > 0) {
-            applyNoiseEffect(p, params.noise);
-          }
-          
+
           if (params.scanLines > 0) {
-            applyScanLines(p, params.scanLines);
+            applyScanLines(helperP5, params.scanLines);
+          }
+
+          if (params.colorShift > 0 && jsEffectMode !== 'smear' && jsEffectMode !== 'color') {
+            applyColorShift(helperP5, params.colorShift);
+          }
+
+          if (params.chromaticAberration > 0 && jsEffectMode !== 'smear') {
+            applyChromaticAberrationEffect(helperP5, params.chromaticAberration);
           }
           
-          if (params.colorShift > 0) {
-            applyColorShift(p, params.colorShift);
-          }
+          // Blend the single effect layer on top using p5.js blend modes
+          const blendModeMap = {
+            'normal': p.BLEND,
+            'multiply': p.MULTIPLY,
+            'screen': p.SCREEN,
+            'overlay': p.OVERLAY,
+            'darken': p.DARKEST,
+            'lighten': p.LIGHTEST,
+            'color-dodge': p.DODGE,
+            'color-burn': p.BURN,
+            'hard-light': p.HARD_LIGHT,
+            'soft-light': p.SOFT_LIGHT,
+            'difference': p.DIFFERENCE,
+            'exclusion': p.EXCLUSION,
+            'hue': p.HUE,
+            'saturation': p.SATURATION,
+            'color': p.COLOR,
+            'luminosity': p.LUMINOSITY
+          };
           
-          // Note: displacement is already handled by smear effect
-          // chromaticAberration would require more complex RGB channel separation
+          const p5BlendMode = blendModeMap[params.blendMode] || p.SCREEN;
+          p.blendMode(p5BlendMode);
+          p.tint(255, 255 * params.intensity);
+          // Draw effect layer at full canvas size (0,0 to cover entire canvas)
+          // Temporarily set imageMode to CORNER to draw from top-left
+          const prevImageMode = p._imageMode || p.CENTER;
+          p.imageMode(p.CORNER);
+          p.image(effectLayer, 0, 0, p.width, p.height);
+          p.imageMode(prevImageMode); // Reset to previous mode
+          p.tint(255, 255);
+          p.blendMode(p.BLEND);
         }
       }
     } else {
       // Show loading message or placeholder
       p.fill(255);
       p.textAlign(p.CENTER, p.CENTER);
-      p.text('Loading...', 0, 0);
+      p.textSize(24);
+      p.text('Loading...', p.width / 2, p.height / 2);
+      
+      // If no media loaded, still apply effects if mode is not 'none'
+      const effect = effectMap[jsEffectMode];
+      if (jsEffectMode !== 'none' && effect && typeof effect === 'function') {
+        effect(p);
+      }
     }
     
     // Update FPS
@@ -408,12 +540,47 @@ function applyColorShift(p, colorShiftIntensity) {
   p.updatePixels();
 }
 
+// Helper function to apply chromatic aberration effect
+function applyChromaticAberrationEffect(p, chromaIntensity) {
+  p.loadPixels();
+  const pixels = p.pixels;
+  const tempPixels = new Uint8ClampedArray(pixels); // Copy original pixels
+  const width = p.width;
+  const height = p.height;
+  const offset = Math.floor(chromaIntensity * 5); // Pixel offset
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const targetIndex = (x + y * width) * 4;
+
+      // Sample R from slightly right
+      let sourceX_R = p.constrain(x + offset, 0, width - 1);
+      const sourceIndex_R = (sourceX_R + y * width) * 4;
+      pixels[targetIndex] = tempPixels[sourceIndex_R];
+
+      // G is from original position
+      pixels[targetIndex + 1] = tempPixels[targetIndex + 1];
+
+      // Sample B from slightly left
+      let sourceX_B = p.constrain(x - offset, 0, width - 1);
+      const sourceIndex_B = (sourceX_B + y * width) * 4;
+      pixels[targetIndex + 2] = tempPixels[sourceIndex_B + 2];
+
+      pixels[targetIndex + 3] = tempPixels[targetIndex + 3]; // Alpha
+    }
+  }
+  p.updatePixels();
+}
+
 function initGUI() {
   const dat = window.dat;
   if (!dat) {
     console.error('dat.GUI not loaded');
     return;
   }
+  
+  // Randomize parameters before creating GUI
+  randomizeParams();
   
   gui = new dat.GUI();
   
@@ -482,19 +649,37 @@ function initGUI() {
     }
   });
   
-  // Add JS effect selector (default to 'smear' to match initial value)
+  // Add JS effect selector (use randomized initial value) - all effects from index page
   const jsEffects = { mode: jsEffectMode };
-  const effectController = gui.add(jsEffects, 'mode', ['none', 'smear', 'purpleStatic']).name('JS Effect');
+  const effectController = gui.add(jsEffects, 'mode', effectModes).name('Glitch Mode');
   effectController.onChange(function(value) {
     jsEffectMode = value;
-    console.log('JS Effect mode changed to:', value);
+    console.log('Glitch mode changed to:', value);
     // Clear canvas when switching effects to avoid artifacts
     if (p5Instance) {
       p5Instance.background(0);
     }
   });
   
-  console.log('GUI initialized with params:', params);
+  // Add blend mode selector (like index page)
+  // Note: Blend mode is applied using p5.js blendMode() in the draw function
+  gui.add(params, 'blendMode', blendModes).name('Blend Mode').onChange(function(value) {
+    console.log('Blend mode changed to:', value);
+    // Blend mode is applied in draw() using p5.js blendMode()
+  });
+  
+  // Set initial opacity
+  setTimeout(function() {
+    const canvas = document.querySelector('#corruption-canvas');
+    if (canvas) {
+      canvas.style.opacity = params.opacity;
+    }
+  }, 100);
+  
+  // Log randomized setup
+  console.log('Tool page initialized with randomized settings:');
+  console.log('Effect mode:', jsEffectMode);
+  console.log('Parameters:', params);
 }
 
 function updateFPS() {
@@ -504,19 +689,7 @@ function updateFPS() {
   }
 }
 
-// Handle flip button
-function setupFlipButton() {
-  const flipButton = document.getElementById('flip-button');
-  if (!flipButton) {
-    console.error('Flip button not found');
-    return;
-  }
-  
-  flipButton.addEventListener('click', function() {
-    imageFlipped = !imageFlipped;
-    console.log('Image flipped:', imageFlipped);
-  });
-}
+// Save function removed - now handled by setupSaveButton
 
 // Handle image/video upload
 function setupImageUpload() {
@@ -591,7 +764,7 @@ function setupImageUpload() {
                   }, 500);
                 });
                 
-                // Show save button for videos
+                // Show save button
                 const saveButton = document.getElementById('save-button');
                 if (saveButton) {
                   saveButton.style.display = 'inline-block';
@@ -632,10 +805,10 @@ function setupImageUpload() {
                 isVideo = false;
                 humanoidVideo = null; // Clear video
                 
-                // Hide save button for images
+                // Show save button for images
                 const saveButton = document.getElementById('save-button');
                 if (saveButton) {
-                  saveButton.style.display = 'none';
+                  saveButton.style.display = 'inline-block';
                 }
               }, function(err) {
                 console.error('Failed to load uploaded image:', err);
@@ -668,7 +841,7 @@ function setupImageUpload() {
   });
 }
 
-// Handle save video button
+// Handle save button - works for both images and videos
 function setupSaveButton() {
   const saveButton = document.getElementById('save-button');
   if (!saveButton) {
@@ -677,8 +850,8 @@ function setupSaveButton() {
   }
   
   saveButton.addEventListener('click', function() {
-    if (!p5Instance || !isVideo) {
-      alert('No video loaded to save');
+    if (!p5Instance) {
+      alert('No media loaded to save');
       return;
     }
     
@@ -689,9 +862,46 @@ function setupSaveButton() {
       return;
     }
     
-    // Start recording
-    startVideoRecording(canvas);
+    if (isVideo && humanoidVideo) {
+      // Save as video - start recording
+      startVideoRecording(canvas);
+    } else if (humanoidImg) {
+      // Save as image
+      saveImage(canvas);
+    } else {
+      alert('No image or video loaded to save');
+    }
   });
+}
+
+// Save canvas as image
+function saveImage(canvas) {
+  try {
+    // Convert canvas to blob
+    canvas.toBlob(function(blob) {
+      if (!blob) {
+        alert('Failed to create image file');
+        return;
+      }
+      
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'corrupted-image.png';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      
+      console.log('Image saved successfully');
+    }, 'image/png');
+  } catch (error) {
+    console.error('Error saving image:', error);
+    alert('Failed to save image. Please try again.');
+  }
 }
 
 // Start recording canvas as video
@@ -752,7 +962,7 @@ function startVideoRecording(canvas) {
         isRecording = false;
         
         if (saveButton) {
-          saveButton.textContent = 'Save Video';
+          saveButton.textContent = 'Save';
           saveButton.disabled = false;
         }
       }
@@ -766,7 +976,7 @@ function startVideoRecording(canvas) {
     // Reset button
     const saveButton = document.getElementById('save-button');
     if (saveButton) {
-      saveButton.textContent = 'Save Video';
+      saveButton.textContent = 'Save';
       saveButton.disabled = false;
     }
   }
@@ -775,15 +985,13 @@ function startVideoRecording(canvas) {
 // Initialize p5 sketch
 new p5(sketch);
 
-// Setup flip button, image upload, and save button after DOM is ready
+// Setup image upload and save button after DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
-    setupFlipButton();
     setupImageUpload();
     setupSaveButton();
   });
 } else {
-  setupFlipButton();
   setupImageUpload();
   setupSaveButton();
 }
@@ -1004,10 +1212,9 @@ function watchGUIChanges() {
   }, 2000); // Check every 2 seconds
 }
 
-// Setup image upload, flip button, and save button when DOM is ready
+// Setup image upload and save button when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
-    setupFlipButton();
     setupImageUpload();
     setupSaveButton();
     // Wait for GUI to be created, then position upload button and watch for changes
@@ -1017,7 +1224,6 @@ if (document.readyState === 'loading') {
   });
 } else {
   // Wait a bit for p5 to initialize
-  setupFlipButton();
   setupSaveButton();
   setTimeout(setupImageUpload, 100);
   // Wait for GUI to be created, then position upload button and watch for changes

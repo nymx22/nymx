@@ -1,504 +1,183 @@
-/* gui.css - Custom styles for dat.GUI - Rebuilt from scratch */
+/* gui.css - Basement-style GUI for index page */
 
-/* Load Hershey-Noailles-Futura-Triplex-Bold font */
-@font-face {
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold';
-    src: url('../assets/fonts/Hershey-Noailles-Futura-Triplex-Bold.woff') format('woff');
-    font-weight: bold;
-    font-style: normal;
-    font-display: swap;
-}
-
-/* Main GUI container - positioned fixed, attached to right side */
 .dg.ac {
-    position: fixed !important;
-    top: 20px !important;
-    right: 0 !important; /* Attach to right edge of window */
-    left: auto !important; /* Override any left positioning */
-    z-index: 99999 !important;
-    /* No height restrictions - allow full expansion */
-    height: auto !important;
-    max-height: none !important;
-    min-height: auto !important;
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    overflow: visible !important;
-    /* Ensure it's positioned on the right - override any inline styles */
-    margin-left: auto !important;
-    margin-right: 0 !important;
-    transform: none !important; /* Remove any transforms that might affect positioning */
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  z-index: 10000 !important;
 }
 
-/* Override any inline styles that dat.GUI might set */
-.dg.ac[style*="left"] {
-    left: auto !important;
-    right: 0 !important;
-}
-
-/* Base GUI styling - clean, compact layout */
 .dg {
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    font-size: 13px !important;
-    font-weight: bold !important;
-    /* Light background with dark text */
-    background-color: rgba(255, 255, 255, 0.95) !important;
-    color: #1a1a1a !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-    /* No restrictions - allow full expansion */
-    height: auto !important;
-    max-height: none !important;
-    min-height: auto !important;
-    display: block !important;
-    visibility: visible !important;
-    overflow: visible !important;
-    /* Remove all padding and margin */
-    padding: 0 !important;
-    margin: 0 !important;
-    /* Constrain width to content only - no wide background */
-    width: auto !important;
-    min-width: 180px !important;
-    max-width: 300px !important; /* Prevent it from spanning full width */
+    background-color: rgba(255, 255, 255, 0.25) !important;
+  font-family: findreplace, sans-serif !important;
+    font-style: normal;
+    font-weight: 300;
+    font-size: 15px;
+  color: #ffffff !important;
 }
-
-/* All GUI elements use the font and dark color */
+    
 .dg * {
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    color: #1a1a1a !important;
-    box-sizing: border-box !important;
+  font-family: findreplace, sans-serif !important;
 }
-
-/* Title bar - compact */
-.dg .title {
-    background-color: rgba(0, 0, 0, 0.08) !important;
-    color: #1a1a1a !important;
-    font-size: 13px !important;
-    font-weight: bold !important;
-    padding: 6px 10px !important;
-    margin: 0 !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
-    display: block !important;
-    visibility: visible !important;
-    cursor: pointer !important;
-    width: 100% !important;
-    line-height: 1.2 !important;
-}
-
-/* Control rows - compact, no extra spacing */
-.dg .cr {
+  
+  .dg .title {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  font-size: 15px !important;
+  }
+  
+  .dg .cr {
     background-color: transparent !important;
-    min-height: 32px !important;
-    padding: 3px 10px !important;
-    margin: 0 !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-    display: block !important;
-    visibility: visible !important;
-    width: 100% !important;
-    line-height: 1.2 !important;
-}
-
-/* Property name (label) - inline with control */
-.dg .property-name {
-    color: #1a1a1a !important;
-    font-size: 12px !important;
-    font-weight: bold !important;
+  min-height: 40px !important;
+  }
+  
+  .dg .property-name {
     background-color: transparent !important;
-    padding: 0 !important;
-    margin: 0 8px 0 0 !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-    width: auto !important;
-    min-width: 100px !important;
-}
+  color: #ffffff !important;
+  font-size: 15px !important;
+  }
 
-/* Control container - inline with label */
-.dg .c {
-    display: inline-block !important;
-    vertical-align: middle !important;
-    width: auto !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    line-height: 1.2 !important;
-}
-
-/* Slider styling - compact */
-.dg .slider {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-    color: #1a1a1a !important;
-    font-size: 11px !important;
-    height: 24px !important;
-    min-height: 24px !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    border-radius: 2px !important;
-    display: inline-block !important;
-    visibility: visible !important;
-    width: 80px !important;
-    margin-right: 6px !important;
-    vertical-align: middle !important;
-    position: relative !important;
-}
-
-/* Slider value text - dat.GUI displays value as text node or in a span after slider */
-.dg .c.slider {
-    white-space: nowrap !important; /* Keep slider and value on same line */
-}
-
-/* Value display (dat.GUI typically uses text nodes or spans) */
-.dg .c.slider .slider-value,
-.dg .c.slider > span:not(.slider-fg):not(.slider-bg),
-.dg .c.slider::after {
-    color: #1a1a1a !important;
-    font-size: 11px !important;
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    display: inline-block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    margin-left: 6px !important;
-    vertical-align: middle !important;
-    line-height: 24px !important;
-}
-
-/* Ensure all text content in slider container is visible */
-.dg .c.slider,
-.dg .c.slider * {
-    color: #1a1a1a !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-}
-
-/* Text nodes in slider container (dat.GUI uses text nodes for values) */
-.dg .c.slider {
-    color: #1a1a1a !important;
-}
-
-.dg .slider-fg {
-    background-color: rgba(0, 0, 0, 0.3) !important;
-    height: 100% !important;
-}
-
-.dg .c.slider {
-    height: 24px !important;
-    min-height: 24px !important;
-    display: inline-block !important;
-    visibility: visible !important;
-    width: auto !important;
-    position: relative !important;
-}
-
-/* Ensure slider container shows value - dat.GUI typically puts value after slider */
-.dg .c.slider {
-    white-space: nowrap !important; /* Keep slider and value on same line */
-}
-
-/* Text inputs - compact */
-.dg .c input[type=text] {
-    color: #1a1a1a !important;
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    font-size: 11px !important;
-    padding: 3px 5px !important;
-    border-radius: 2px !important;
-    width: 50px !important;
-    height: 24px !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-    margin: 0 !important;
-}
-
-.dg .c input[type=text]:focus {
-    background-color: rgba(255, 255, 255, 1) !important;
-    border-color: rgba(0, 0, 0, 0.4) !important;
-    outline: 1px solid rgba(0, 0, 0, 0.2) !important;
-    outline-offset: 0 !important;
-}
-
-/* Select dropdowns - compact */
-.dg select {
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    color: #1a1a1a !important;
-    font-size: 11px !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    padding: 3px 5px !important;
-    height: 24px !important;
-    min-height: 24px !important;
-    border-radius: 2px !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-    width: auto !important;
-    min-width: 80px !important;
-    margin: 0 !important;
-}
-
-.dg option {
-    background-color: rgba(255, 255, 255, 1) !important;
-    color: #1a1a1a !important;
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-}
-
-/* Checkbox styling */
-.dg input[type=checkbox] {
-    width: 16px !important;
-    height: 16px !important;
-    margin: 0 0 0 8px !important;
-    vertical-align: middle !important;
-    cursor: pointer !important;
-}
-
-/* Buttons - compact */
-.dg button {
-    background-color: rgba(0, 0, 0, 0.1) !important;
-    color: #1a1a1a !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif !important;
-    font-size: 11px !important;
-    padding: 3px 8px !important;
-    border-radius: 2px !important;
-    cursor: pointer !important;
-    display: inline-block !important;
-    vertical-align: middle !important;
-    margin: 0 !important;
-}
-
-.dg button:hover {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border-color: rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Close button - white background, always clickable */
-.dg .close-button,
-.dg .close-top,
-.dg .close-bottom {
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    font-size: 14px !important;
-    padding: 6px 12px !important;
-    cursor: pointer !important;
-    display: inline-block !important;
-    border-radius: 2px !important;
-    z-index: 100 !important;
-    pointer-events: auto !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: relative !important;
-    user-select: none !important;
-    -webkit-user-select: none !important;
-}
-
-.dg .close-button:hover,
-.dg .close-top:hover,
-.dg .close-bottom:hover {
-    background-color: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(0, 0, 0, 0.3) !important;
-    color: #000000 !important;
-}
-
-.dg .close-button:active,
-.dg .close-top:active,
-.dg .close-bottom:active {
-    background-color: rgba(255, 255, 255, 0.8) !important;
-}
-
-/* Links */
-.dg a,
-.dg a:visited,
-.dg a:hover,
-.dg a:active {
-    color: #1a1a1a !important;
+  .dg .close-button {
     background-color: transparent !important;
-    text-decoration: none !important;
-}
-
-.dg a:hover {
-    text-decoration: underline !important;
-}
-
-/* Lists - remove default styling */
-.dg li {
-    color: #1a1a1a !important;
-    font-size: 12px !important;
+  color: #ffffff !important;
+  }
+  
+  .dg .close-top {
     background-color: transparent !important;
-    list-style: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: block !important;
-    visibility: visible !important;
+  }
+  
+  .dg .close-bottom {
+    background-color: transparent !important;
+  }
+  
+  .dg .slider {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  }
+  
+  .dg .slider-fg {
+    background-color: #86868673 !important;
+  height: 100% !important;
+  }
+  
+/* Slider container */
+.dg .c.slider {
+  height: 50px !important;
+  min-height: 50px !important;
 }
 
-/* Nested GUI (folders) */
-.dg .dg {
-    background-color: rgba(255, 255, 255, 0.6) !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    margin: 2px 0 !important;
-    padding: 0 !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-}
+  .dg .close-button:hover,
+  .dg .close-top:hover,
+  .dg .close-bottom:hover {
+    background-color: transparent !important;
+  color: #ffffff !important;
+  }
+  
+  .dg .c input[type=text]:focus {
+    background-color: rgba(255, 255, 255, 0.2) !important;
+  border-color: #ffffff !important;
+    outline: none !important;
+  }
+  
+  .dg button {
+    background-color: transparent !important;
+  color: #ffffff !important;
+  }
+  
+  .dg button:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .dg a,
+  .dg a:visited,
+  .dg a:hover,
+  .dg a:active {
+  color: #ffffff !important;
+    background-color: transparent !important;
+  }
+  
+  .dg * {
+    border-color: transparent !important;
+  }
+  
+  .dg *:focus {
+    outline: none !important;
+    border-color: transparent !important;
+  }
 
-/* Closed state - only show close button, hide everything else */
-.dg.closed {
-    height: auto !important;
-    max-height: none !important;
-    padding: 0 !important;
-}
+  .dg .dg {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+  }
+  
+  .dg .c input[type=text] {
+  color: #ffffff !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  font-family: findreplace, sans-serif !important;
+    font-style: normal;
+    font-size: 15px;
+    border-color: transparent !important;
+  }
 
-/* Hide all controls when closed */
-.dg.closed .cr,
-.dg.closed .c,
-.dg.closed .slider,
-.dg.closed input,
-.dg.closed select,
-.dg.closed button:not(.close-button):not(.close-top):not(.close-bottom),
-.dg.closed .property-name,
-.dg.closed .folder,
-.dg.closed ul,
-.dg.closed li {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    overflow: hidden !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-
-/* Hide title when closed - only show close button */
-.dg.closed .title {
-    display: none !important;
-    visibility: hidden !important;
-    height: 0 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-}
-
-/* Close button - always visible and clickable */
-.dg .close-button,
-.dg .close-top,
-.dg .close-bottom {
-    display: inline-block !important;
-    visibility: visible !important;
-    position: relative !important;
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    padding: 6px 12px !important;
-    border-radius: 2px !important;
-    cursor: pointer !important;
-    z-index: 10 !important;
-    pointer-events: auto !important;
-    opacity: 1 !important;
-}
-
-/* When closed, only show close button */
-.dg.closed .close-button,
-.dg.closed .close-top,
-.dg.closed .close-bottom {
-    display: inline-block !important;
-    visibility: visible !important;
-    margin: 4px !important;
-    background-color: #ffffff !important;
-    color: #1a1a1a !important;
-    border: 1px solid rgba(0, 0, 0, 0.2) !important;
-    padding: 6px 12px !important;
-    border-radius: 2px !important;
-    cursor: pointer !important;
-    z-index: 10 !important;
-    pointer-events: auto !important;
-}
-
-/* Ensure all controls are visible */
-.dg .cr,
-.dg .c,
-.dg .slider,
-.dg input,
 .dg select,
-.dg button,
-.dg li,
-.dg .folder,
-.dg .main {
-    display: block !important;
-    visibility: visible !important;
-    opacity: 1 !important;
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    clip: auto !important;
-    clip-path: none !important;
+.dg option {
+  font-family: findreplace, sans-serif !important;
+  background-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  font-size: 12px !important; /* 3px smaller than slider title (15px) */
 }
 
-/* Fix inline display for controls */
-.dg .cr > .c {
-    display: inline-block !important;
+.dg select {
+  border: none !important;
+  padding: 4px !important;
+  height: 40px !important;
+  min-height: 40px !important;
 }
 
-/* Remove any background whitespace */
-.dg .main {
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
+.dg li {
+  font-size: 15px !important;
 }
 
-/* Ensure GUI container shows all content */
-.dg.ac > .dg {
-    height: auto !important;
-    max-height: none !important;
-    overflow: visible !important;
-    width: fit-content !important;
-    min-width: 180px !important;
-    max-width: 300px !important; /* Prevent wide background */
+.dg li:not(.folder) {
+  background-color: transparent !important;
 }
 
-/* Remove any wide background elements - constrain all children */
-.dg .main,
-.dg ul,
-.dg li,
-.dg .cr {
-    width: auto !important;
-    max-width: 100% !important;
-    background: transparent !important;
+.dg li.folder {
+  background-color: transparent !important;
 }
 
-/* Prevent any element from creating wide background */
-.dg * {
-    max-width: 100% !important;
-}
-
-/* But allow GUI itself to size to content */
-.dg {
-    width: fit-content !important;
-    max-width: 300px !important;
-}
-
-/* Remove any wide background elements */
-.dg .main,
-.dg ul {
-    width: auto !important;
-    max-width: 100% !important;
-    background: transparent !important;
-}
-
-/* Remove all left padding/margin from nested elements */
-.dg .folder,
-.dg .folder-title,
-.dg ul {
-    padding-left: 0 !important;
-    margin-left: 0 !important;
-}
-
-/* Focus states */
-.dg *:focus {
-    outline: 1px solid rgba(0, 0, 0, 0.3) !important;
-    outline-offset: 1px !important;
-}
-
-/* Mobile styles */
 @media (max-width: 767px) {
-    .dg.ac {
-        display: none !important;
-    }
+  /* Hide GUI in mobile */
+  .dg.ac {
+    display: none !important;
+  }
+  
+  /* Reduce font size by 5px in mobile */
+  .dg, .dg * {
+    font-size: calc(15px - 5px) !important; /* 10px */
+  }
+  
+  /* Divide slider heights by 2 in mobile */
+  .dg .cr {
+    min-height: 20px !important; /* 40px / 2 */
+  }
+  
+  .dg .slider {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+  }
+  
+  .dg .c.slider {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+  }
+  
+  /* Divide select height by 2 in mobile */
+  .dg select {
+    height: 20px !important; /* 40px / 2 */
+    min-height: 20px !important;
+    padding: 2px !important; /* Reduce padding too */
+    font-size: 7px !important; /* 3px smaller than slider title (10px) */
+  }
 }
