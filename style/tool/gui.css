@@ -521,7 +521,14 @@
 /* Mobile styles */
 @media (max-width: 767px) {
     .dg.ac {
-        display: none !important;
+        position: relative !important;
+        right: auto !important;
+        left: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        margin: 20px auto !important; /* Center horizontally */
+        width: calc(100% - 40px) !important;
+        max-width: none !important;
     }
 }
 

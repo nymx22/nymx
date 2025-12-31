@@ -38,6 +38,8 @@ body {
   display: block !important;
   width: 100% !important;
   height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 #fps-display {
@@ -74,19 +76,20 @@ body {
 .upload-button {
   display: inline-block;
   padding: 10px 20px;
-  background: #6D94C5;
-  color: #FFFFFF;
-  border: 2px solid #6D94C5;
+  background: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
   border-radius: 6px;
-  font-family: 'Jersey 25', sans-serif;
+  font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif;
   font-size: 16px;
   transition: all 0.2s ease;
   user-select: none;
 }
 
 .upload-button:hover {
-  background: #5a7ba8;
-  border-color: #5a7ba8;
+  background: #000000;
+  color: #FFFFFF;
+  border-color: #000000;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
@@ -133,5 +136,149 @@ body {
 
 .back-button:active {
   transform: translateY(0);
+}
+
+/* Mobile styles - make page scrollable and stack elements vertically */
+@media (max-width: 767px) {
+  body {
+    overflow: auto; /* Allow scrolling on mobile */
+    overflow-x: hidden;
+  }
+
+  .tool-container {
+    position: relative; /* Change from fixed to relative */
+    min-height: 100vh;
+    height: auto; /* Allow container to grow */
+    flex-direction: column; /* Stack vertically */
+    align-items: stretch; /* Full width */
+    padding-bottom: 20px;
+  }
+
+  #corruption-canvas-container {
+    position: relative; /* Change from fixed to relative */
+    width: 100vw;
+    height: 70vh; /* Fixed height for canvas on mobile */
+    min-height: 400px;
+    z-index: 1;
+    flex-shrink: 0; /* Don't shrink */
+  }
+
+  #corruption-canvas-container canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain; /* Maintain aspect ratio */
+  }
+
+  #fps-display {
+    position: absolute; /* Keep FPS in corner of canvas */
+    top: 10px;
+    left: 10px;
+    font-size: 12px;
+    padding: 5px 10px;
+  }
+
+  /* Upload container - next to FPS, above canvas */
+  #upload-container {
+    position: absolute; /* Position relative to canvas container */
+    top: 10px;
+    left: 100px; /* Next to FPS display */
+    right: auto;
+    width: auto;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 15px; /* Increased spacing between buttons */
+    align-items: center;
+    z-index: 10001;
+    background: transparent;
+    margin-top: 0;
+  }
+
+  .upload-button {
+    width: auto;
+    text-align: center;
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+
+  /* Back button - next to upload buttons */
+  #back-button-container {
+    position: absolute; /* Position relative to canvas container */
+    top: 10px;
+    left: 250px; /* Increased spacing from upload buttons */
+    right: auto;
+    width: auto;
+    padding: 0;
+    z-index: 10001;
+  }
+
+  .back-button {
+    width: auto;
+    text-align: center;
+    font-size: 10px;
+    padding: 6px 12px;
+  }
+
+  /* Mobile controls toggle button - centered in middle of window */
+  .mobile-controls-button {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 40px);
+    max-width: 300px;
+    margin: 0;
+    padding: 12px 20px;
+    background: #FFFFFF;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 6px;
+    font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    z-index: 10002;
+  }
+
+  .mobile-controls-button:hover {
+    background: #000000;
+    color: #FFFFFF;
+    border-color: #000000;
+    transform: translate(-50%, calc(-50% - 2px));
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-controls-button:active {
+    transform: translateY(0);
+  }
+
+  /* GUI - centered in middle of window */
+  .dg.ac {
+    position: fixed !important; /* Use fixed to center in viewport */
+    right: auto !important;
+    left: 50% !important;
+    top: 50% !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important; /* Center both horizontally and vertically */
+    margin: 0 !important;
+    width: calc(100% - 40px) !important;
+    max-width: 400px !important; /* Limit max width for better appearance */
+    max-height: 80vh !important; /* Limit height to fit in viewport */
+    overflow-y: auto !important; /* Allow scrolling if content is too tall */
+    display: none !important; /* Initially hidden on mobile */
+  }
+
+  /* Show GUI when it has the 'open' class or is not closed */
+  .dg.ac:not(.closed) {
+    display: block !important;
+  }
+}
+
+/* Hide mobile controls button on desktop */
+.mobile-controls-button {
+  display: none;
 }
 

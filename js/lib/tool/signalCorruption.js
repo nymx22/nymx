@@ -150,12 +150,28 @@ const sketch = function(p) {
   };
   
   p.setup = function() {
-    // Use full window dimensions, but limit to prevent memory issues
-    const maxDimension = 3840; // Maximum safe dimension (4K width)
-    let containerWidth = window.innerWidth;
-    let containerHeight = window.innerHeight;
+    // Get container dimensions (on mobile, container has fixed height)
+    const container = document.getElementById('corruption-canvas-container');
+    let containerWidth, containerHeight;
     
-    // Scale down if too large to prevent memory issues
+    if (container && window.innerWidth <= 767) {
+      // Mobile: use container's actual dimensions
+      // Use requestAnimationFrame to ensure container is properly sized
+      const rect = container.getBoundingClientRect();
+      containerWidth = Math.floor(rect.width) || window.innerWidth;
+      containerHeight = Math.floor(rect.height) || Math.floor(window.innerHeight * 0.7);
+      // Ensure minimum dimensions
+      if (containerWidth === 0) containerWidth = window.innerWidth;
+      if (containerHeight === 0) containerHeight = Math.floor(window.innerHeight * 0.7);
+      console.log('Mobile canvas setup - using container dimensions:', containerWidth, 'x', containerHeight);
+    } else {
+      // Desktop: use full window dimensions
+      containerWidth = window.innerWidth;
+      containerHeight = window.innerHeight;
+    }
+    
+    // Limit to prevent memory issues
+    const maxDimension = 3840; // Maximum safe dimension (4K width)
     if (containerWidth > maxDimension || containerHeight > maxDimension) {
       const scale = Math.min(maxDimension / containerWidth, maxDimension / containerHeight);
       containerWidth = Math.floor(containerWidth * scale);
@@ -516,7 +532,22 @@ const sketch = function(p) {
   };
   
   p.windowResized = function() {
-    p.resizeCanvas(window.innerWidth, window.innerHeight);
+    // On mobile, use container dimensions; on desktop, use window dimensions
+    const container = document.getElementById('corruption-canvas-container');
+    let newWidth, newHeight;
+    
+    if (container && window.innerWidth <= 767) {
+      // Mobile: use container's actual dimensions
+      const rect = container.getBoundingClientRect();
+      newWidth = Math.floor(rect.width);
+      newHeight = Math.floor(rect.height);
+    } else {
+      // Desktop: use full window dimensions
+      newWidth = window.innerWidth;
+      newHeight = window.innerHeight;
+    }
+    
+    p.resizeCanvas(newWidth, newHeight);
   };
 };
 
@@ -1299,6 +1330,11 @@ if (document.readyState === 'loading') {
 
 // Position upload container (with both buttons) below GUI, and back button below upload container
 function positionUploadButton() {
+  // Skip positioning on mobile - CSS handles it with relative positioning
+  if (window.innerWidth <= 767) {
+    return;
+  }
+  
   const uploadContainer = document.getElementById('upload-container');
   const backButtonContainer = document.getElementById('back-button-container');
   const guiElement = document.querySelector('.dg.ac');
@@ -1539,6 +1575,7 @@ if (document.readyState === 'loading') {
     // Wait for GUI to be created, then position upload button and watch for changes
     setTimeout(function() {
       watchGUIChanges();
+      setupMobileControlsToggle();
     }, 1000);
   });
 } else {
@@ -1548,6 +1585,80 @@ if (document.readyState === 'loading') {
   // Wait for GUI to be created, then position upload button and watch for changes
   setTimeout(function() {
     watchGUIChanges();
+    setupMobileControlsToggle();
   }, 1000);
+}
+
+// Setup mobile controls toggle button
+function setupMobileControlsToggle() {
+  const toggleButton = document.getElementById('mobile-controls-toggle');
+  const guiElement = document.querySelector('.dg.ac');
+  
+  if (!toggleButton || !guiElement) {
+    return;
+  }
+  
+  // Only show button on mobile
+  if (window.innerWidth > 767) {
+    toggleButton.style.display = 'none';
+    return;
+  }
+  
+  // Initially hide GUI on mobile
+  guiElement.style.display = 'none';
+  guiElement.classList.add('closed');
+  if (gui && typeof gui.close === 'function') {
+    gui.close();
+  }
+  
+  // Toggle GUI visibility
+  toggleButton.addEventListener('click', function() {
+    const isHidden = guiElement.style.display === 'none' || guiElement.classList.contains('closed');
+    
+    if (isHidden) {
+      // Show GUI
+      guiElement.style.display = 'block';
+      guiElement.classList.remove('closed');
+      if (gui && typeof gui.open === 'function') {
+        gui.open();
+      }
+      toggleButton.textContent = 'Close Controls';
+    } else {
+      // Hide GUI
+      guiElement.style.display = 'none';
+      guiElement.classList.add('closed');
+      if (gui && typeof gui.close === 'function') {
+        gui.close();
+      }
+      toggleButton.textContent = 'Open Controls';
+    }
+  });
+  
+  // Update button text based on GUI state
+  const updateButtonText = function() {
+    const isHidden = guiElement.style.display === 'none' || guiElement.classList.contains('closed');
+    toggleButton.textContent = isHidden ? 'Open Controls' : 'Close Controls';
+  };
+  
+  // Watch for GUI state changes
+  const observer = new MutationObserver(function() {
+    updateButtonText();
+  });
+  
+  observer.observe(guiElement, {
+    attributes: true,
+    attributeFilter: ['class', 'style']
+  });
+  
+  // Handle window resize
+  window.addEventListener('resize', function() {
+    if (window.innerWidth > 767) {
+      toggleButton.style.display = 'none';
+      guiElement.style.display = '';
+    } else {
+      toggleButton.style.display = 'block';
+      updateButtonText();
+    }
+  });
 }
 
