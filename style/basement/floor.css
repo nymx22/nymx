@@ -28,3 +28,59 @@
   opacity: 0.2;
 }
 
+/* Tool on floor - simplified */
+.floor-tool-link {
+  position: absolute;
+  top: -50px;
+  right: 60%;
+  width: 90px;
+  height: 120px;
+  z-index: 10002 !important; /* Higher than self character canvas (500) and cursor (10001) */
+  display: block;
+  text-decoration: none;
+  cursor: pointer;
+  pointer-events: auto !important;
+  /* Prevent self character hover from affecting this */
+  isolation: isolate;
+  /* Ensure it's above the self character's full-width canvas */
+}
+
+.floor-tool {
+  width: 90px;
+  height: 120px;
+  display: block;
+  transition: filter 0.3s ease;
+  object-fit: contain;
+  pointer-events: auto; /* Allow image to receive events */
+}
+
+/* Simple glow on hover - using class instead of :hover */
+.floor-tool-link.hovered .floor-tool {
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.8))
+          drop-shadow(0 0 20px rgba(255, 255, 255, 0.6))
+          drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) !important;
+}
+
+/* Tool hint text */
+.floor-tool-hint-text {
+  position: fixed;
+  pointer-events: none;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 24px;
+  color: #ffffff;
+  white-space: nowrap;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  transform: translateX(-50%) translateY(-100%);
+  filter: drop-shadow(0 0 10px rgba(173, 216, 230, 0.8))
+          drop-shadow(0 0 20px rgba(173, 216, 230, 0.6))
+          drop-shadow(0 0 30px rgba(173, 216, 230, 0.4));
+}
+
+@media (max-width: 767px) {
+  .floor-tool-hint-text {
+    font-size: 14px;
+  }
+}
+

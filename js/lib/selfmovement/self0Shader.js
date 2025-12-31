@@ -3,17 +3,17 @@ import { Self } from './Self.js';
 export function initSelf0Shader() {
   let shader;
   let canvas;
-  let gui;
   let self; // Self character instance
   
   // Export self and shader for mirror reflection
   window.__selfInstance = null;
   window.__selfShader = null;
   
+  // All parameters set to 1.0 and fixed (no GUI)
   const params = {
     flicker: 1.0,
     glitch: 1.0,
-    scanLines: 0.2,
+    scanLines: 1.0,
     tracking: 1.0,
     colorShift: 1.0
   };
@@ -47,32 +47,7 @@ export function initSelf0Shader() {
       // Export for mirror reflection
       window.__selfInstance = self;
       
-      // Initialize dat.GUI
-      gui = new dat.GUI({ autoPlace: false });
-      gui.domElement.id = 'basement-gui';
-      document.body.appendChild(gui.domElement);
-      
-      // Add controls with increased ranges
-      gui.add(params, 'flicker', 0.0, 1.0).name('Flicker').onChange((val) => {
-        console.log('Flicker changed to:', val);
-      });
-      gui.add(params, 'glitch', 0.0, 5.0).name('Glitch').onChange((val) => {
-        console.log('Glitch changed to:', val);
-      });
-      gui.add(params, 'scanLines', 0.0, 0.2).name('Scan Lines').onChange((val) => {
-        console.log('Scan Lines changed to:', val);
-      });
-      gui.add(params, 'tracking', 0.0, 1.0).name('Tracking').onChange((val) => {
-        console.log('Tracking changed to:', val);
-      });
-      gui.add(params, 'colorShift', 0.0, 1.0).name('Color Shift').onChange((val) => {
-        console.log('Color Shift changed to:', val);
-      });
-      
-      // Close GUI on mobile devices initially
-      if (window.innerWidth <= 767) {
-        gui.close();
-      }
+      // No GUI - all parameters are fixed at 1.0
       
       // Setup hover hint text
       setupHintText();

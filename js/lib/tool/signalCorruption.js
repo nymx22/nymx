@@ -31,6 +31,12 @@ let needsCanvasRecreate = false; // Flag to recreate canvas when switching modes
 let mediaRecorder = null; // For recording video
 let recordedChunks = []; // Store recorded video chunks
 let isRecording = false; // Track recording state
+let croppedRecordingCanvas = null; // Canvas for recording (cropped to image area only)
+// Store media display dimensions and position for saving (without background)
+let currentDisplayWidth = 0;
+let currentDisplayHeight = 0;
+let currentMediaX = 0; // Center X position
+let currentMediaY = 0; // Center Y position
 
 // Initialize params with randomized values
 const params = {
@@ -349,10 +355,20 @@ const sketch = function(p) {
           p.text('Image not loaded', p.width / 2, p.height / 2);
         }
         
-        // STEP 2: Apply all glitch effects in a single layer
-        if (jsEffectMode !== 'none' || params.noise > 0 || params.scanLines > 0 || params.colorShift > 0 || params.chromaticAberration > 0) {
-          // Create a single effect layer for all effects - must match canvas size exactly
-          const effectLayer = p.createGraphics(p.width, p.height);
+        // STEP 2: Apply all glitch effects in a single layer - restricted to image/video area
+        if (jsEffectMode !== 'none' || params.noise > 0 || params.scanLines > 0 || params.colorShift > 0 || params.chromaticAberration > 0 || params.displacement > 0) {
+          // Create effect layer matching the displayed image/video size (not full canvas)
+          const effectLayerWidth = Math.ceil(displayWidth);
+          const effectLayerHeight = Math.ceil(displayHeight);
+          const effectLayer = p.createGraphics(effectLayerWidth, effectLayerHeight);
+          
+          // Copy the image/video area from canvas to effect layer
+          effectLayer.imageMode(p.CORNER);
+          if (isVideo && humanoidVideo) {
+            effectLayer.image(humanoidVideo, 0, 0, effectLayerWidth, effectLayerHeight);
+          } else if (humanoidImg && humanoidImg.width > 0) {
+            effectLayer.image(humanoidImg, 0, 0, effectLayerWidth, effectLayerHeight);
+          }
           
           // Apply main glitch effect if enabled
           if (jsEffectMode !== 'none') {
@@ -424,6 +440,10 @@ const sketch = function(p) {
           if (params.chromaticAberration > 0 && jsEffectMode !== 'smear') {
             applyChromaticAberrationEffect(helperP5, params.chromaticAberration);
           }
+
+          if (params.displacement > 0) {
+            applyDisplacementEffect(helperP5, params.displacement);
+          }
           
           // Blend the single effect layer on top using p5.js blend modes
           const blendModeMap = {
@@ -448,14 +468,23 @@ const sketch = function(p) {
           const p5BlendMode = blendModeMap[params.blendMode] || p.SCREEN;
           p.blendMode(p5BlendMode);
           p.tint(255, 255 * params.intensity);
-          // Draw effect layer at full canvas size (0,0 to cover entire canvas)
-          // Temporarily set imageMode to CORNER to draw from top-left
-          const prevImageMode = p._imageMode || p.CENTER;
-          p.imageMode(p.CORNER);
-          p.image(effectLayer, 0, 0, p.width, p.height);
-          p.imageMode(prevImageMode); // Reset to previous mode
+          // Draw effect layer at the same position and size as the image/video (centered)
+          p.imageMode(p.CENTER);
+          p.image(effectLayer, p.width / 2, p.height / 2, displayWidth, displayHeight);
           p.tint(255, 255);
           p.blendMode(p.BLEND);
+        }
+        
+        // If recording, update cropped canvas with just the image area (no background)
+        if (isRecording && croppedRecordingCanvas && currentDisplayWidth > 0 && currentDisplayHeight > 0) {
+          const croppedCtx = croppedRecordingCanvas.getContext('2d');
+          const sourceX = currentMediaX - currentDisplayWidth / 2;
+          const sourceY = currentMediaY - currentDisplayHeight / 2;
+          croppedCtx.drawImage(
+            canvas,
+            sourceX, sourceY, currentDisplayWidth, currentDisplayHeight,
+            0, 0, currentDisplayWidth, currentDisplayHeight
+          );
         }
       }
     } else {
@@ -588,6 +617,54 @@ function applyColorShift(p, colorShiftIntensity) {
   p.updatePixels();
 }
 
+// Helper function to apply displacement/warping effect
+function applyDisplacementEffect(p, displacementIntensity) {
+  p.loadPixels();
+  const pixels = p.pixels;
+  const tempPixels = new Uint8ClampedArray(pixels);
+  const width = p.width;
+  const height = p.height;
+  
+  // Displacement creates a wave-like distortion
+  const maxOffset = Math.floor(displacementIntensity * 50); // Max pixel offset (increased from 20 to 50 for stronger effect)
+  const waveFrequency = 0.02; // Frequency of the wave distortion
+  const timeOffset = p.frameCount * 0.05; // Animated over time
+  
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // Calculate displacement using sine waves for smooth distortion
+      const offsetX = Math.floor(
+        Math.sin(y * waveFrequency + timeOffset) * maxOffset +
+        Math.cos(x * waveFrequency * 0.7 + timeOffset * 0.8) * maxOffset * 0.5
+      );
+      const offsetY = Math.floor(
+        Math.cos(x * waveFrequency + timeOffset) * maxOffset * 0.7 +
+        Math.sin(y * waveFrequency * 0.6 + timeOffset * 1.2) * maxOffset * 0.3
+      );
+      
+      // Calculate source coordinates with displacement
+      let sourceX = x + offsetX;
+      let sourceY = y + offsetY;
+      
+      // Constrain to image bounds
+      sourceX = p.constrain(sourceX, 0, width - 1);
+      sourceY = p.constrain(sourceY, 0, height - 1);
+      
+      // Get source pixel index
+      const sourceIndex = (sourceX + sourceY * width) * 4;
+      const targetIndex = (x + y * width) * 4;
+      
+      // Copy pixel from source to target (creates warping effect)
+      pixels[targetIndex] = tempPixels[sourceIndex]; // R
+      pixels[targetIndex + 1] = tempPixels[sourceIndex + 1]; // G
+      pixels[targetIndex + 2] = tempPixels[sourceIndex + 2]; // B
+      pixels[targetIndex + 3] = tempPixels[sourceIndex + 3]; // A
+    }
+  }
+  
+  p.updatePixels();
+}
+
 // Helper function to apply chromatic aberration effect
 function applyChromaticAberrationEffect(p, chromaIntensity) {
   p.loadPixels();
@@ -618,6 +695,32 @@ function applyChromaticAberrationEffect(p, chromaIntensity) {
     }
   }
   p.updatePixels();
+}
+
+// Helper function to add tooltips to GUI controls
+function addTooltip(controller, tooltipText) {
+  // Add title to the controller's DOM element
+  if (controller.domElement) {
+    controller.domElement.title = tooltipText;
+  }
+  
+  // Also add title to the slider element if it exists
+  setTimeout(function() {
+    const slider = controller.domElement.querySelector('.slider');
+    if (slider) {
+      slider.title = tooltipText;
+    }
+    // Add title to the property name label
+    const propertyName = controller.domElement.querySelector('.property-name');
+    if (propertyName) {
+      propertyName.title = tooltipText;
+    }
+    // Add title to the entire control row
+    const controlRow = controller.domElement.closest('.cr');
+    if (controlRow) {
+      controlRow.title = tooltipText;
+    }
+  }, 100);
 }
 
 function initGUI() {
@@ -665,31 +768,53 @@ function initGUI() {
     gui.close();
   }
   
-  // Add listeners to log changes for debugging
-  gui.add(params, 'intensity', 0.0, 2.0).name('Intensity').step(0.01).onChange(function(value) {
+  // Add listeners to log changes for debugging with tooltips
+  const intensityCtrl = gui.add(params, 'intensity', 0.0, 2.0).name('Intensity').step(0.01);
+  addTooltip(intensityCtrl, 'Controls the overall intensity of the glitch effect');
+  intensityCtrl.onChange(function(value) {
     console.log('Intensity changed to:', value);
   });
-  gui.add(params, 'scanLines', 0.0, 1.0).name('Scan Lines').step(0.01).onChange(function(value) {
+  
+  const scanLinesCtrl = gui.add(params, 'scanLines', 0.0, 1.0).name('Scan Lines').step(0.01);
+  addTooltip(scanLinesCtrl, 'Adds horizontal scan line patterns across the image');
+  scanLinesCtrl.onChange(function(value) {
     console.log('Scan Lines changed to:', value);
   });
-  gui.add(params, 'colorShift', 0.0, 2.0).name('Color Shift').step(0.01).onChange(function(value) {
+  
+  const colorShiftCtrl = gui.add(params, 'colorShift', 0.0, 2.0).name('Color Shift').step(0.01);
+  addTooltip(colorShiftCtrl, 'Shifts the color balance between red and blue channels');
+  colorShiftCtrl.onChange(function(value) {
     console.log('Color Shift changed to:', value);
   });
-  gui.add(params, 'displacement', 0.0, 2.0).name('Displacement').step(0.01).onChange(function(value) {
+  
+  const displacementCtrl = gui.add(params, 'displacement', 0.0, 2.0).name('Displacement').step(0.01);
+  addTooltip(displacementCtrl, 'Creates wave-like warping and distortion effects');
+  displacementCtrl.onChange(function(value) {
     console.log('Displacement changed to:', value);
   });
-  gui.add(params, 'noise', 0.0, 1.0).name('Noise').step(0.01).onChange(function(value) {
+  
+  const noiseCtrl = gui.add(params, 'noise', 0.0, 1.0).name('Noise').step(0.01);
+  addTooltip(noiseCtrl, 'Adds random pixel noise to the image');
+  noiseCtrl.onChange(function(value) {
     console.log('Noise changed to:', value);
   });
-  gui.add(params, 'noiseSize', 1, 20, 1).name('Noise Size').onChange(function(value) {
+  
+  const noiseSizeCtrl = gui.add(params, 'noiseSize', 1, 20, 1).name('Noise Size');
+  addTooltip(noiseSizeCtrl, 'Controls the block size of noise pixels (higher = chunkier)');
+  noiseSizeCtrl.onChange(function(value) {
     console.log('Noise Size changed to:', value);
   });
-  gui.add(params, 'chromaticAberration', 0.0, 2.0).name('Chromatic Aberration').step(0.01).onChange(function(value) {
+  
+  const chromaticAberrationCtrl = gui.add(params, 'chromaticAberration', 0.0, 2.0).name('Chromatic Aberration').step(0.01);
+  addTooltip(chromaticAberrationCtrl, 'Separates RGB channels creating color fringing effects');
+  chromaticAberrationCtrl.onChange(function(value) {
     console.log('Chromatic Aberration changed to:', value);
   });
   
   // Add toggle for shader vs JS effects
-  gui.add({ useShader: useShader }, 'useShader').name('Use Shader').onChange(function(value) {
+  const shaderCtrl = gui.add({ useShader: useShader }, 'useShader').name('Use Shader');
+  addTooltip(shaderCtrl, 'Toggles between shader and JavaScript-based effects (requires WEBGL mode)');
+  shaderCtrl.onChange(function(value) {
     useShader = value;
     console.log('Shader mode:', value ? 'ON (requires WEBGL mode)' : 'OFF (using JS effects in P2D mode)');
     
@@ -703,6 +828,7 @@ function initGUI() {
   // Add JS effect selector (use randomized initial value) - all effects from index page
   const jsEffects = { mode: jsEffectMode };
   const effectController = gui.add(jsEffects, 'mode', effectModes).name('Glitch Mode');
+  addTooltip(effectController, 'Selects the main glitch effect type to apply');
   effectController.onChange(function(value) {
     jsEffectMode = value;
     console.log('Glitch mode changed to:', value);
@@ -990,41 +1116,96 @@ function setupSaveButton() {
   });
 }
 
-// Save canvas as image
+// Save canvas as image (without background)
 function saveImage(canvas) {
   try {
-    // Convert canvas to blob
-    canvas.toBlob(function(blob) {
-      if (!blob) {
-        alert('Failed to create image file');
-        return;
-      }
+    // If we have media dimensions, crop to just the image area
+    if (currentDisplayWidth > 0 && currentDisplayHeight > 0) {
+      // Create a new canvas with only the image dimensions
+      const croppedCanvas = document.createElement('canvas');
+      croppedCanvas.width = currentDisplayWidth;
+      croppedCanvas.height = currentDisplayHeight;
+      const ctx = croppedCanvas.getContext('2d');
       
-      // Create download link
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'corrupted-image.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+      // Calculate source rectangle (centered on main canvas)
+      const sourceX = currentMediaX - currentDisplayWidth / 2;
+      const sourceY = currentMediaY - currentDisplayHeight / 2;
       
-      // Clean up
-      URL.revokeObjectURL(url);
+      // Draw only the image area from the main canvas to the cropped canvas
+      ctx.drawImage(
+        canvas,
+        sourceX, sourceY, currentDisplayWidth, currentDisplayHeight, // Source rectangle
+        0, 0, currentDisplayWidth, currentDisplayHeight // Destination rectangle
+      );
       
-      console.log('Image saved successfully');
-    }, 'image/png');
+      // Save the cropped canvas
+      croppedCanvas.toBlob(function(blob) {
+        if (!blob) {
+          alert('Failed to create image file');
+          return;
+        }
+        
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'corrupted-image.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log('Image saved successfully (cropped to media size)');
+      }, 'image/png');
+    } else {
+      // Fallback: save entire canvas if dimensions not available
+      canvas.toBlob(function(blob) {
+        if (!blob) {
+          alert('Failed to create image file');
+          return;
+        }
+        
+        // Create download link
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'corrupted-image.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        
+        console.log('Image saved successfully (full canvas)');
+      }, 'image/png');
+    }
   } catch (error) {
     console.error('Error saving image:', error);
     alert('Failed to save image. Please try again.');
   }
 }
 
-// Start recording canvas as video
+// Start recording canvas as video (without background)
 function startVideoRecording(canvas) {
   try {
-    // Get canvas stream
-    const stream = canvas.captureStream(30); // 30 FPS
+    let stream;
+    
+    // If we have media dimensions, create a cropped canvas for recording
+    if (currentDisplayWidth > 0 && currentDisplayHeight > 0) {
+      // Create a cropped canvas with only the image dimensions
+      croppedRecordingCanvas = document.createElement('canvas');
+      croppedRecordingCanvas.width = currentDisplayWidth;
+      croppedRecordingCanvas.height = currentDisplayHeight;
+      
+      // Get stream from cropped canvas
+      stream = croppedRecordingCanvas.captureStream(30); // 30 FPS
+    } else {
+      // Fallback: use full canvas if dimensions not available
+      stream = canvas.captureStream(30); // 30 FPS
+    }
     
     // Create MediaRecorder
     recordedChunks = [];
@@ -1054,8 +1235,9 @@ function startVideoRecording(canvas) {
       // Clean up
       URL.revokeObjectURL(url);
       recordedChunks = [];
+      croppedRecordingCanvas = null; // Clean up cropped canvas
       
-      console.log('Video saved successfully');
+      console.log('Video saved successfully (cropped to media size)');
       alert('Video saved!');
     };
     
@@ -1112,9 +1294,10 @@ if (document.readyState === 'loading') {
   setupSaveButton();
 }
 
-// Position upload container (with both buttons) below GUI
+// Position upload container (with both buttons) below GUI, and back button below upload container
 function positionUploadButton() {
   const uploadContainer = document.getElementById('upload-container');
+  const backButtonContainer = document.getElementById('back-button-container');
   const guiElement = document.querySelector('.dg.ac');
   
   if (uploadContainer && guiElement) {
@@ -1155,6 +1338,15 @@ function positionUploadButton() {
       // Use the bottom of the GUI + spacing for the button top position
       uploadContainer.style.top = (guiBottom + spacing) + 'px';
       
+      // Position back button below upload container
+      if (backButtonContainer) {
+        const uploadRect = uploadContainer.getBoundingClientRect();
+        backButtonContainer.style.top = (uploadRect.bottom + 10) + 'px';
+        backButtonContainer.style.right = '20px';
+        backButtonContainer.style.left = 'auto';
+        backButtonContainer.style.bottom = 'auto';
+      }
+      
       // Debug log (only occasionally to avoid spam)
       if (typeof frameCount !== 'undefined' && frameCount % 120 === 0) {
         console.log('GUI positioning:', {
@@ -1171,6 +1363,14 @@ function positionUploadButton() {
     // Fallback: position below where GUI typically is (GUI is at top: 20px)
     // Estimate GUI height when expanded (approximately 400-500px with all controls)
     uploadContainer.style.top = '520px';
+    
+    // Position back button below upload container in fallback case
+    if (backButtonContainer) {
+      backButtonContainer.style.top = '580px'; // Upload button height ~50px + spacing
+      backButtonContainer.style.right = '20px';
+      backButtonContainer.style.left = 'auto';
+      backButtonContainer.style.bottom = 'auto';
+    }
   }
 }
 

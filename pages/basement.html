@@ -22,13 +22,11 @@
     <link rel="stylesheet" href="../style/basement/glitch.css" />
     <link rel="stylesheet" href="../style/basement/vignette.css" />
     <link rel="stylesheet" href="../style/basement/cursor.css" />
-    <link rel="stylesheet" href="../style/basement/gui.css" />
     <audio id="background-music" loop preload="auto">
       <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
     <style>
       /* Loading screen */
       .loading-screen {
@@ -81,7 +79,11 @@
     
     <!-- Background sections -->
     <div class="wall-section"></div>
-    <div class="floor-section"></div>
+    <div class="floor-section">
+      <a href="../pages/tool.html" class="floor-tool-link">
+        <img src="../assets/images/tool/tool.png" alt="Tool" class="floor-tool" id="floorTool">
+      </a>
+    </div>
     
     <!-- Stair on left side (return button) -->
     <a href="../index.html" class="stair-container">
@@ -201,6 +203,96 @@
           }, 10000);
         }
 
+        // Initialize tool hover effect and hint text
+        const floorToolLink = document.querySelector('.floor-tool-link');
+        const floorTool = document.getElementById('floorTool');
+        
+        if (floorToolLink && floorTool) {
+          const toolHintText = document.createElement('div');
+          toolHintText.className = 'floor-tool-hint-text';
+          toolHintText.textContent = 'tool';
+          document.body.appendChild(toolHintText);
+          
+          let hintAnimationFrame = null;
+          const originalImageSrc = floorTool.src;
+          const hoverImageSrc = originalImageSrc.replace('tool.png', 'tool2.png');
+          
+          // Update hint text position to follow tool
+          const updateToolHintPosition = () => {
+            const rect = floorToolLink.getBoundingClientRect();
+            if (rect.width === 0 && rect.height === 0) {
+              hintAnimationFrame = requestAnimationFrame(updateToolHintPosition);
+              return;
+            }
+            const centerX = rect.left + rect.width / 2;
+            const topY = rect.top - 20;
+            toolHintText.style.left = `${centerX}px`;
+            toolHintText.style.top = `${topY}px`;
+            hintAnimationFrame = requestAnimationFrame(updateToolHintPosition);
+          };
+          
+          // Show hint text, glow, and swap image on hover
+          const showToolHint = (e) => {
+            if (e) {
+              e.stopPropagation(); // Prevent self character hover from interfering
+            }
+            floorToolLink.classList.add('hovered'); // Add class for glow effect
+            floorTool.src = hoverImageSrc; // Swap to tool2.png
+            toolHintText.style.opacity = '1';
+            if (hintAnimationFrame === null) {
+              updateToolHintPosition();
+            }
+          };
+          
+          // Hide hint text, remove glow, and restore original image
+          const hideToolHint = (e) => {
+            if (e) {
+              e.stopPropagation(); // Prevent self character hover from interfering
+            }
+            floorToolLink.classList.remove('hovered'); // Remove class to remove glow
+            floorTool.src = originalImageSrc; // Swap back to tool.png
+            toolHintText.style.opacity = '0';
+            if (hintAnimationFrame !== null) {
+              cancelAnimationFrame(hintAnimationFrame);
+              hintAnimationFrame = null;
+            }
+          };
+          
+          // Desktop: hover events - stop propagation to prevent self character interference
+          floorToolLink.addEventListener('mouseenter', (e) => {
+            e.stopPropagation();
+            showToolHint(e);
+          });
+          
+          floorToolLink.addEventListener('mouseleave', (e) => {
+            e.stopPropagation();
+            hideToolHint(e);
+          });
+          
+          // Also add to the image itself
+          floorTool.addEventListener('mouseenter', (e) => {
+            e.stopPropagation();
+            showToolHint(e);
+          });
+          
+          floorTool.addEventListener('mouseleave', (e) => {
+            e.stopPropagation();
+            hideToolHint(e);
+          });
+          
+          // Mobile: touch events
+          floorToolLink.addEventListener('touchstart', (e) => {
+            e.stopPropagation();
+            showToolHint(e);
+          }, true);
+          floorToolLink.addEventListener('touchend', (e) => {
+            e.stopPropagation();
+            setTimeout(() => {
+              hideToolHint(e);
+            }, 500);
+          }, true);
+        }
+
         const wallSection = document.querySelector('.wall-section');
         const floorSection = document.querySelector('.floor-section');
         const syncStairHeight = () => {
@@ -245,6 +337,17 @@
       });
     </script>
     
+  </body>
+</html>
+
+
+  </body>
+</html>
+
+
+</html>
+
+
   </body>
 </html>
 

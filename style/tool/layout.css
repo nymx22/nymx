@@ -95,3 +95,36 @@ body {
   transform: translateY(0);
 }
 
+/* Back Button - positioned below upload container */
+#back-button-container {
+  position: fixed;
+  right: 20px;
+  z-index: 10001;
+  /* Position will be set dynamically by JavaScript to be below upload container */
+}
+
+.back-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #6D94C5;
+  color: #FFFFFF;
+  border: 2px solid #6D94C5;
+  border-radius: 6px;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 16px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.back-button:hover {
+  background: #5a7ba8;
+  border-color: #5a7ba8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.back-button:active {
+  transform: translateY(0);
+}
+
