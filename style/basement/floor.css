@@ -82,5 +82,20 @@
   .floor-tool-hint-text {
     font-size: 14px;
   }
+  
+  /* Shrink tool image back to original size (30x50) in mobile */
+  /* Place it on the left side of the mirror (mirror is at left: 15%) */
+  .floor-tool-link {
+    width: 60px;
+    height: 80px;
+    right: auto;
+    left: 5%;
+    top: -20px;
+  }
+  
+  .floor-tool {
+    width: 30px;
+    height: 50px;
+  }
 }
 

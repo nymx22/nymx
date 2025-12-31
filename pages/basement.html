@@ -22,7 +22,7 @@
     <link rel="stylesheet" href="../style/basement/glitch.css" />
     <link rel="stylesheet" href="../style/basement/vignette.css" />
     <link rel="stylesheet" href="../style/basement/cursor.css" />
-    <audio id="background-music" loop preload="auto">
+    <audio id="background-music" loop preload="metadata">
       <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
@@ -74,14 +74,14 @@
     <div class="loading-screen" id="loadingScreen"></div>
     
     <div class="custom-cursor">
-      <img src="../assets/gif/cursor.gif" alt="cursor">
+      <img src="../assets/gif/cursor.gif" alt="cursor" loading="eager">
     </div>
     
     <!-- Background sections -->
     <div class="wall-section"></div>
     <div class="floor-section">
-      <a href="../pages/tool.html" class="floor-tool-link">
-        <img src="../assets/images/tool/tool.png" alt="Tool" class="floor-tool" id="floorTool">
+      <a href="../pages/tools.html" class="floor-tool-link">
+        <img src="../assets/images/tool/tool.png" alt="Tool" class="floor-tool" id="floorTool" loading="lazy">
       </a>
     </div>
     
@@ -94,7 +94,7 @@
     <div class="mirror-container">
       <div class="mirror-glass-reflection"></div>
       <div class="mirror-reflection" id="mirrorReflection"></div>
-      <img src="../assets/images/mirror.png" alt="Mirror" class="mirror-frame">
+      <img src="../assets/images/mirror.png" alt="Mirror" class="mirror-frame" loading="lazy">
     </div>
     
       <!-- Self 0 with shader effects -->

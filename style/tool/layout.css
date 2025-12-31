@@ -103,14 +103,20 @@ body {
   /* Position will be set dynamically by JavaScript to be below upload container */
 }
 
+@font-face {
+  font-family: 'Hershey-Noailles-Futura-Triplex-Bold';
+  src: url('../../assets/fonts/Hershey-Noailles-Futura-Triplex-Bold.woff') format('woff');
+  font-display: swap;
+}
+
 .back-button {
   display: inline-block;
   padding: 10px 20px;
-  background: #6D94C5;
-  color: #FFFFFF;
-  border: 2px solid #6D94C5;
+  background: #FFFFFF;
+  color: #000000;
+  border: 2px solid #000000;
   border-radius: 6px;
-  font-family: 'Jersey 25', sans-serif;
+  font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif;
   font-size: 16px;
   text-decoration: none;
   transition: all 0.2s ease;
@@ -118,8 +124,9 @@ body {
 }
 
 .back-button:hover {
-  background: #5a7ba8;
-  border-color: #5a7ba8;
+  background: #000000;
+  color: #FFFFFF;
+  border-color: #000000;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }

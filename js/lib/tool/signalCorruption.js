@@ -477,14 +477,17 @@ const sketch = function(p) {
         
         // If recording, update cropped canvas with just the image area (no background)
         if (isRecording && croppedRecordingCanvas && currentDisplayWidth > 0 && currentDisplayHeight > 0) {
-          const croppedCtx = croppedRecordingCanvas.getContext('2d');
-          const sourceX = currentMediaX - currentDisplayWidth / 2;
-          const sourceY = currentMediaY - currentDisplayHeight / 2;
-          croppedCtx.drawImage(
-            canvas,
-            sourceX, sourceY, currentDisplayWidth, currentDisplayHeight,
-            0, 0, currentDisplayWidth, currentDisplayHeight
-          );
+          const mainCanvas = document.querySelector('#corruption-canvas');
+          if (mainCanvas) {
+            const croppedCtx = croppedRecordingCanvas.getContext('2d');
+            const sourceX = currentMediaX - currentDisplayWidth / 2;
+            const sourceY = currentMediaY - currentDisplayHeight / 2;
+            croppedCtx.drawImage(
+              mainCanvas,
+              sourceX, sourceY, currentDisplayWidth, currentDisplayHeight,
+              0, 0, currentDisplayWidth, currentDisplayHeight
+            );
+          }
         }
       }
     } else {

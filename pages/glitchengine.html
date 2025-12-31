@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Corruption!</title>
+    <title>Glitch Engine</title>
     <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,7 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
   </head>
   <body>
-    <audio id="background-music" loop preload="auto">
+    <audio id="background-music" loop preload="metadata">
       <source src="../assets/audio/Solo from More Travels.mp3" type="audio/mpeg">
       Your browser does not support the audio element.
     </audio>
@@ -24,7 +24,7 @@
     
     <div class="tool-container">
       <div class="humanoid-source">
-        <img src="../assets/gif/humanoid.gif" alt="Humanoid" id="humanoid-gif" style="display: none;">
+        <img src="../assets/gif/humanoid.gif" alt="Humanoid" id="humanoid-gif" style="display: none;" loading="lazy">
       </div>
       
       <div id="corruption-canvas-container"></div>
@@ -40,7 +40,7 @@
       </div>
       
       <div id="back-button-container">
-        <a href="../pages/basement.html" class="back-button">Back to Basement</a>
+        <a href="../pages/tools.html" class="back-button">Back to Tools</a>
       </div>
     </div>
     
