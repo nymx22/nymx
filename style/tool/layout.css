@@ -277,8 +277,13 @@ body {
   }
 }
 
-/* Hide mobile controls button on desktop */
-.mobile-controls-button {
-  display: none;
+/* Hide mobile controls button on desktop - use media query to only hide on desktop */
+@media (min-width: 768px) {
+  .mobile-controls-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
 }
 

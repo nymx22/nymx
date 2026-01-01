@@ -92,7 +92,7 @@ export function smear(p, noiseSize = 1) {
         for (let x = blockX; x < blockX + noiseSizeInt && x < width; x++) {
           const x4 = x * 4;
           for (let y = blockY; y < blockY + noiseSizeInt && y < height; y++) {
-            // Source y positions for RGB channels (chromatic aberration)
+      // Source y positions for RGB channels (chromatic aberration)
             let sourceYR = y - displacement;
             if (sourceYR < 0) sourceYR = 0;
             else if (sourceYR > heightMinus1) sourceYR = heightMinus1;
@@ -141,10 +141,10 @@ export function smear(p, noiseSize = 1) {
         let sourceYB = y - displacement + 4;
         if (sourceYB < 0) sourceYB = 0;
         else if (sourceYB > heightMinus1) sourceYB = heightMinus1;
-        
+      
         const targetIndex = x4 + y * width * 4;
-        
-        // Separate RGB channels with different displacements
+      
+      // Separate RGB channels with different displacements
         pixels[targetIndex] = tempPixels[x4 + sourceYR * width * 4];
         pixels[targetIndex + 1] = tempPixels[x4 + sourceYG * width * 4 + 1];
         pixels[targetIndex + 2] = tempPixels[x4 + sourceYB * width * 4 + 2];

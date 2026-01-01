@@ -138,15 +138,46 @@ const sketch = function(p) {
     }
     
     // Load humanoid GIF with success/error callbacks
+    // Path is relative to the HTML file (pages/glitchengine.html), so ../assets/gif/ is correct
     humanoidImg = p.loadImage('../assets/gif/humanoid.gif', 
       function(img) {
         console.log('✅ GIF loaded successfully!', img.width, 'x', img.height);
+        console.log('✅ Image object:', img);
+        // Force a redraw to ensure image appears
+        if (p && p.redraw) {
+          p.redraw();
+        }
       },
       function(err) {
-        console.error('❌ Failed to load GIF:', err);
+        console.error('❌ Failed to load GIF from ../assets/gif/humanoid.gif:', err);
+        // Try alternative paths
+        console.log('Trying alternative path: ../../assets/gif/humanoid.gif');
+        humanoidImg = p.loadImage('../../assets/gif/humanoid.gif',
+          function(img) {
+            console.log('✅ GIF loaded from alternative path!', img.width, 'x', img.height);
+            if (p && p.redraw) {
+              p.redraw();
+            }
+          },
+          function(err2) {
+            console.error('❌ Failed to load from ../../assets/gif/humanoid.gif:', err2);
+            console.log('Trying absolute path: /assets/gif/humanoid.gif');
+            humanoidImg = p.loadImage('/assets/gif/humanoid.gif',
+              function(img) {
+                console.log('✅ GIF loaded from absolute path!', img.width, 'x', img.height);
+                if (p && p.redraw) {
+                  p.redraw();
+                }
+              },
+              function(err3) {
+                console.error('❌ Failed to load GIF from all paths:', err3);
+              }
+            );
+          }
+        );
       }
     );
-    console.log('Image loadImage called');
+    console.log('Image loadImage called for humanoid.gif');
   };
   
   p.setup = function() {
@@ -156,14 +187,24 @@ const sketch = function(p) {
     
     if (container && window.innerWidth <= 767) {
       // Mobile: use container's actual dimensions
-      // Use requestAnimationFrame to ensure container is properly sized
+      // Force a layout recalculation to ensure container has dimensions
       const rect = container.getBoundingClientRect();
-      containerWidth = Math.floor(rect.width) || window.innerWidth;
-      containerHeight = Math.floor(rect.height) || Math.floor(window.innerHeight * 0.7);
+      containerWidth = Math.floor(rect.width);
+      containerHeight = Math.floor(rect.height);
+      
+      // Fallback to calculated dimensions if getBoundingClientRect returns 0
+      if (containerWidth === 0 || containerHeight === 0) {
+        containerWidth = window.innerWidth;
+        containerHeight = Math.floor(window.innerHeight * 0.7); // 70vh as per CSS
+        console.warn('Container dimensions were 0, using fallback:', containerWidth, 'x', containerHeight);
+      }
+      
       // Ensure minimum dimensions
-      if (containerWidth === 0) containerWidth = window.innerWidth;
-      if (containerHeight === 0) containerHeight = Math.floor(window.innerHeight * 0.7);
-      console.log('Mobile canvas setup - using container dimensions:', containerWidth, 'x', containerHeight);
+      if (containerWidth < 100) containerWidth = window.innerWidth;
+      if (containerHeight < 100) containerHeight = Math.floor(window.innerHeight * 0.7);
+      
+      console.log('Mobile canvas setup - container rect:', rect.width, 'x', rect.height);
+      console.log('Mobile canvas setup - using dimensions:', containerWidth, 'x', containerHeight);
     } else {
       // Desktop: use full window dimensions
       containerWidth = window.innerWidth;
@@ -177,6 +218,13 @@ const sketch = function(p) {
       containerWidth = Math.floor(containerWidth * scale);
       containerHeight = Math.floor(containerHeight * scale);
       console.warn('Canvas scaled down to prevent memory issues:', containerWidth, 'x', containerHeight);
+    }
+    
+    // Ensure we have valid dimensions
+    if (containerWidth <= 0 || containerHeight <= 0) {
+      console.error('Invalid canvas dimensions:', containerWidth, 'x', containerHeight, '- using window dimensions');
+      containerWidth = window.innerWidth || 800;
+      containerHeight = window.innerHeight || 600;
     }
     
     console.log('Canvas setup:', containerWidth, 'x', containerHeight);
@@ -262,21 +310,35 @@ const sketch = function(p) {
       }
     } else if (humanoidImg) {
       // Check if image is loaded
-      if (humanoidImg.width > 0) {
+      if (humanoidImg.width > 0 && humanoidImg.height > 0) {
         mediaWidth = humanoidImg.width;
         mediaHeight = humanoidImg.height;
         mediaAspect = mediaWidth / mediaHeight;
+        
+        // Debug log on mobile
+        if (frameCount % 120 === 0 && window.innerWidth <= 767) {
+          console.log('Mobile: Image loaded, dimensions:', mediaWidth, 'x', mediaHeight);
+          console.log('Mobile: Canvas dimensions:', p.width, 'x', p.height);
+        }
       } else {
         // Still loading, show loading message
+        if (frameCount % 60 === 0) {
+          console.log('Image still loading... width:', humanoidImg.width, 'height:', humanoidImg.height);
+        }
         p.fill(255);
         p.textAlign(p.CENTER, p.CENTER);
+        p.textSize(16);
         p.text('Loading GIF...', p.width / 2, p.height / 2);
         return;
       }
     } else {
       // No media loaded
+      if (frameCount % 120 === 0) {
+        console.log('No media loaded - humanoidImg:', humanoidImg);
+      }
       p.fill(255);
       p.textAlign(p.CENTER, p.CENTER);
+      p.textSize(16);
       p.text('Upload an image or video', p.width / 2, p.height / 2);
       return;
     }
@@ -360,14 +422,29 @@ const sketch = function(p) {
             });
           }
           p.image(humanoidVideo, p.width / 2, p.height / 2, displayWidth, displayHeight);
-        } else if (humanoidImg && humanoidImg.width > 0) {
+        } else if (humanoidImg && humanoidImg.width > 0 && humanoidImg.height > 0) {
           // Draw GIF - it will animate automatically
+          // Store display dimensions for saving
+          currentDisplayWidth = displayWidth;
+          currentDisplayHeight = displayHeight;
+          currentMediaX = p.width / 2;
+          currentMediaY = p.height / 2;
+          
+          // Debug on mobile
+          if (frameCount % 120 === 0 && window.innerWidth <= 767) {
+            console.log('Mobile: Drawing image at center:', currentMediaX, currentMediaY);
+            console.log('Mobile: Display size:', displayWidth, 'x', displayHeight);
+          }
+          
           p.image(humanoidImg, p.width / 2, p.height / 2, displayWidth, displayHeight);
         } else {
           // Debug: show message if image not loaded
+          if (frameCount % 60 === 0) {
+            console.warn('Cannot draw image - humanoidImg:', humanoidImg, 'width:', humanoidImg ? humanoidImg.width : 'N/A');
+          }
           p.fill(255);
           p.textAlign(p.CENTER, p.CENTER);
-          p.textSize(24);
+          p.textSize(16);
           p.text('Image not loaded', p.width / 2, p.height / 2);
         }
         
@@ -541,13 +618,32 @@ const sketch = function(p) {
       const rect = container.getBoundingClientRect();
       newWidth = Math.floor(rect.width);
       newHeight = Math.floor(rect.height);
+      
+      // Fallback if dimensions are 0
+      if (newWidth === 0 || newHeight === 0) {
+        newWidth = window.innerWidth;
+        newHeight = Math.floor(window.innerHeight * 0.7);
+        console.warn('Window resize: Container dimensions were 0, using fallback:', newWidth, 'x', newHeight);
+      }
+      
+      // Ensure minimum dimensions
+      if (newWidth < 100) newWidth = window.innerWidth;
+      if (newHeight < 100) newHeight = Math.floor(window.innerHeight * 0.7);
+      
+      console.log('Mobile window resize - new dimensions:', newWidth, 'x', newHeight);
     } else {
       // Desktop: use full window dimensions
       newWidth = window.innerWidth;
       newHeight = window.innerHeight;
     }
     
-    p.resizeCanvas(newWidth, newHeight);
+    // Only resize if dimensions are valid
+    if (newWidth > 0 && newHeight > 0) {
+      p.resizeCanvas(newWidth, newHeight);
+      console.log('Canvas resized to:', newWidth, 'x', newHeight);
+    } else {
+      console.error('Invalid resize dimensions:', newWidth, 'x', newHeight);
+    }
   };
 };
 
@@ -1598,11 +1694,7 @@ function setupMobileControlsToggle() {
     return;
   }
   
-  // Only show button on mobile
-  if (window.innerWidth > 767) {
-    toggleButton.style.display = 'none';
-    return;
-  }
+  // Only show button on mobile - completely remove from DOM on desktop
   
   // Initially hide GUI on mobile
   guiElement.style.display = 'none';
@@ -1630,7 +1722,6 @@ function setupMobileControlsToggle() {
       if (gui && typeof gui.close === 'function') {
         gui.close();
       }
-      toggleButton.textContent = 'Open Controls';
     }
   });
   
@@ -1641,24 +1732,13 @@ function setupMobileControlsToggle() {
   };
   
   // Watch for GUI state changes
-  const observer = new MutationObserver(function() {
-    updateButtonText();
-  });
+
   
   observer.observe(guiElement, {
     attributes: true,
     attributeFilter: ['class', 'style']
   });
   
-  // Handle window resize
-  window.addEventListener('resize', function() {
-    if (window.innerWidth > 767) {
-      toggleButton.style.display = 'none';
-      guiElement.style.display = '';
-    } else {
-      toggleButton.style.display = 'block';
-      updateButtonText();
-    }
-  });
+
 }
 
