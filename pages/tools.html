@@ -10,81 +10,23 @@
     <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
     <link rel="stylesheet" href="../style/desktop/cursor.css" />
+    <link rel="stylesheet" type="text/css" href="../poles/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="../poles/css/gui.css" />
+    
     <style>
-      body {
-        margin: 0;
-        padding: 0;
-        min-height: 100vh;
-        background: #a5e4fe;
-        color: #000000;
-        font-family: 'Jersey 25', sans-serif;
-        cursor: none;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
-
-      .tools-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 40px;
-        padding: 40px;
-      }
-
-      h1 {
-        font-size: 48px;
-        margin-bottom: 20px;
-        text-align: center;
-      }
-
-      .tools-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
-        max-width: 800px;
-        width: 100%;
-      }
-
-      .tool-card {
-        background: rgba(255, 255, 255, 0.3);
-        border: 2px solid rgba(0, 0, 0, 0.2);
-        border-radius: 8px;
-        padding: 30px;
-        text-align: center;
-        text-decoration: none;
-        color: #000000;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 15px;
-      }
-
-      .tool-card:hover {
-        background: rgba(255, 255, 255, 0.5);
-        border-color: rgba(0, 0, 0, 0.4);
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-      }
-
-      .tool-card h2 {
-        font-size: 28px;
-        margin: 0;
-      }
-
-      .tool-card p {
-        font-size: 16px;
-        margin: 0;
-        opacity: 0.8;
-      }
-
       @font-face {
         font-family: 'Hershey-Noailles-Futura-Triplex-Bold';
         src: url('../assets/fonts/Hershey-Noailles-Futura-Triplex-Bold.woff') format('woff');
         font-display: swap;
+      }
+
+      body {
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        background: #ffffff;
+        cursor: none;
+        overflow: hidden;
       }
 
       .back-link {
@@ -111,27 +53,30 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
       }
 
-      @media (max-width: 767px) {
-        h1 {
-          font-size: 32px;
-        }
+      /* Hover hint text styling */
+      #hover-hint {
+        position: fixed;
+        pointer-events: none;
+        font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif;
+        font-size: 24px;
+        color: #000000;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px 16px;
+        border-radius: 4px;
+        border: 2px solid #000000;
+        z-index: 10001;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        white-space: nowrap;
+        transform: translateX(-50%);
+      }
 
-        .tools-grid {
-          grid-template-columns: 1fr;
-          gap: 20px;
-        }
+      #hover-hint.visible {
+        opacity: 1;
+      }
 
-        .tool-card {
-          padding: 20px;
-        }
-
-        .tool-card h2 {
-          font-size: 24px;
-        }
-
-        .tool-card p {
-          font-size: 14px;
-        }
+      canvas {
+        cursor: pointer;
       }
     </style>
   </head>
@@ -142,17 +87,20 @@
     </audio>
     <div class="custom-cursor"></div>
     
-    <a href="../pages/basement.html" class="back-link">Back to Basement</a>
+    <a href="basement.html" class="back-link">Back to Basement</a>
+    <div id="hover-hint">glitch engine</div>
     
-    <div class="tools-container">
-      <h1>Tools</h1>
-      <div class="tools-grid">
-        <a href="glitchengine.html" class="tool-card">
-          <h2>Glitch Engine</h2>
-          <p>Apply glitch effects to images and videos</p>
-        </a>
-      </div>
-    </div>
+    <main></main>
+
+    <!-- p5.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.8.0/p5.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.7/build/dat.gui.min.js"></script>
+    
+    <!-- sketch -->
+    <script src="../poles/classes/Pole.js"></script>
+    <script src="../poles/classes/Wire.js"></script>
+    <script src="../poles/classes/NoiseTexturePool.js"></script>
+    <script src="../poles/frame.js"></script>
     
     <script type="module">
       import { initBackgroundMusic } from '../js/lib/music.js';
@@ -166,4 +114,3 @@
     </script>
   </body>
 </html>
-
