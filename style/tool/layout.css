@@ -98,6 +98,32 @@ body {
   transform: translateY(0);
 }
 
+.upload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.upload-button:disabled:hover {
+  background: #FFFFFF;
+  color: #000000;
+  transform: none;
+  box-shadow: none;
+}
+
+#recording-timer {
+  font-family: 'Hershey-Noailles-Futura-Triplex-Bold', sans-serif;
+  color: #000000;
+  font-size: 16px;
+  line-height: 40px;
+  padding: 0 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid #000000;
+  border-radius: 6px;
+  min-width: 60px;
+  text-align: center;
+}
+
 /* Back Button - positioned below upload container */
 #back-button-container {
   position: fixed;

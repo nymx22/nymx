@@ -32,11 +32,17 @@ let mediaRecorder = null; // For recording video
 let recordedChunks = []; // Store recorded video chunks
 let isRecording = false; // Track recording state
 let croppedRecordingCanvas = null; // Canvas for recording (cropped to image area only)
+let recordingStartTime = 0; // Timestamp when recording started
+let recordingTimerInterval = null; // Interval for updating timer
+let hasRecordedSequence = false; // Track if a recording sequence has been completed
 // Store media display dimensions and position for saving (without background)
 let currentDisplayWidth = 0;
 let currentDisplayHeight = 0;
 let currentMediaX = 0; // Center X position
 let currentMediaY = 0; // Center Y position
+// Store original media dimensions (before scaling)
+let originalMediaWidth = 0;
+let originalMediaHeight = 0;
 
 // Initialize params with randomized values
 const params = {
@@ -291,6 +297,9 @@ const sketch = function(p) {
         mediaWidth = videoWidth;
         mediaHeight = videoHeight;
         mediaAspect = mediaWidth / mediaHeight;
+        // Store original dimensions for recording
+        originalMediaWidth = videoWidth;
+        originalMediaHeight = videoHeight;
       } else {
         // Video not ready yet, log debug info occasionally
         if (frameCount % 120 === 0) {
@@ -314,6 +323,9 @@ const sketch = function(p) {
         mediaWidth = humanoidImg.width;
         mediaHeight = humanoidImg.height;
         mediaAspect = mediaWidth / mediaHeight;
+        // Store original dimensions for recording
+        originalMediaWidth = humanoidImg.width;
+        originalMediaHeight = humanoidImg.height;
         
         // Debug log on mobile
         if (frameCount % 120 === 0 && window.innerWidth <= 767) {
@@ -568,19 +580,9 @@ const sketch = function(p) {
           p.blendMode(p.BLEND);
         }
         
-        // If recording, update cropped canvas with just the image area (no background)
-        if (isRecording && croppedRecordingCanvas && currentDisplayWidth > 0 && currentDisplayHeight > 0) {
-          const mainCanvas = document.querySelector('#corruption-canvas');
-          if (mainCanvas) {
-            const croppedCtx = croppedRecordingCanvas.getContext('2d');
-            const sourceX = currentMediaX - currentDisplayWidth / 2;
-            const sourceY = currentMediaY - currentDisplayHeight / 2;
-            croppedCtx.drawImage(
-              mainCanvas,
-              sourceX, sourceY, currentDisplayWidth, currentDisplayHeight,
-              0, 0, currentDisplayWidth, currentDisplayHeight
-            );
-          }
+        // If recording, render directly at original resolution (no scaling)
+        if (isRecording && croppedRecordingCanvas && originalMediaWidth > 0 && originalMediaHeight > 0) {
+          renderAtOriginalResolution(croppedRecordingCanvas, p);
         }
       }
     } else {
@@ -1071,6 +1073,35 @@ function setupImageUpload() {
                 isVideo = true;
                 humanoidImg = null; // Clear image
                 
+                // Reset recording state when new video is loaded
+                hasRecordedSequence = false;
+                recordedChunks = [];
+                originalMediaWidth = 0; // Reset original dimensions
+                originalMediaHeight = 0;
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                  mediaRecorder.stop();
+                }
+                isRecording = false;
+                if (recordingTimerInterval) {
+                  clearInterval(recordingTimerInterval);
+                  recordingTimerInterval = null;
+                }
+                
+                // Reset button states
+                const startButton = document.getElementById('start-button');
+                const stopButton = document.getElementById('stop-button');
+                const timerDisplay = document.getElementById('recording-timer');
+                if (startButton) {
+                  startButton.disabled = false;
+                }
+                if (stopButton) {
+                  stopButton.disabled = true;
+                }
+                if (timerDisplay) {
+                  timerDisplay.style.display = 'none';
+                  timerDisplay.textContent = '00:00';
+                }
+                
                 // Configure video properties
                 humanoidVideo.loop();
                 humanoidVideo.elt.muted = true; // Muted for autoplay
@@ -1105,10 +1136,19 @@ function setupImageUpload() {
                   console.error('Error calling play():', err);
                 }
                 
-                // Show save button
-                const saveButton = document.getElementById('save-button');
-                if (saveButton) {
-                  saveButton.style.display = 'inline-block';
+                // Show buttons for video
+                const saveBtn = document.getElementById('save-button');
+                const startBtn = document.getElementById('start-button');
+                const stopBtn = document.getElementById('stop-button');
+                if (saveBtn) {
+                  saveBtn.style.display = 'inline-block';
+                  saveBtn.disabled = true; // Disabled until recording is done
+                }
+                if (startBtn) {
+                  startBtn.style.display = 'inline-block';
+                }
+                if (stopBtn) {
+                  stopBtn.style.display = 'inline-block';
                 }
               }, function(err) {
                 console.error('Failed to load video:', err);
@@ -1176,11 +1216,28 @@ function setupImageUpload() {
                 humanoidImg = img;
                 isVideo = false;
                 humanoidVideo = null; // Clear video
+                // Reset original dimensions (will be set in draw() when image loads)
+                originalMediaWidth = 0;
+                originalMediaHeight = 0;
                 
-                // Show save button for images
-                const saveButton = document.getElementById('save-button');
-                if (saveButton) {
-                  saveButton.style.display = 'inline-block';
+                // Show save button for images (no recording needed)
+                const saveBtnImg = document.getElementById('save-button');
+                const startBtnImg = document.getElementById('start-button');
+                const stopBtnImg = document.getElementById('stop-button');
+                const timerDisplayImg = document.getElementById('recording-timer');
+                if (saveBtnImg) {
+                  saveBtnImg.style.display = 'inline-block';
+                  saveBtnImg.disabled = false; // Images can be saved immediately
+                }
+                // Hide recording buttons for images
+                if (startBtnImg) {
+                  startBtnImg.style.display = 'none';
+                }
+                if (stopBtnImg) {
+                  stopBtnImg.style.display = 'none';
+                }
+                if (timerDisplayImg) {
+                  timerDisplayImg.style.display = 'none';
                 }
               }, function(err) {
                 console.error('Failed to load uploaded image:', err);
@@ -1235,15 +1292,320 @@ function setupSaveButton() {
     }
     
     if (isVideo && humanoidVideo) {
-      // Save as video - start recording
-      startVideoRecording(canvas);
+      // Save recorded video
+      if (hasRecordedSequence && recordedChunks.length > 0) {
+        saveRecordedVideo();
+      } else {
+        alert('Please record a video first using Start/Stop buttons');
+      }
     } else if (humanoidImg) {
-      // Save as image
+      // Save as image (images don't need recording)
       saveImage(canvas);
     } else {
       alert('No image or video loaded to save');
     }
   });
+}
+
+// Setup Start and Stop recording buttons
+function setupRecordingButtons() {
+  const startButton = document.getElementById('start-button');
+  const stopButton = document.getElementById('stop-button');
+  const timerDisplay = document.getElementById('recording-timer');
+  
+  if (!startButton || !stopButton || !timerDisplay) {
+    console.error('Recording buttons or timer not found');
+    return;
+  }
+  
+  // Start button handler
+  startButton.addEventListener('click', function() {
+    if (!p5Instance) {
+      alert('No media loaded to record');
+      return;
+    }
+    
+    // Get the canvas element
+    const canvas = document.querySelector('#corruption-canvas');
+    if (!canvas) {
+      alert('Canvas not found');
+      return;
+    }
+    
+    // Only allow recording for videos
+    if (!isVideo || !humanoidVideo) {
+      alert('Recording is only available for videos. Please upload a video first.');
+      return;
+    }
+    
+    // Start recording
+    startVideoRecording(canvas);
+    
+    // Update button states
+    startButton.disabled = true;
+    stopButton.disabled = false;
+    hasRecordedSequence = false; // Reset flag when starting new recording
+    
+    // Show timer
+    timerDisplay.style.display = 'inline-block';
+    recordingStartTime = Date.now();
+    
+    // Start timer update interval
+    recordingTimerInterval = setInterval(function() {
+      updateRecordingTimer();
+    }, 100); // Update every 100ms for smooth display
+  });
+  
+  // Stop button handler
+  stopButton.addEventListener('click', function() {
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      // Request any remaining data before stopping
+      if (mediaRecorder.state === 'recording') {
+        mediaRecorder.requestData();
+      }
+      mediaRecorder.stop();
+      isRecording = false;
+      
+      // Update button states
+      startButton.disabled = false;
+      stopButton.disabled = true;
+      
+      // Stop timer and hide it
+      if (recordingTimerInterval) {
+        clearInterval(recordingTimerInterval);
+        recordingTimerInterval = null;
+      }
+      timerDisplay.style.display = 'none';
+      timerDisplay.textContent = '00:00';
+      
+      // Note: Save button will be enabled in mediaRecorder.onstop handler
+      // after all chunks have been collected (asynchronous)
+      console.log('Stop button clicked, waiting for recording to complete...');
+    }
+  });
+}
+
+// Update recording timer display
+function updateRecordingTimer() {
+  if (!isRecording) {
+    return;
+  }
+  
+  const timerDisplay = document.getElementById('recording-timer');
+  if (!timerDisplay) {
+    return;
+  }
+  
+  const elapsed = Date.now() - recordingStartTime;
+  const seconds = Math.floor(elapsed / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const displaySeconds = seconds % 60;
+  
+  timerDisplay.textContent = 
+    String(minutes).padStart(2, '0') + ':' + 
+    String(displaySeconds).padStart(2, '0');
+}
+
+// Save recorded video (called from save button)
+function saveRecordedVideo() {
+  if (recordedChunks.length === 0) {
+    alert('No video recorded. Please use Start/Stop buttons to record first.');
+    return;
+  }
+  
+  // Create blob from recorded chunks
+  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  
+  // Create download link
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'corrupted-video.webm';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  
+  // Clean up
+  URL.revokeObjectURL(url);
+  
+  console.log('Video saved successfully');
+  alert('Video saved!');
+}
+
+// Render at original resolution for recording (no scaling)
+function renderAtOriginalResolution(recordingCanvas, p) {
+  if (!recordingCanvas || originalMediaWidth <= 0 || originalMediaHeight <= 0) {
+    return;
+  }
+  
+  const ctx = recordingCanvas.getContext('2d');
+  
+  // Create a canvas for the original media (base layer)
+  const originalCanvas = document.createElement('canvas');
+  originalCanvas.width = originalMediaWidth;
+  originalCanvas.height = originalMediaHeight;
+  const originalCtx = originalCanvas.getContext('2d');
+  
+  // Draw original media at native size to base canvas
+  originalCtx.fillStyle = '#000000';
+  originalCtx.fillRect(0, 0, originalMediaWidth, originalMediaHeight);
+  
+  let mediaDrawn = false;
+  if (isVideo && humanoidVideo) {
+    const videoElt = humanoidVideo.elt || humanoidVideo;
+    if (videoElt && videoElt.readyState >= 1 && videoElt.videoWidth > 0) {
+      originalCtx.drawImage(videoElt, 0, 0, originalMediaWidth, originalMediaHeight);
+      mediaDrawn = true;
+    }
+  } else if (humanoidImg && humanoidImg.width > 0 && humanoidImg.height > 0) {
+    // For p5.js images, try to get the underlying canvas or element
+    let imgElement = null;
+    if (humanoidImg.canvas) {
+      imgElement = humanoidImg.canvas;
+    } else if (humanoidImg.elt) {
+      imgElement = humanoidImg.elt;
+    } else if (humanoidImg._image) {
+      imgElement = humanoidImg._image;
+    }
+    
+    if (imgElement) {
+      originalCtx.drawImage(imgElement, 0, 0, originalMediaWidth, originalMediaHeight);
+      mediaDrawn = true;
+    }
+  }
+  
+  if (!mediaDrawn) {
+    return; // Can't render without media
+  }
+  
+  // Draw original to recording canvas first
+  ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, originalMediaWidth, originalMediaHeight);
+  ctx.drawImage(originalCanvas, 0, 0);
+  
+  // Apply effects at original resolution
+  if (jsEffectMode !== 'none' || params.noise > 0 || params.scanLines > 0 || params.colorShift > 0 || params.chromaticAberration > 0 || params.displacement > 0) {
+    // Create effect layer canvas
+    const effectCanvas = document.createElement('canvas');
+    effectCanvas.width = originalMediaWidth;
+    effectCanvas.height = originalMediaHeight;
+    const effectCtx = effectCanvas.getContext('2d');
+    
+    // Copy original to effect layer
+    effectCtx.drawImage(originalCanvas, 0, 0);
+    
+    // Get ImageData for pixel manipulation
+    const imageData = effectCtx.getImageData(0, 0, originalMediaWidth, originalMediaHeight);
+    const pixels = imageData.data;
+    
+    // Create proxy object for effects
+    let pixelsLoaded = false;
+    const effectP5 = {
+      width: originalMediaWidth,
+      height: originalMediaHeight,
+      frameCount: p.frameCount,
+      millis: p.millis,
+      noise: p.noise.bind(p),
+      random: p.random.bind(p),
+      loadPixels: function() {
+        pixelsLoaded = true;
+      },
+      updatePixels: function() {
+        if (pixelsLoaded) {
+          effectCtx.putImageData(imageData, 0, 0);
+        }
+      },
+      get pixels() { 
+        if (!pixelsLoaded) {
+          effectP5.loadPixels();
+        }
+        return pixels; 
+      },
+      set pixels(val) {
+        if (val && val.length === pixels.length) {
+          for (let i = 0; i < pixels.length; i++) {
+            pixels[i] = val[i];
+          }
+        }
+      },
+      constrain: p.constrain.bind(p),
+      map: p.map.bind(p),
+      color: p.color.bind(p),
+      noiseSize: params.noiseSize
+    };
+    
+    // Apply main glitch effect if enabled
+    if (jsEffectMode !== 'none') {
+      const effect = effectMap[jsEffectMode];
+      if (effect && typeof effect === 'function') {
+        effectP5.loadPixels();
+        if (jsEffectMode === 'smear') {
+          effect(effectP5, params.noiseSize);
+        } else {
+          effect(effectP5);
+        }
+        effectP5.updatePixels();
+      }
+    }
+    
+    // Apply additional effects
+    if (params.noise > 0 && jsEffectMode !== 'static' && jsEffectMode !== 'smear') {
+      effectP5.loadPixels();
+      applyNoiseEffect(effectP5, params.noise, params.noiseSize);
+      effectP5.updatePixels();
+    }
+    
+    if (params.scanLines > 0) {
+      effectP5.loadPixels();
+      applyScanLines(effectP5, params.scanLines);
+      effectP5.updatePixels();
+    }
+    
+    if (params.colorShift > 0 && jsEffectMode !== 'smear' && jsEffectMode !== 'color') {
+      effectP5.loadPixels();
+      applyColorShift(effectP5, params.colorShift);
+      effectP5.updatePixels();
+    }
+    
+    if (params.chromaticAberration > 0 && jsEffectMode !== 'smear') {
+      effectP5.loadPixels();
+      applyChromaticAberrationEffect(effectP5, params.chromaticAberration);
+      effectP5.updatePixels();
+    }
+    
+    if (params.displacement > 0) {
+      effectP5.loadPixels();
+      applyDisplacementEffect(effectP5, params.displacement);
+      effectP5.updatePixels();
+    }
+    
+    // Apply blend mode to blend effect layer on top of original
+    const blendModeMap = {
+      'normal': 'source-over',
+      'multiply': 'multiply',
+      'screen': 'screen',
+      'overlay': 'overlay',
+      'darken': 'darken',
+      'lighten': 'lighten',
+      'color-dodge': 'color-dodge',
+      'color-burn': 'color-burn',
+      'hard-light': 'hard-light',
+      'soft-light': 'soft-light',
+      'difference': 'difference',
+      'exclusion': 'exclusion',
+      'hue': 'hue',
+      'saturation': 'saturation',
+      'color': 'color',
+      'luminosity': 'luminosity'
+    };
+    
+    ctx.globalCompositeOperation = blendModeMap[params.blendMode] || 'screen';
+    ctx.globalAlpha = params.intensity || 1.0;
+    // Draw the effect layer (which has effects applied) on top of original
+    ctx.drawImage(effectCanvas, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1.0;
+  }
 }
 
 // Save canvas as image (without background)
@@ -1323,18 +1685,29 @@ function startVideoRecording(canvas) {
   try {
     let stream;
     
-    // If we have media dimensions, create a cropped canvas for recording
-    if (currentDisplayWidth > 0 && currentDisplayHeight > 0) {
-      // Create a cropped canvas with only the image dimensions
+    // Use original media dimensions for recording (not display/scaled dimensions)
+    if (originalMediaWidth > 0 && originalMediaHeight > 0) {
+      // Create a canvas with the original media dimensions
       croppedRecordingCanvas = document.createElement('canvas');
-      croppedRecordingCanvas.width = currentDisplayWidth;
-      croppedRecordingCanvas.height = currentDisplayHeight;
+      croppedRecordingCanvas.width = originalMediaWidth;
+      croppedRecordingCanvas.height = originalMediaHeight;
       
-      // Get stream from cropped canvas
+      // Get stream from recording canvas
       stream = croppedRecordingCanvas.captureStream(30); // 30 FPS
+      console.log('Recording at original media size:', originalMediaWidth, 'x', originalMediaHeight);
     } else {
-      // Fallback: use full canvas if dimensions not available
-      stream = canvas.captureStream(30); // 30 FPS
+      // Fallback: use display dimensions if original not available
+      if (currentDisplayWidth > 0 && currentDisplayHeight > 0) {
+        croppedRecordingCanvas = document.createElement('canvas');
+        croppedRecordingCanvas.width = currentDisplayWidth;
+        croppedRecordingCanvas.height = currentDisplayHeight;
+        stream = croppedRecordingCanvas.captureStream(30);
+        console.log('Recording at display size (fallback):', currentDisplayWidth, 'x', currentDisplayHeight);
+      } else {
+        // Last fallback: use full canvas
+        stream = canvas.captureStream(30); // 30 FPS
+        console.log('Recording at full canvas size (fallback)');
+      }
     }
     
     // Create MediaRecorder
@@ -1350,62 +1723,51 @@ function startVideoRecording(canvas) {
     };
     
     mediaRecorder.onstop = function() {
-      // Create blob from recorded chunks
-      const blob = new Blob(recordedChunks, { type: 'video/webm' });
-      
-      // Create download link
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'corrupted-video.webm';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      
-      // Clean up
-      URL.revokeObjectURL(url);
-      recordedChunks = [];
+      // Recording stopped - chunks are stored in recordedChunks
+      // Save will be handled by save button
       croppedRecordingCanvas = null; // Clean up cropped canvas
       
-      console.log('Video saved successfully (cropped to media size)');
-      alert('Video saved!');
+      // Mark that a recording sequence has been completed
+      hasRecordedSequence = true;
+      
+      // Enable save button now that recording is complete and chunks are available
+      const saveButton = document.getElementById('save-button');
+      if (saveButton && recordedChunks.length > 0) {
+        saveButton.disabled = false;
+        console.log('Recording stopped, Save button enabled. Chunks:', recordedChunks.length);
+      } else {
+        console.warn('Recording stopped but no chunks available or save button not found');
+      }
     };
     
     // Start recording
     mediaRecorder.start();
     isRecording = true;
     
-    // Update button text
-    const saveButton = document.getElementById('save-button');
-    if (saveButton) {
-      saveButton.textContent = 'Recording...';
-      saveButton.disabled = true;
-    }
-    
-    // Record for 10 seconds (or until user stops)
-    // For now, record for 10 seconds
-    setTimeout(function() {
-      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
-        isRecording = false;
-        
-        if (saveButton) {
-          saveButton.textContent = 'Save';
-          saveButton.disabled = false;
-        }
-      }
-    }, 10000); // Record 10 seconds
-    
     console.log('Started recording video');
   } catch (error) {
     console.error('Error starting video recording:', error);
     alert('Failed to start recording. Your browser may not support video recording.');
     
-    // Reset button
-    const saveButton = document.getElementById('save-button');
-    if (saveButton) {
-      saveButton.textContent = 'Save';
-      saveButton.disabled = false;
+    // Reset button states on error
+    const startButton = document.getElementById('start-button');
+    const stopButton = document.getElementById('stop-button');
+    if (startButton) {
+      startButton.disabled = false;
+    }
+    if (stopButton) {
+      stopButton.disabled = true;
+    }
+    
+    // Hide timer
+    const timerDisplay = document.getElementById('recording-timer');
+    if (timerDisplay) {
+      timerDisplay.style.display = 'none';
+    }
+    
+    if (recordingTimerInterval) {
+      clearInterval(recordingTimerInterval);
+      recordingTimerInterval = null;
     }
   }
 }
@@ -1418,10 +1780,12 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     setupImageUpload();
     setupSaveButton();
+    setupRecordingButtons();
   });
 } else {
   setupImageUpload();
   setupSaveButton();
+  setupRecordingButtons();
 }
 
 // Position upload container (with both buttons) below GUI, and back button below upload container
@@ -1668,6 +2032,7 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     setupImageUpload();
     setupSaveButton();
+    setupRecordingButtons();
     // Wait for GUI to be created, then position upload button and watch for changes
     setTimeout(function() {
       watchGUIChanges();
@@ -1677,6 +2042,7 @@ if (document.readyState === 'loading') {
 } else {
   // Wait a bit for p5 to initialize
   setupSaveButton();
+  setupRecordingButtons();
   setTimeout(setupImageUpload, 100);
   // Wait for GUI to be created, then position upload button and watch for changes
   setTimeout(function() {
