@@ -1308,6 +1308,8 @@ function setupSaveButton() {
 }
 
 // Setup Start and Stop recording buttons
+let stopButtonProcessing = false; // Flag to prevent multiple stop clicks
+
 function setupRecordingButtons() {
   const startButton = document.getElementById('start-button');
   const stopButton = document.getElementById('stop-button');
@@ -1320,6 +1322,12 @@ function setupRecordingButtons() {
   
   // Start button handler
   startButton.addEventListener('click', function() {
+    // Prevent multiple clicks
+    if (startButton.disabled || isRecording) {
+      console.warn('Start button clicked but recording already in progress');
+      return;
+    }
+    
     if (!p5Instance) {
       alert('No media loaded to record');
       return;
@@ -1338,10 +1346,13 @@ function setupRecordingButtons() {
       return;
     }
     
-    // Start recording
-    startVideoRecording(canvas);
+    // Check if MediaRecorder already exists and is active
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      console.warn('MediaRecorder already exists and is active. State:', mediaRecorder.state);
+      return;
+    }
     
-    // Update button states
+    // Update button states FIRST to prevent multiple clicks
     startButton.disabled = true;
     stopButton.disabled = false;
     hasRecordedSequence = false; // Reset flag when starting new recording
@@ -1354,34 +1365,78 @@ function setupRecordingButtons() {
     recordingTimerInterval = setInterval(function() {
       updateRecordingTimer();
     }, 100); // Update every 100ms for smooth display
+    
+    // Start recording AFTER button states are updated
+    startVideoRecording(canvas);
   });
   
-  // Stop button handler
+  // Stop button handler with debouncing
   stopButton.addEventListener('click', function() {
-    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-      // Request any remaining data before stopping
-      if (mediaRecorder.state === 'recording') {
-        mediaRecorder.requestData();
-      }
-      mediaRecorder.stop();
-      isRecording = false;
-      
-      // Update button states
-      startButton.disabled = false;
-      stopButton.disabled = true;
-      
-      // Stop timer and hide it
-      if (recordingTimerInterval) {
-        clearInterval(recordingTimerInterval);
-        recordingTimerInterval = null;
-      }
-      timerDisplay.style.display = 'none';
-      timerDisplay.textContent = '00:00';
-      
-      // Note: Save button will be enabled in mediaRecorder.onstop handler
-      // after all chunks have been collected (asynchronous)
-      console.log('Stop button clicked, waiting for recording to complete...');
+    // Prevent multiple rapid clicks
+    if (stopButtonProcessing) {
+      console.warn('Stop button click ignored - already processing');
+      return;
     }
+    
+    if (!mediaRecorder) {
+      console.warn('Stop button clicked but MediaRecorder is null');
+      return;
+    }
+    
+    const currentState = mediaRecorder.state;
+    console.log('Stop button clicked at', new Date().toISOString(), 'MediaRecorder state:', currentState);
+    
+    if (currentState === 'inactive') {
+      console.warn('Stop button clicked but MediaRecorder is already inactive');
+      return;
+    }
+    
+    // Set flag to prevent multiple clicks
+    stopButtonProcessing = true;
+    
+    // Request any remaining data before stopping
+    if (currentState === 'recording') {
+      try {
+        mediaRecorder.requestData();
+        console.log('Requested final data chunk');
+      } catch (e) {
+        console.warn('Error requesting final data:', e);
+      }
+    }
+    
+    // Stop the MediaRecorder (this triggers onstop handler)
+    try {
+      mediaRecorder.stop();
+    } catch (e) {
+      console.error('Error stopping MediaRecorder:', e);
+      stopButtonProcessing = false;
+      return;
+    }
+    
+    // Stop updating the recording canvas immediately
+    // But don't clean it up yet - let onstop handler do that
+    isRecording = false;
+    
+    // Update button states
+    startButton.disabled = false;
+    stopButton.disabled = true;
+    
+    // Stop timer and hide it
+    if (recordingTimerInterval) {
+      clearInterval(recordingTimerInterval);
+      recordingTimerInterval = null;
+    }
+    timerDisplay.style.display = 'none';
+    timerDisplay.textContent = '00:00';
+    
+    // Note: Save button will be enabled in mediaRecorder.onstop handler
+    // after all chunks have been collected (asynchronous)
+    console.log('MediaRecorder.stop() called. Waiting for onstop event...');
+    
+    // Reset processing flag after a delay (in case onstop doesn't fire)
+    setTimeout(function() {
+      stopButtonProcessing = false;
+    }, 2000);
   });
 }
 
@@ -1682,18 +1737,24 @@ function saveImage(canvas) {
 
 // Start recording canvas as video (without background)
 function startVideoRecording(canvas) {
+  // Guard against multiple calls
+  if (isRecording) {
+    console.warn('startVideoRecording called but already recording');
+    return;
+  }
+  
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    console.warn('startVideoRecording called but MediaRecorder already exists. State:', mediaRecorder.state);
+    return;
+  }
+  
   try {
-    let stream;
-    
     // Use original media dimensions for recording (not display/scaled dimensions)
     if (originalMediaWidth > 0 && originalMediaHeight > 0) {
       // Create a canvas with the original media dimensions
       croppedRecordingCanvas = document.createElement('canvas');
       croppedRecordingCanvas.width = originalMediaWidth;
       croppedRecordingCanvas.height = originalMediaHeight;
-      
-      // Get stream from recording canvas
-      stream = croppedRecordingCanvas.captureStream(30); // 30 FPS
       console.log('Recording at original media size:', originalMediaWidth, 'x', originalMediaHeight);
     } else {
       // Fallback: use display dimensions if original not available
@@ -1701,34 +1762,194 @@ function startVideoRecording(canvas) {
         croppedRecordingCanvas = document.createElement('canvas');
         croppedRecordingCanvas.width = currentDisplayWidth;
         croppedRecordingCanvas.height = currentDisplayHeight;
-        stream = croppedRecordingCanvas.captureStream(30);
         console.log('Recording at display size (fallback):', currentDisplayWidth, 'x', currentDisplayHeight);
       } else {
-        // Last fallback: use full canvas
-        stream = canvas.captureStream(30); // 30 FPS
-        console.log('Recording at full canvas size (fallback)');
+        console.error('Cannot create recording canvas - no dimensions available');
+        throw new Error('No media dimensions available for recording');
       }
     }
     
-    // Create MediaRecorder
-    recordedChunks = [];
-    mediaRecorder = new MediaRecorder(stream, {
-      mimeType: 'video/webm;codecs=vp9'
+    // Set recording flag BEFORE creating stream
+    // This ensures the canvas starts updating immediately when stream captures
+    isRecording = true;
+    
+    // Render initial frame to canvas before creating stream
+    // This ensures the stream starts with actual content, not empty frames
+    if (p5Instance && croppedRecordingCanvas) {
+      renderAtOriginalResolution(croppedRecordingCanvas, p5Instance);
+      console.log('Initial frame rendered to recording canvas');
+    }
+    
+    // Wait one frame to ensure canvas has content, then create stream
+    // The stream will capture from this point forward
+    requestAnimationFrame(function() {
+      if (!croppedRecordingCanvas || !isRecording) {
+        console.error('Recording canvas was cleared or recording stopped before stream creation');
+        isRecording = false;
+        return;
+      }
+      
+      // Get stream from recording canvas (starts capturing NOW)
+      const stream = croppedRecordingCanvas.captureStream(30); // 30 FPS
+      console.log('Stream created from recording canvas');
+      
+      // Create MediaRecorder from the stream
+      setupMediaRecorder(stream);
+      console.log('MediaRecorder setup initiated');
+    });
+  } catch (error) {
+    console.error('Error starting video recording:', error);
+    alert('Failed to start recording. Your browser may not support video recording.');
+    
+    // Reset recording state on error
+    isRecording = false;
+    croppedRecordingCanvas = null;
+    
+    // Reset button states on error
+    const startButton = document.getElementById('start-button');
+    const stopButton = document.getElementById('stop-button');
+    if (startButton) {
+      startButton.disabled = false;
+    }
+    if (stopButton) {
+      stopButton.disabled = true;
+    }
+    
+    // Hide timer
+    const timerDisplay = document.getElementById('recording-timer');
+    if (timerDisplay) {
+      timerDisplay.style.display = 'none';
+    }
+    
+    if (recordingTimerInterval) {
+      clearInterval(recordingTimerInterval);
+      recordingTimerInterval = null;
+    }
+  }
+}
+
+// Setup MediaRecorder (separated for better timing control)
+function setupMediaRecorder(stream) {
+  try {
+    // Clear any existing chunks and recorder
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+      console.warn('Stopping existing MediaRecorder before creating new one');
+      try {
+        mediaRecorder.stop();
+      } catch (e) {
+        console.warn('Error stopping existing MediaRecorder:', e);
+      }
+    }
+    
+    // Check browser support for MediaRecorder
+    if (!window.MediaRecorder) {
+      throw new Error('MediaRecorder API not supported');
+    }
+    
+    // Check if VP9 is supported
+    const vp9Supported = MediaRecorder.isTypeSupported('video/webm;codecs=vp9');
+    const vp8Supported = MediaRecorder.isTypeSupported('video/webm;codecs=vp8');
+    const h264Supported = MediaRecorder.isTypeSupported('video/webm;codecs=h264');
+    
+    console.log('MediaRecorder codec support:', {
+      vp9: vp9Supported,
+      vp8: vp8Supported,
+      h264: h264Supported
     });
     
+    // Create MediaRecorder
+    recordedChunks = [];
+    const mimeType = vp9Supported ? 'video/webm;codecs=vp9' : 
+                     vp8Supported ? 'video/webm;codecs=vp8' :
+                     'video/webm';
+    
+    console.log('Creating MediaRecorder with mimeType:', mimeType);
+    mediaRecorder = new MediaRecorder(stream, {
+      mimeType: mimeType
+    });
+    
+    let chunkCount = 0;
+    const recordingStartTime = Date.now();
+    let lastChunkTime = recordingStartTime;
+    
+    // Try different timeslice values to see what works best
+    // Some browsers ignore timeslice or have minimum values
+    const timesliceMs = 100; // Try smaller timeslice (100ms = ~3 frames at 30fps)
+    
+    // Log expected chunk timing
+    console.log(`MediaRecorder created. Timeslice: ${timesliceMs}ms. Expected chunks per second: ${1000/timesliceMs}`);
+    
+    // Set up interval to log expected vs actual chunks
+    const chunkCheckInterval = setInterval(function() {
+      if (!isRecording || !mediaRecorder || mediaRecorder.state === 'inactive') {
+        clearInterval(chunkCheckInterval);
+        return;
+      }
+      const elapsed = ((Date.now() - recordingStartTime) / 1000).toFixed(2);
+      const expected = Math.floor((Date.now() - recordingStartTime) / timesliceMs);
+      console.log(`[${elapsed}s] Expected chunks: ~${expected}, Actual chunks: ${chunkCount}, Difference: ${expected - chunkCount}`);
+    }, 1000); // Check every second
+    
+    // Force chunk generation by calling requestData() periodically
+    // This works around browsers that ignore timeslice and buffer data
+    const forceChunkInterval = setInterval(function() {
+      if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') {
+        clearInterval(forceChunkInterval);
+        return;
+      }
+      try {
+        mediaRecorder.requestData();
+      } catch (e) {
+        // Ignore errors - requestData might fail if already processing
+        clearInterval(forceChunkInterval);
+      }
+    }, timesliceMs); // Request data at the timeslice interval
+    
     mediaRecorder.ondataavailable = function(event) {
-      if (event.data.size > 0) {
+      const now = Date.now();
+      const timeSinceLastChunk = now - lastChunkTime;
+      const elapsed = ((now - recordingStartTime) / 1000).toFixed(2);
+      
+      if (event.data && event.data.size > 0) {
         recordedChunks.push(event.data);
+        chunkCount++;
+        const totalSize = recordedChunks.reduce((sum, chunk) => sum + chunk.size, 0);
+        console.log(`[${elapsed}s] Chunk ${chunkCount} received: ${event.data.size} bytes, total: ${totalSize} bytes, time since last: ${timeSinceLastChunk}ms`);
+        lastChunkTime = now;
+      } else {
+        console.log(`[${elapsed}s] Empty data chunk received (size: ${event.data ? event.data.size : 'null'})`);
       }
     };
     
     mediaRecorder.onstop = function() {
+      // Clear the intervals
+      clearInterval(chunkCheckInterval);
+      clearInterval(forceChunkInterval);
+      
       // Recording stopped - chunks are stored in recordedChunks
-      // Save will be handled by save button
-      croppedRecordingCanvas = null; // Clean up cropped canvas
+      const totalSize = recordedChunks.reduce((sum, chunk) => sum + chunk.size, 0);
+      const recordingDuration = ((Date.now() - recordingStartTime) / 1000).toFixed(2);
+      const expectedChunks = Math.ceil((Date.now() - recordingStartTime) / timesliceMs);
+      
+      console.log('=== MediaRecorder STOPPED ===');
+      console.log('Duration:', recordingDuration, 's');
+      console.log('Expected chunks (based on timeslice):', expectedChunks);
+      console.log('Actual chunks received:', recordedChunks.length);
+      console.log('Chunk ratio:', recordedChunks.length > 0 ? (recordedChunks.length / expectedChunks * 100).toFixed(1) + '%' : '0%');
+      console.log('Total size:', totalSize, 'bytes');
+      console.log('Average chunk size:', recordedChunks.length > 0 ? Math.round(totalSize / recordedChunks.length) : 0, 'bytes');
+      console.log('MediaRecorder state:', mediaRecorder.state);
+      console.log('===========================');
+      
+      // Clean up recording canvas AFTER recording is complete
+      // Don't clean it up immediately in stop button handler
+      croppedRecordingCanvas = null;
       
       // Mark that a recording sequence has been completed
       hasRecordedSequence = true;
+      
+      // Reset stop button processing flag
+      stopButtonProcessing = false;
       
       // Enable save button now that recording is complete and chunks are available
       const saveButton = document.getElementById('save-button');
@@ -1736,18 +1957,46 @@ function startVideoRecording(canvas) {
         saveButton.disabled = false;
         console.log('Recording stopped, Save button enabled. Chunks:', recordedChunks.length);
       } else {
-        console.warn('Recording stopped but no chunks available or save button not found');
+        console.warn('Recording stopped but no chunks available or save button not found. Chunks:', recordedChunks.length);
       }
     };
     
-    // Start recording
-    mediaRecorder.start();
-    isRecording = true;
+    mediaRecorder.onerror = function(event) {
+      console.error('MediaRecorder error:', event.error);
+    };
     
-    console.log('Started recording video');
+    console.log('Starting MediaRecorder with timeslice:', timesliceMs, 'ms');
+    console.log('MediaRecorder state before start:', mediaRecorder.state);
+    console.log('Stream tracks:', stream.getTracks().map(t => ({kind: t.kind, enabled: t.enabled, readyState: t.readyState})));
+    
+    try {
+      // Start recording with timeslice
+      // Note: Some browsers may ignore timeslice or buffer data
+      mediaRecorder.start(timesliceMs);
+      console.log('MediaRecorder.start() called successfully');
+      console.log('MediaRecorder state after start:', mediaRecorder.state);
+    } catch (e) {
+      console.error('Error calling mediaRecorder.start():', e);
+      // Try without timeslice as fallback
+      try {
+        mediaRecorder.start();
+        console.log('MediaRecorder.start() called without timeslice (fallback)');
+      } catch (e2) {
+        console.error('Error calling mediaRecorder.start() without timeslice:', e2);
+        throw e2;
+      }
+    }
+    
+    console.log('MediaRecorder started at', new Date().toISOString(), '. Recording canvas:', 
+      croppedRecordingCanvas ? `${croppedRecordingCanvas.width}x${croppedRecordingCanvas.height}` : 'null');
+    console.log('Stream active:', stream.active, 'Stream id:', stream.id);
   } catch (error) {
-    console.error('Error starting video recording:', error);
-    alert('Failed to start recording. Your browser may not support video recording.');
+    console.error('Error in setupMediaRecorder:', error);
+    alert('Failed to setup MediaRecorder. Your browser may not support video recording.');
+    
+    // Reset recording state on error
+    isRecording = false;
+    croppedRecordingCanvas = null;
     
     // Reset button states on error
     const startButton = document.getElementById('start-button');

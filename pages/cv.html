@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CV — Xinyu LEI</title>
+    <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+    <style>
+      @font-face {
+        font-family: 'Hershey-Noailles-Futura-Triplex-Bold';
+        src: url('../assets/fonts/Hershey-Noailles-Futura-Triplex-Bold.woff') format('woff');
+        font-weight: bold;
+        font-style: normal;
+        font-display: swap;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Hershey-Noailles-Futura-Triplex-Bold', -apple-system, sans-serif;
+        background: #fafafa;
+        color: #1a1a1a;
+        line-height: 1.5;
+        min-height: 100vh;
+        padding: 2rem;
+        cursor: default;
+      }
+
+      .cv {
+        max-width: 720px;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: bold;
+        letter-spacing: 0.02em;
+        margin-bottom: 0.25rem;
+        border-bottom: 2px solid #1a1a1a;
+        padding-bottom: 0.5rem;
+      }
+
+      .contact {
+        font-size: 0.9rem;
+        color: #444;
+        margin-bottom: 2rem;
+      }
+
+      .contact span {
+        margin-right: 1rem;
+      }
+
+      section {
+        margin-bottom: 2rem;
+      }
+
+      section h2 {
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.75rem;
+        color: #333;
+      }
+
+      section ul {
+        list-style: none;
+      }
+
+      section li {
+        margin-bottom: 1rem;
+        padding-left: 0;
+      }
+
+      .item-title {
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+      }
+
+      .item-meta {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+
+      .item-desc {
+        font-size: 0.9rem;
+        color: #444;
+      }
+
+      .bullet-list {
+        list-style: none;
+      }
+
+      .bullet-list li {
+        padding-left: 1.25rem;
+        position: relative;
+        margin-bottom: 0.5rem;
+      }
+
+      .bullet-list li::before {
+        content: "●";
+        position: absolute;
+        left: 0;
+        font-size: 0.6rem;
+        color: #666;
+      }
+
+      .skills-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .skills-list span {
+        background: #eee;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.85rem;
+        border-radius: 2px;
+      }
+
+      .skills-block {
+        font-size: 0.9rem;
+        color: #444;
+        margin-bottom: 0.5rem;
+      }
+
+      .bio {
+        font-size: 0.95rem;
+        color: #444;
+        line-height: 1.6;
+        font-style: italic;
+      }
+
+      @media (max-width: 600px) {
+        body {
+          padding: 1rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="cv">
+      <h1>Xinyu LEI</h1>
+      <p class="contact">
+        <span>tllrllsa@bu.edu</span>
+        <span>210-782-4205</span>
+        <span>Boston, MA</span>
+      </p>
+
+      <section>
+        <h2>Education</h2>
+        <ul>
+          <li>
+            <div class="item-title">B.S. in Computer Engineering</div>
+            <div class="item-meta">Boston University, Boston, MA · Expected May 2024 (dropped out 2022)</div>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Skills</h2>
+        <div class="skills-block">
+          <strong>Languages:</strong> JS, Dart, C, C++, MATLAB, Python, Java, Verilog, HTML, CSS
+        </div>
+        <div class="skills-block">
+          <strong>Tools:</strong> Linux, Git, Arduino IDE, SolidWorks
+        </div>
+      </section>
+
+      <section>
+        <h2>Work</h2>
+        <ul>
+          <li>
+            <div class="item-title">Full Stack Programmer – Odin Kiosk System Project</div>
+            <div class="item-meta">Fall 2023 – Present</div>
+            <ul class="bullet-list">
+              <li>Designed and implemented a kiosk-based ordering system for school cafeterias using Flutter (frontend) and ASP.NET Core (backend).</li>
+              <li>Developed custom UI/UX components with responsive layouts and inactivity handlers to ensure intuitive user experience on Sunmi devices.</li>
+              <li>Integrated camera and QR code scanning for student ID recognition and automated check-in processes.</li>
+              <li>Implemented Bluetooth communication and receipt printing with native Sunmi SDKs and plugins.</li>
+              <li>Engineered a local SQLite caching system with a background sync scheduler to handle intermittent network connections.</li>
+              <li>Developed admin tools for inventory and customization management with real-time updates.</li>
+              <li>Optimized database design (Azure SQL + Oracle Cloud) to support fast lookup of account, transaction, and menu data.</li>
+              <li>Used Git for version control, regularly merging feature branches and managing collaborative code updates.</li>
+              <li>Applied robust error handling and logging for offline mode, payment failures, and sync retries.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Projects</h2>
+        <ul>
+          <li>
+            <div class="item-title">Perceptron vs. Winnow Algorithm Analysis</div>
+            <div class="item-meta">Research Paper</div>
+            <ul class="bullet-list">
+              <li>Collaborated in a team of four to implement research experiments comparing training the MNIST dataset with the Perceptron algorithm and Winnow algorithms, comparing test accuracy and runtime.</li>
+              <li>Built each algorithm from scratch in MATLAB and utilized Principal Component Analysis to reduce runtime and efficiently run tests.</li>
+              <li>Reported results and conclusions in 15-page research paper.</li>
+            </ul>
+          </li>
+          <li>
+            <div class="item-title">32-bit 5-Stage Pipelined MIPS Processor</div>
+            <ul class="bullet-list">
+              <li>Collaborated in team of two to develop in Verilog using hierarchical modules; connected 32-bit register files and used basic ALU and MUX to execute MIPS assembly through 5-stage pipelined instructions.</li>
+              <li>Implemented hazard control, exceptions, and forwarding units.</li>
+            </ul>
+          </li>
+          <li>
+            <div class="item-title">Running Rhett</div>
+            <ul class="bullet-list">
+              <li>Collaborated in a team of four to develop an Object-Oriented, single-player widget game.</li>
+              <li>Combined game menus, animated sprites, obstacles, and player movement developed in SFML with a C++ back-end; heavily utilized Git for consistent collaboration between team members.</li>
+            </ul>
+          </li>
+          <li>
+            <div class="item-title">Electric Guitar Amplifier</div>
+            <ul class="bullet-list">
+              <li>Conceived an M2 amplifier using existing circuit boards and amplifier stages.</li>
+              <li>Selected appropriate resistors, capacitors, MOSFETs, and Op-Amps to solder and wire; utilized low and high-pass filters to troubleshoot and achieve desired sounds.</li>
+            </ul>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Artist Bio</h2>
+        <p class="bio">
+          鳴 is a New York-based multidisciplinary artist working across electronic music, songwriting, writing, photography, and experimental video. Blending hardware, software, their work explores self-identity, external exploration and emotional spaces between human connection. Whether it's with their band or coding visual systems, they create textured worlds where sound, image, and code collide.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

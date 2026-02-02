@@ -4,7 +4,15 @@
  * Attempts to unlock audio automatically using Web Audio API
  * Continues playback across page navigations
  */
+
+// Set to true to enable background music
+const MUSIC_ENABLED = false;
+
 export function initBackgroundMusic() {
+  if (!MUSIC_ENABLED) {
+    return;
+  }
+
   const audio = document.getElementById('background-music');
   
   if (!audio) {

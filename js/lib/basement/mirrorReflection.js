@@ -3,6 +3,9 @@
  * Shows self4.png in the mirror with static glitch overlay
  */
 
+// Set to true to enable clicking mirror to go to talk/chat page
+const MIRROR_LINK_TO_CHAT_ENABLED = false;
+
 export function initMirrorReflection(selfInstance, selfShader) {
   const mirrorContainer = document.querySelector('.mirror-container');
   const mirrorReflection = document.getElementById('mirrorReflection');
@@ -112,10 +115,12 @@ export function initMirrorReflection(selfInstance, selfShader) {
   `;
   document.body.appendChild(qqWindow);
   
-  // Navigate to talk page when clicking on mirror
-  mirrorContainer.addEventListener('click', () => {
-    window.location.href = '../pages/talk.html';
-  });
+  // Navigate to talk page when clicking on mirror (disabled when MIRROR_LINK_TO_CHAT_ENABLED is false)
+  if (MIRROR_LINK_TO_CHAT_ENABLED) {
+    mirrorContainer.addEventListener('click', () => {
+      window.location.href = '../pages/talk.html';
+    });
+  }
   
   // Close window handlers
   const closeWindow = () => {
