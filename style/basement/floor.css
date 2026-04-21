@@ -61,6 +61,24 @@
           drop-shadow(0 0 30px rgba(255, 255, 255, 0.4)) !important;
 }
 
+/* Gallery link on floor */
+.floor-gallery-link {
+  position: absolute;
+  bottom: 12px;
+  left: 24px;
+  font-family: 'Jersey 25', sans-serif;
+  font-size: 18px;
+  color: #5a6a7a;
+  text-decoration: none;
+  z-index: 10002;
+  pointer-events: auto;
+  isolation: isolate;
+  transition: color 0.2s ease;
+}
+.floor-gallery-link:hover {
+  color: #1a2a3a;
+}
+
 /* Tool hint text */
 .floor-tool-hint-text {
   position: fixed;

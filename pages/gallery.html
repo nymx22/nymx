@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>gallery</title>
+    <link rel="icon" type="image/png" href="../assets/icons/fav_icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+25&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.typekit.net/pew7esm.css">
+    <link rel="stylesheet" href="../style/main.css" />
+    <link rel="stylesheet" href="../style/desktop/cursor.css" />
+    <link rel="stylesheet" href="../style/gallery/gallery.css" />
+  </head>
+  <body>
+    <div id="gallery-canvas"></div>
+    <div class="gallery-loading" id="galleryLoading">Loading…</div>
+    <div class="gallery-error" id="galleryError" style="display: none;"></div>
+    <a href="../pages/basement.html" class="gallery-back-button">← Back</a>
+    <div class="gallery-hint" id="galleryHint">Drag to look · Scroll to walk</div>
+    <div class="custom-cursor"></div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script type="module" src="../js/lib/gallery/gallery3d.js"></script>
+    <script type="module">
+      import { initCustomCursor } from '../js/lib/desktop/cursor.js';
+      initCustomCursor();
+    </script>
+  </body>
+</html>
